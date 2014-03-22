@@ -364,7 +364,7 @@ return {
 						-- Change the color's alpha, based on its primacy of beat-modulo
 						color[4] = color[4] / adivide
 
-						-- If this isthe active column, highlight it.
+						-- If this is the active column, highlight it.
 						if xpos == xhalf then
 							for k, v in pairs(data.color.seq.active) do
 								color[k] = ((afactor < (data.tpq / 2)) and v) or ((color[k] + v) / 2)
@@ -373,18 +373,8 @@ return {
 						end
 
 						-- Put the color and tick into tintcolumns-tab, for later rendering
-						if not columnin then
-							table.insert(tintcolumns, {tick, left + xleft, top, cellwidth, yfull, color})
-						end
+						table.insert(tintcolumns, {tick, left + xleft, top, cellwidth, yfull, color})
 
-					end
-
-					-- If any notes are in the tick,
-					-- add them to the drawnotes table for later rendering.
-					if next(data.seq[data.active].tick[tick]) ~= nil then
-						for k, v in ipairs(data.seq[data.active].tick[tick]) do
-							table.insert(drawnotes, {tick, v, xleft, ytop, cellwidth, kheight})
-						end
 					end
 
 				end
@@ -412,6 +402,46 @@ return {
 
 		end
 
+
+
+
+		-- TODO: make this into a function, for RIGHT SIDE, to prevent repeat code
+		-- Add notes to the drawtable that intersect with the seq-panel
+		local ticks = #data.seq[data.active].tick
+		local fullwidth = (cellwidth * ticks)
+		local ldist = xhalf
+		local rdist = xhalf + fullwidth
+		local tdist = yhalf
+		local bdist = yhalf
+		while checkCollision(left, top, right, bot, ldist, top, rdist, bot) do
+
+			for k, v in pairs(data.seq[data.active].tick) do
+
+				for kk, vv in pairs(v) do
+
+					local xmod = vv.tick - data.tp
+					local xpos = ldist + (cellwidth * xmod)
+					local xleft = xpos - xcellhalf
+					local xwidth = (cellwidth * vv.note[3]) + xcellhalf
+
+					local ytop = yhalf
+
+					if checkCollision(left, top, right, bot, left + xleft, ytop, xwidth, kheight) then
+						table.insert(drawnotes, {vv.tick, vv, left + xleft, ytop, xwidth, kheight})
+					end
+
+				end
+
+			end
+
+			ldist = ldist - fullwidth
+			rdist = rdist - fullwidth
+
+		end
+
+
+
+
 		-- Draw all tinted beat-columns
 		for k, v in ipairs(tintcolumns) do
 			local tick, colleft, coltop, colwidth, colheight, color = unpack(v)
@@ -424,11 +454,15 @@ return {
 
 			local tick, note, nleft, ntop, nx, ny = unpack(v)
 
-			local c1 = data.color.note.quiet
-			local c2 = data.color.note.loud
 			local notecolor = {}
-			for hue, chroma in pairs(c1) do
-				notecolor[hue] = (chroma * (1 - (v[5] * 2))) + (c2[hue] * (v[5] * 2))
+			if tick == data.tp then
+				notecolor = deepCopy(data.color.note.highlight)
+			else
+				local c1 = deepCopy(data.color.note.quiet)
+				local c2 = deepCopy(data.color.note.loud)
+				for hue, chroma in pairs(c1) do
+					notecolor[hue] = (chroma * (1 - (v[5] * 2))) + (c2[hue] * (v[5] * 2))
+				end
 			end
 
 			love.graphics.setColor(notecolor)

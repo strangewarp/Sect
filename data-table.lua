@@ -16,14 +16,14 @@ return {
 
 	-- MIDI VARS --
 	bpm = 120, -- Beats per minute
-	tpq = 48, -- Ticks per quarter-note
+	tpq = 32, -- Ticks per quarter-note
 	chan = 0, -- Channel
 	velo = 127, -- Velocity
 	dur = 8, -- Duration
-	spacing = 12, -- Spacing
+	spacing = 8, -- Spacing
 
 	-- ZOOM VARS --
-	zoomx = 2, -- Multiplier for X-axis zoom
+	zoomx = 4, -- Multiplier for X-axis zoom
 	zoomy = 4, -- Multiplier for Y-axis zoom
 
 	-- UNDO VARS --

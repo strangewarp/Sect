@@ -1,5 +1,15 @@
 return {
 	
+	-- Check whether any portions of two 2D rectangles overlap
+	checkCollision = function (x1, y1, w1, h1, x2, y2, w2, h2)
+
+		return (x1 < (x2 + w2)) and
+			(x2 < (x1+w1)) and
+			(y1 < (y2+h2)) and
+			(y2 < (y1+h1))
+
+	end,
+
 	-- Bound a number between low and high values.
 	-- If either of the values is false, then that side is unbounded.
 	-- If the number is false, it defaults to low, or if low is false, high.
