@@ -36,13 +36,15 @@ return {
 				end
 
 				-- Assign colors based on note presence and strength, and draw the beat's portion of the summary line
-				local bcolor = data.color.window.dark
-				local c1, c2 = bcolor, bcolor
+				local bcolor = deepCopy(data.color.window.dark)
+				local c1, c2 = deepCopy(bcolor), deepCopy(bcolor)
 				if presence then
 					if k == data.active then
-						c1, c2 = data.color.note.highlight, data.color.note.loud
+						c1 = deepCopy(data.color.note.quiet)
+						c2 = deepCopy(data.color.note.highlight)
 					else
-						c1, c2 = data.color.note.quiet, data.color.note.loud
+						c1 = deepCopy(data.color.note.quiet)
+						c2 = deepCopy(data.color.note.loud)
 					end
 				end
 				for hue, chroma in pairs(c1) do
@@ -94,7 +96,7 @@ return {
 			-- Gather and draw the metadata info
 			local oticks = #data.seq[data.active].tick
 			local obeats = tostring(roundNum(oticks / data.tpq, 2))
-			local notelet = data.pianometa[wrapNum(data.np, 1, 12)][2]
+			local notelet = data.pianometa[wrapNum(data.np + 1, 1, 12)][2]
 			local octave = math.floor(data.np / 12)
 			obeats = ((obeats:sub(-3, -3) == ".") and ("~" .. obeats)) or obeats
 			outtab = {
@@ -402,45 +404,89 @@ return {
 
 		end
 
-
-
-
-		-- TODO: make this into a function, for RIGHT SIDE, to prevent repeat code
 		-- Add notes to the drawtable that intersect with the seq-panel
 		local ticks = #data.seq[data.active].tick
-		local fullwidth = (cellwidth * ticks)
-		local ldist = xhalf
-		local rdist = xhalf + fullwidth
-		local tdist = yhalf
-		local bdist = yhalf
-		while checkCollision(left, top, right, bot, ldist, top, rdist, bot) do
+		local notes = data.bounds.np[2] - data.bounds.np[1]
+		local fullwidth = cellwidth * ticks
+		local fullheight = kheight * notes
 
-			for k, v in pairs(data.seq[data.active].tick) do
+		local tsidet = yhalf - fullheight
+		local bsidet = yhalf
+		local yloops = 0
 
-				for kk, vv in pairs(v) do
+		while collisionCheck(left, top, xfull, yfull, _, tsidet, _, fullheight)
+		or collisionCheck(left, top, xfull, yfull, _, bsidet, _, fullheight)
+		do
 
-					local xmod = vv.tick - data.tp
-					local xpos = ldist + (cellwidth * xmod)
-					local xleft = xpos - xcellhalf
-					local xwidth = (cellwidth * vv.note[3]) + xcellhalf
+			local lsidel = xhalf - fullwidth
+			local rsidel = xhalf
 
-					local ytop = yhalf
+			while collisionCheck(left, top, xfull, yfull, lsidel, _, fullwidth, _)
+			or collisionCheck(left, top, xfull, yfull, rsidel, _, fullwidth, _)
+			do
 
-					if checkCollision(left, top, right, bot, left + xleft, ytop, xwidth, kheight) then
-						table.insert(drawnotes, {vv.tick, vv, left + xleft, ytop, xwidth, kheight})
+				for k, v in pairs(data.seq[data.active].tick) do
+
+					for kk, vv in pairs(v) do
+
+						local xmod = vv.tick - data.tp
+						local xwidth = (cellwidth * vv.note[3]) + xcellhalf
+
+						local lxpos = lsidel + (cellwidth * xmod)
+						local lxleft = lxpos - xcellhalf
+
+						local rxpos = rsidel + (cellwidth * xmod)
+						local rxleft = rxpos - xcellhalf
+
+						local np = data.np
+						local vp = vv.note[5]
+						local nbot, ntop = unpack(data.bounds.np)
+
+						local yspot = wrapNum(np - vp, data.bounds.np)
+
+						local typos = tsidet + (kheight * (yspot - (yloops + 1)))
+						local tytop = typos - ycellhalf
+
+						local bypos = bsidet + (kheight * (yspot + yloops))
+						local bytop = bypos - ycellhalf
+
+						local larr = {left + lxleft, left + rxleft}
+						local tarr = {top + tytop, top + bytop}
+						for _, l in pairs(larr) do
+							for _, t in pairs(tarr) do
+
+								if collisionCheck(left, top, xfull, yfull, l, t, xwidth, kheight)
+								then
+
+									-- If the note's eftmost boundary falls outside of frame,
+									-- Truncate its shape, and shift its left border rightwards.
+									local outwidth = xwidth
+									if l < left then
+										outwidth = xwidth - (left - l)
+										l = left
+									end
+
+									table.insert(drawnotes, {vv, l, t, outwidth, kheight})
+
+								end
+
+							end
+						end
+
 					end
 
 				end
 
+				lsidel = lsidel - fullwidth
+				rsidel = rsidel + fullwidth
+
 			end
 
-			ldist = ldist - fullwidth
-			rdist = rdist - fullwidth
+			tsidet = tsidet - fullheight
+			bsidet = bsidet + fullheight
+			yloops = yloops + 1
 
 		end
-
-
-
 
 		-- Draw all tinted beat-columns
 		for k, v in ipairs(tintcolumns) do
@@ -452,16 +498,18 @@ return {
 		-- Draw all note-squares on top of the sequence-grid
 		for k, v in ipairs(drawnotes) do
 
-			local tick, note, nleft, ntop, nx, ny = unpack(v)
+			local n, nleft, ntop, nx, ny = unpack(v)
 
 			local notecolor = {}
-			if tick == data.tp then
+			if n.tick == data.tp then
 				notecolor = deepCopy(data.color.note.highlight)
 			else
 				local c1 = deepCopy(data.color.note.quiet)
 				local c2 = deepCopy(data.color.note.loud)
+				local velomap = n.note[6] / data.bounds.velo[2]
+				local velorev = (data.bounds.velo[2] - n.note[6]) / data.bounds.velo[2]
 				for hue, chroma in pairs(c1) do
-					notecolor[hue] = (chroma * (1 - (v[5] * 2))) + (c2[hue] * (v[5] * 2))
+					notecolor[hue] = ((chroma * velorev) + (c2[hue] * velomap))
 				end
 			end
 
