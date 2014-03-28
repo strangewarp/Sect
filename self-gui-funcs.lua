@@ -24,10 +24,10 @@ return {
 					if v.tick[t] == nil then
 						break
 					elseif next(v.tick[t]) ~= nil then
-						for nk, note in ipairs(v.tick[t]) do
+						for nk, n in ipairs(v.tick[t]) do
 							presence = true
-							if note[1] == 'note' then
-								strength = math.min(1, strength + (math.min(1, note[2] * data.tpq) * (note[5] * 127)))
+							if n.note[1] == 'note' then
+								strength = math.min(1, strength + ((n.note[3] * (1 / (data.tpq * 4))) * (n.note[6] / 127)))
 							else
 								strength = math.min(1, strength + (1 / data.tpq))
 							end
@@ -40,18 +40,18 @@ return {
 				local c1, c2 = deepCopy(bcolor), deepCopy(bcolor)
 				if presence then
 					if k == data.active then
-						c1 = deepCopy(data.color.note.quiet)
-						c2 = deepCopy(data.color.note.highlight)
-					else
-						c1 = deepCopy(data.color.note.quiet)
+						c1 = deepCopy(data.color.window.dark)
 						c2 = deepCopy(data.color.note.loud)
+					else
+						c1 = deepCopy(data.color.window.dark)
+						c2 = deepCopy(data.color.note.quiet)
 					end
 				end
 				for hue, chroma in pairs(c1) do
 					bcolor[hue] = (chroma * (1 - strength)) + (c2[hue] * strength)
 				end
 				love.graphics.setColor(bcolor)
-				love.graphics.rectangle("fill", left + (subsect * (i - 1)), top + (lheight * (k - 1)), subsect, lheight)
+				love.graphics.rectangle("fill", left + (subsect * (i - 1)), top + ((lheight + 1) * (k - 1)), subsect, lheight)
 
 			end
 
@@ -349,7 +349,7 @@ return {
 					-- Table factor-columns, and active-column, for later color-change.
 					if (afactor >= (data.tpq / 2)) or (xpos == xhalf) then
 
-						-- If this isthe active column, highlight it.
+						-- If this is the active column, highlight it.
 						if xpos == xhalf then
 							color = deepCopy(data.color.seq.active)
 						end
@@ -369,7 +369,7 @@ return {
 						-- If this is the active column, highlight it.
 						if xpos == xhalf then
 							for k, v in pairs(data.color.seq.active) do
-								color[k] = ((afactor < (data.tpq / 2)) and v) or ((color[k] + v) / 2)
+								color[k] = ((afactor < (data.tpq / 2)) and v) or ((color[k] + (v * 4)) / 5)
 							end
 							color[4] = 255
 						end
@@ -501,21 +501,29 @@ return {
 			local n, nleft, ntop, nx, ny = unpack(v)
 
 			local notecolor = {}
-			if n.tick == data.tp then
-				notecolor = deepCopy(data.color.note.highlight)
-			else
-				local c1 = deepCopy(data.color.note.quiet)
-				local c2 = deepCopy(data.color.note.loud)
-				local velomap = n.note[6] / data.bounds.velo[2]
-				local velorev = (data.bounds.velo[2] - n.note[6]) / data.bounds.velo[2]
+			local linecolor = deepCopy(data.color.note.border)
+			local c1 = deepCopy(data.color.note.quiet)
+			local c2 = deepCopy(data.color.note.loud)
+
+			if (n.tick == data.tp) and (n.note[5] == data.np) then
 				for hue, chroma in pairs(c1) do
-					notecolor[hue] = ((chroma * velorev) + (c2[hue] * velomap))
+					c1[hue] = (chroma + data.color.note.lightborder[hue]) / 2
+					c2[hue] = (c2[hue] + data.color.note.lightborder[hue]) / 2
 				end
+				linecolor = deepCopy(data.color.note.lightborder)
+			elseif (n.tick == data.tp) or (n.note[5] == data.np) then
+				linecolor = deepCopy(data.color.note.adjborder)
+			end
+
+			local velomap = n.note[6] / data.bounds.velo[2]
+			local velorev = (data.bounds.velo[2] - n.note[6]) / data.bounds.velo[2]
+			for hue, chroma in pairs(c1) do
+				notecolor[hue] = ((chroma * velorev) + (c2[hue] * velomap))
 			end
 
 			love.graphics.setColor(notecolor)
 			love.graphics.rectangle("fill", nleft, ntop, nx, ny)
-			love.graphics.setColor(data.color.seq.line)
+			love.graphics.setColor(linecolor)
 			love.graphics.rectangle("line", nleft, ntop, nx, ny)
 
 		end
