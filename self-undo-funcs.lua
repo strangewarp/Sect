@@ -3,43 +3,47 @@ return {
 	-- Add tasks to either the undo or redo table, depending on context
 	addMetaUndoTask = function(data, ...)
 
-		-- Put variable arguments into a table
-		local t = {...}
+		-- Put the list of arguments into a table, and copy them,
+		-- to prevent any modifying of original values.
+		local t = deepCopy({...})
 
 		-- Get contents of undo-command table
 		local suppress, collect, newcmd = unpack(t[#t])
 
+		print ("BOOLS: " .. tostring(suppress) .. " " .. tostring(collect) .. " " .. tostring(newcmd)) -- DEBUGGING
+
 		-- If undo-suppression is not invoked on this function call...
 		if not suppress then
 
-			-- Change the command's internal newcmd value to old/false
-			t[#t][3] = false
+			-- If a task is being added to the undo stack via new commands,
+			-- empty the newly irrelevant tasks from the redo table,
+			-- set the do-command target table to the undo-tab,
+			-- and set the newcmd flag to false for storage.
+			if newcmd then
+				data.redo = {}
+				data.dotarget = "undo"
+				t[#t][3] = false
+			end
 
 			-- If this function is to be collected in the latest do-entry...
 			if collect then
 
 				-- Create an empty table on top of the do-stack if none are there
 				if next(data[data.dotarget]) == nil then
-					table.insert(data[data.dotarget], 1, {})
+					table.insert(data[data.dotarget], {})
 				end
 
-				-- Add the incoming func-ts to the do-stack
-				table.insert(data[data.dotarget][1], t)
+				-- Add the incoming func-tabs to the do-stack
+				table.insert(data[data.dotarget][#data[data.dotarget]], t)
 
 			else -- If the func-args represent a new do-entry, insert them as one
-				table.insert(data[data.dotarget], 1, {t})
-			end
-
-			-- If a task has been added to the undo stack via new commands,
-			-- empty the newly irrelevant tasks from the redo table.
-			if newcmd then
-				data.redo = {}
+				table.insert(data[data.dotarget], {t})
 			end
 
 			-- If there are more undo states than max-undo-states,
 			-- remove the most distant undo item.
 			if #data.undo > data.maxundo then
-				table.remove(data.undo, #data.undo)
+				table.remove(data.undo, 1)
 			end
 
 		end
@@ -50,18 +54,13 @@ return {
 	-- and execute the step's table of functions.
 	traverseUndo = function(data, dotype)
 
-		-- If there is neither an undo flag nor a redo flag, abort function
-		if (dotype ~= "undo") and (dotype ~= "redo") then
-			print("traverseUndo error: function was called with an invalid do-type!")
-			return nil
-		else -- Else, set the do-target to the opposite stack from the do-command
-			data.dotarget = ((dotype == "redo") and "undo") or "redo"
-		end
+		if next(data[dotype]) ~= nil then -- If the do-table isn't empty...
 
-		if #data[dotype] > 0 then -- If the do-table isn't empty...
+			-- Set the do-target to the opposite stack from the do-command
+			data.dotarget = ((dotype == "redo") and "undo") or "redo"
 
 			-- Remove a single step-table from either the undo or redo table
-			local funcs = table.remove(data[dotype], 1)
+			local funcs = table.remove(data[dotype])
 
 			-- Call all functions in the do-step, in order
 			for k, v in ipairs(funcs) do

@@ -6,7 +6,7 @@ return {
 	-- Path where savefiles are stored
 	savepath = "C:/Users/Christian/Documents/MUSIC_STAGING/",
 
-	-- Undo depth
+	-- Max undo depth
 	maxundo = 100,
 
 	hotseats = { -- Names of savefiles that are tabled for quick loading

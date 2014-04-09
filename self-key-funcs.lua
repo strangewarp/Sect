@@ -35,7 +35,7 @@ return {
 		if data.cmdfuncs[match] ~= nil then
 
 			print("addKeystroke: received command '" .. match .. "'!")
-			data:executeObjectFunction(data.cmdfuncs[match])
+			data:executeObjectFunction(unpack(data.cmdfuncs[match]))
 
 			-- Toggle the drawing of a new frame
 			data.update = true

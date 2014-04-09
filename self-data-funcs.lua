@@ -6,7 +6,7 @@ return {
 		local undonotes = {}
 		local collidenotes = {}
 		local maxpos = 1
-		local oldlen = #data.seq[p]
+		local oldlen = #data.seq[p].tick
 
 		-- Convert naked single-note-tables into the proper table format for the iterators
 		if (notes.tick ~= nil) and (notes.note ~= nil) then
@@ -71,7 +71,7 @@ return {
 				if crossCompare(n.note, v.note) then
 					local oldnote = table.remove(data.seq[p].tick[v.tick], notenum)
 					table.insert(undonotes, oldnote)
-					print("removeNotes: removed note: " .. table.concat(n, " "))
+					print("removeNotes: removed note (" .. table.concat(oldnote.note, " ") .. ") at tick (" .. oldnote.tick .. ")")
 					break
 				end
 			end
@@ -112,9 +112,11 @@ return {
 
 		local delnotes = {}
 
-		-- Search for notes whose pitch matches the note-pointer
+		-- Search for items whose Y-axis bytes match the note-pointer
 		for k, v in pairs(data.seq[data.active].tick[data.tp]) do
-			if (k - 1) == data.np then
+			if ((v.note[1] == "note") and (v.note[5] == data.np))
+			or ((v.note[1] ~= "note") and (v.note[4] == data.np))
+			then
 				table.insert(delnotes, v)
 			end
 		end
@@ -146,14 +148,14 @@ return {
 
 		-- Find the beginning and end of the current beat
 		local ltick = data.tp
-		while wrapNum(ltick, 0, (data.tpq * 4) - 1) ~= 0 do
+		while wrapNum(ltick, 1, data.tpq * 4) ~= 1 do
 			ltick = ltick - 1
 		end
 		local rtick = math.min(#data.seq[data.active].tick, (ltick + (data.tpq * 4)) - 1)
 
 		-- Gather all notes from the beat, and put them in a delete-table
-		for tick = ltick, rtick do
-			for k, v in pairs(data.seq[data.active].tick[tick]) do
+		for i = ltick, rtick do
+			for k, v in pairs(data.seq[data.active].tick[i]) do
 				table.insert(delnotes, v)
 			end
 		end
@@ -199,8 +201,11 @@ return {
 
 		local undonotes = {}
 
-		-- If the sequence pointer is outside of the loaded sequences, abort function
-		if seq > #data.seq then
+		-- If the seq-pointer is false or nil, or outside of the loaded sequences, then abort function
+		if not seq then
+			print("removeSequence: could not remove sequence: invalid seq pointer!")
+			return nil
+		elseif seq > #data.seq then
 			print("removeSequence: could not remove sequence: sequence pointer outside of loaded seqs!")
 			return nil
 		end
@@ -211,7 +216,7 @@ return {
 			data.active = data.active - 1
 		end
 
-		-- Tabulate all notes from the sequence into an undo-table
+		-- Gather all notes from the sequence into an undo-table
 		for ticknum, tick in ipairs(data.seq[seq].tick) do
 			for notenum, note in pairs(tick) do
 				table.insert(undonotes, note)

@@ -2,14 +2,13 @@ return {
 	
 	-- Execute an object function, after receiving data in the format:
 	-- Object, "funcName", arg1, arg2, ..., argN
-	executeObjectFunction = function(obj, argtab)
+	executeObjectFunction = function(data, ...)
 
-		-- Make a copy, so table.remove doesn't modify the original data
-		local dup = deepCopy(argtab)
+		local t = {...}
 
-		-- Get the func-name, and call it in obj namespace with all of its args
-		local fname = table.remove(dup, 1)
-		obj[fname](obj, unpack(dup))
+		-- Get the func-name, and call it in data namespace with all of its args
+		local fname = table.remove(t, 1)
+		data[fname](data, unpack(t))
 
 	end,
 
