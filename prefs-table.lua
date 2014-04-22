@@ -108,7 +108,11 @@ return {
 		INSERT_NOTE = {"return"},
 		DELETE_NOTE = {"delete"},
 		DELETE_TICK_NOTES = {"shift", "delete"},
+		DELETE_PITCH_NOTES = {"ctrl", "delete"},
 		DELETE_BEAT_NOTES = {"shift", "ctrl", "delete"},
+
+		INSERT_TICKS = {"tab", "return"},
+		REMOVE_TICKS = {"tab", "delete"},
 
 		INSERT_SEQ = {"shift", "return"},
 		REMOVE_SEQ = {"shift", "ctrl", "return"},

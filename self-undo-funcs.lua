@@ -10,8 +10,6 @@ return {
 		-- Get contents of undo-command table
 		local suppress, collect, newcmd = unpack(t[#t])
 
-		print ("BOOLS: " .. tostring(suppress) .. " " .. tostring(collect) .. " " .. tostring(newcmd)) -- DEBUGGING
-
 		-- If undo-suppression is not invoked on this function call...
 		if not suppress then
 
@@ -29,11 +27,10 @@ return {
 			if collect then
 
 				-- Create an empty table on top of the do-stack if none are there
-				if next(data[data.dotarget]) == nil then
+				if #data[data.dotarget] == 0 then
 					table.insert(data[data.dotarget], {})
 				end
 
-				-- Add the incoming func-tabs to the do-stack
 				table.insert(data[data.dotarget][#data[data.dotarget]], t)
 
 			else -- If the func-args represent a new do-entry, insert them as one
@@ -54,7 +51,7 @@ return {
 	-- and execute the step's table of functions.
 	traverseUndo = function(data, dotype)
 
-		if next(data[dotype]) ~= nil then -- If the do-table isn't empty...
+		if #data[dotype] > 0 then -- If the do-table isn't empty...
 
 			-- Set the do-target to the opposite stack from the do-command
 			data.dotarget = ((dotype == "redo") and "undo") or "redo"
@@ -62,10 +59,14 @@ return {
 			-- Remove a single step-table from either the undo or redo table
 			local funcs = table.remove(data[dotype])
 
-			-- Call all functions in the do-step, in order
-			for k, v in ipairs(funcs) do
-				data:executeObjectFunction(unpack(v))
-				print("traverseUndo: performed " .. dotype .. " function " .. v[1] .. "!")
+			-- Call all functions in the do-step, in the do-type's order
+			local order = dotype == "redo"
+			for i = (order and 1) or #funcs,
+				(order and #funcs) or 1,
+				(order and 1) or -1
+			do
+				data:executeObjectFunction(unpack(funcs[i]))
+				print("traverseUndo: performed " .. dotype .. " function " .. funcs[i][1] .. "!")
 			end
 
 		else

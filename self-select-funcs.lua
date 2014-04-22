@@ -320,7 +320,7 @@ return {
 
 	-- Move the movedat notes, or the selected notes,
 	-- or the active note if nothing is selected, in that order of precedence.
-	moveNotes = function(data, xdist, ydist, undo)
+	moveCopyNotes = function(data, xdist, ydist, undo)
 
 		-- If the move-tab is empty, fill it from selection range
 		if #data.movedat == 0 then
@@ -380,10 +380,10 @@ return {
 		if not data.sel.l then -- If there is no selection, select pointer-position
 			data:toggleSelect("left")
 			data:toggleSelect("right")
-			data:moveNotes(xdist, ydist, undo)
+			data:moveCopyNotes(xdist, ydist, undo)
 			data:toggleSelect("clear")
 		else -- If a selection exists, call moveNotes normally
-			data:moveNotes(xdist, ydist, undo)
+			data:moveCopyNotes(xdist, ydist, undo)
 		end
 
 	end,

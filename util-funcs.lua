@@ -200,6 +200,10 @@ return {
 	-- and return true or false.
 	rangeCheck = function(val, low, high)
 
+		if type(low) == "table" then
+			low, high = unpack(low)
+		end
+
 		if high < low then
 			low, high = high, low
 		end
