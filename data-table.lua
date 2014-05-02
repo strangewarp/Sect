@@ -76,7 +76,7 @@ D.baseseq = {
 D.bounds = {
 	bpm = {1, false, false}, -- Beats per minute
 	tpq = {1, 1000, false}, -- Ticks per quarter-note
-	np = {0, 127, true}, -- Note-pointer (active pitch)
+	np = {0, 11, true}, -- Note-pointer (active pitch)
 	chan = {0, 15, true}, -- Channel
 	velo = {0, 127, true}, -- Velocity
 	dur = {1, false, false}, -- Duration
@@ -210,10 +210,10 @@ D.cmdfuncs = {
 	POINTER_LEFT_BEAT = {"moveTickPointerToBeat", -1},
 	POINTER_RIGHT_BEAT = {"moveTickPointerToBeat", 1},
 
-	X_ZOOM_INC = {"shiftInternalValue", "zoomx", true, 2},
-	X_ZOOM_DEC = {"shiftInternalValue", "zoomx", true, 0.5},
-	Y_ZOOM_INC = {"shiftInternalValue", "zoomy", true, 2},
-	Y_ZOOM_DEC = {"shiftInternalValue", "zoomy", true, 0.5},
+	X_ZOOM_INC = {"shiftInternalValue", "zoomx", true, 0.5},
+	X_ZOOM_DEC = {"shiftInternalValue", "zoomx", true, 2},
+	Y_ZOOM_INC = {"shiftInternalValue", "zoomy", true, 0.5},
+	Y_ZOOM_DEC = {"shiftInternalValue", "zoomy", true, 2},
 
 	SEQ_TAB_UP = {"tabToSeq", -1},
 	SEQ_TAB_DOWN = {"tabToSeq", 1},

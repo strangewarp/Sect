@@ -79,6 +79,12 @@ return {
 			lightborder = {255, 255, 255, 255},
 		},
 
+		reticule = { -- Reticule colors
+			line = {235, 235, 235, 100},
+			light = {255, 255, 255, 100},
+			dark = {5, 5, 255, 75},
+		},
+
 	},
 
 	cmds = { -- Links between command-names and keychords

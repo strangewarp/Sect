@@ -279,7 +279,7 @@ return {
 
 		local xfull = right - left
 		local yfull = bot - top
-		local xhalf = xfull / 2
+		local xhalf = xfull / 3
 		local yhalf = yfull / 2
 
 		local cellwidth = (xhalf / data.tpq) / data.zoomx -- Tick-column width (based on tpq and zoom)
@@ -410,82 +410,53 @@ return {
 		local fullwidth = cellwidth * ticks
 		local fullheight = kheight * notes
 
-		local tsidet = yhalf - fullheight
-		local bsidet = yhalf
-		local yloops = 0
+		-- Get halfway values that are adjusted to the lower tick bounds 
+		local thalf = xhalf - ((cellwidth * (data.tp - 1)) + xcellhalf)
+		local nhalf = yhalf - ((kheight * (data.bounds.np[2] - data.np)) + ycellhalf)
 
-		while collisionCheck(left, top, xfull, yfull, _, tsidet, _, fullheight)
-		or collisionCheck(left, top, xfull, yfull, _, bsidet, _, fullheight)
-		do
+		-- Get all tile-boundaries for wrapping the sequence's display
+		local xranges = getTileAxisBounds(left, xfull, thalf, fullwidth)
+		local yranges = getTileAxisBounds(top, yfull, nhalf, fullheight)
 
-			local lsidel = xhalf - fullwidth
-			local rsidel = xhalf
+		-- For every note in every tick...
+		for k, v in pairs(data.seq[data.active].tick) do
+			for kk, vv in pairs(v) do
 
-			while collisionCheck(left, top, xfull, yfull, lsidel, _, fullwidth, _)
-			or collisionCheck(left, top, xfull, yfull, rsidel, _, fullwidth, _)
-			do
+				-- Get the pitch-value, or pitch-corresponding value, of a given note
+				local vp = ((vv.note[1] == 'note') and vv.note[5]) or (vv.note[4] or 0)
 
-				for k, v in pairs(data.seq[data.active].tick) do
+				local xwidth = cellwidth * vv.note[3] -- Note's width, via duration
 
-					for kk, vv in pairs(v) do
+				-- For every combination of on-screen X-ranges and Y-ranges,
+				-- check the note's visibility there, and render if visible.
+				for _, xr in pairs(xranges) do
+					for _, yr in pairs(yranges) do
 
-						local xmod = vv.tick - data.tp
-						local xwidth = (cellwidth * vv.note[3]) + xcellhalf
+						-- Get note's inner-grid-concrete and absolute left and top offsets
+						local ol = xr.a + ((vv.tick - 1) * cellwidth)
+						local ot = yr.b - ((vp - yr.o) * kheight)
+						local cl = left + ol
+						local ct = top + ot
 
-						local lxpos = lsidel + (cellwidth * xmod)
-						local lxleft = lxpos - xcellhalf
+						print("DYE NOTE: " .. vp .. " " .. cl .. ":" .. ct .. " " .. tostring(collisionCheck(left, top, xfull, yfull, cl, ct, xwidth, kheight))) -- DEBUGGING
 
-						local rxpos = rsidel + (cellwidth * xmod)
-						local rxleft = rxpos - xcellhalf
+						-- If the note is onscreen in this chunk, display it
+						if collisionCheck(left, top, xfull, yfull, cl, ct, xwidth, kheight) then
 
-						local np = data.np
-						local vp = vv.note[5]
-						local nbot, ntop = unpack(data.bounds.np)
+							-- If the note's leftmost boundary falls outside of frame,
+							-- clip its left-position, and its width to match.
+							local outwidth = xwidth - math.max(0, left - cl)
+							local outleft = cl - (outwidth - xwidth)
 
-						local yspot = wrapNum(np - vp, data.bounds.np)
+							-- Add the note to the draw-table
+							table.insert(drawnotes, {vv, outleft, ct, outwidth, kheight})
 
-						local typos = tsidet + (kheight * (yspot - (yloops + 1)))
-						local tytop = typos - ycellhalf
-
-						local bypos = bsidet + (kheight * (yspot + yloops))
-						local bytop = bypos - ycellhalf
-
-						local larr = {left + lxleft, left + rxleft}
-						local tarr = {top + tytop, top + bytop}
-						for _, l in pairs(larr) do
-							for _, t in pairs(tarr) do
-
-								if collisionCheck(left, top, xfull, yfull, l, t, xwidth, kheight)
-								then
-
-									-- If the note's eftmost boundary falls outside of frame,
-									-- Truncate its shape, and shift its left border rightwards.
-									local outwidth = xwidth
-									if l < left then
-										outwidth = xwidth - (left - l)
-										l = left
-									end
-
-									table.insert(drawnotes, {vv, l, t, outwidth, kheight})
-
-								end
-
-							end
 						end
 
 					end
-
 				end
 
-				lsidel = lsidel - fullwidth
-				rsidel = rsidel + fullwidth
-
 			end
-
-			tsidet = tsidet - fullheight
-			bsidet = bsidet + fullheight
-			yloops = yloops + 1
-
 		end
 
 		-- Draw all tinted beat-columns
@@ -534,11 +505,60 @@ return {
 			local beat = ((tick - 1) / beatsize) + 1
 			love.graphics.setColor(data.color.seq.highlight)
 			love.graphics.polygon("fill", xpos - 19, yfull, xpos + 19, yfull, xpos, tritop)
-			--love.graphics.setColor(data.color.seq.line)
-			--love.graphics.polygon("line", xpos - 19, yfull, xpos + 19, yfull, xpos, tritop)
 			love.graphics.setColor(data.color.font.light)
 			love.graphics.printf(beat, xpos - 19, trifonttop, 38, "center")
 		end
+
+		-- Draw the tick reticule
+		local trh = 38
+		local trw = 38
+		local trl = left + xhalf - 19
+		local trt = top + yhalf - 19
+		local trr = trl + trw
+		local trb = trt + trh
+		trt = trt - ycellhalf
+		trb = trb + ycellhalf
+		love.graphics.setColor(data.color.reticule.dark)
+		love.graphics.polygon(
+			"fill",
+			trl, trt,
+			trr, trt,
+			left + xhalf, top + yhalf - ycellhalf
+		)
+		love.graphics.polygon(
+			"fill",
+			trl, trb,
+			trr, trb,
+			left + xhalf, top + yhalf + ycellhalf
+		)
+
+		-- Draw the note-duration reticule
+		local nrh = ycellhalf
+		local nrw = ycellhalf
+		local nrlr = left + xhalf - xcellhalf
+		local nrll = nrlr - nrw
+		local nrrl = nrlr + (cellwidth * data.dur)
+		local nrrr = nrrl + nrw
+		local nrt = yhalf - nrh
+		local nrb = yhalf + nrh
+		love.graphics.setColor(data.color.reticule.light)
+		love.graphics.polygon(
+			"fill",
+			nrll, nrt,
+			nrlr, yhalf,
+			nrll, nrb
+		)
+		if nrrl < right then
+			love.graphics.polygon(
+				"fill",
+				nrrr, nrt,
+				nrrl, yhalf,
+				nrrr, nrb
+			)
+		end
+
+
+
 
 	end,
 
@@ -549,9 +569,6 @@ return {
 		if data.active == false then
 			return nil
 		end
-
-		-- Set the frame-stencil
-		love.graphics.setStencil(frameStencil(left, top, width, height))
 
 		-- Piano-roll width (based on window size)
 		local kwidth = roundNum(width / 10, 0)
@@ -567,9 +584,6 @@ return {
 
 		-- Draw the vertical piano-roll
 		data:drawPianoRoll(left, kwidth, kheight, width, height)
-
-		-- Unset the frame-stencil
-		love.graphics.setStencil(nil)
 
 	end,
 

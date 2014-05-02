@@ -1,7 +1,7 @@
 function love.conf(t)
 
     t.identity = "sect" -- The name of the save directory (string)
-    t.version = "0.9.0" -- The LÖVE version this game was made for (string)
+    t.version = "0.9.1" -- The LÖVE version this game was made for (string)
 
     -- TODO: Set this to false before final release!!!
     t.console = true -- Attach a console (boolean, Windows only)
@@ -32,7 +32,7 @@ function love.conf(t)
     t.modules.joystick = false -- Enable the joystick module (boolean)
     t.modules.keyboard = true -- Enable the keyboard module (boolean)
     t.modules.math = true -- Enable the math module (boolean)
-    t.modules.mouse = true -- Enable the mouse module (boolean)
+    t.modules.mouse = false -- Enable the mouse module (boolean)
     t.modules.physics = false -- Enable the physics module (boolean)
     t.modules.sound = false -- Enable the sound module (boolean)
     t.modules.system = true -- Enable the system module (boolean)

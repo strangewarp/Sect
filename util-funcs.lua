@@ -28,10 +28,12 @@ return {
 		h2 = h2 or h1
 
 		-- Return true on overlap, else return false
-		return (x1 < (x2 + w2)) and
-			(x2 < (x1 + w1)) and
-			(y1 < (y2 + h2)) and
-			(y2 < (y1 + h1))
+		return (
+			(x1 < (x2 + w2))
+			and (x2 < (x1 + w1))
+			and (y1 < (y2 + h2))
+			and (y2 < (y1 + h1))
+		)
 
 	end,
 
