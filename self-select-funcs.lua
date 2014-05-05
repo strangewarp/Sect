@@ -1,233 +1,154 @@
 return {
 
-		-- Grab all notes from the selection range
-	getNotesFromSelection = function(data)
-
-		-- If the selection range isn't active, return an empty table
-		if not data.sel.l then
-			print("getNotesFromSelection: warning: selection boundaries undefined!")
-			return {}
-		end
-
-		local outnotes = {}
-
-		local iterated = false
-		local limit = #data.seq[data.active].tick
-		local x = ((data.sel.l - 2) % limit) + 1
-
-		while (x ~= data.sel.r) -- While x hasn't reached the right boundary...
-		or (not iterated) -- Or the loop hasn't yet iterated once...
-		do -- Grab the notes from within the selection
-			x = (x % limit) + 1
-			iterated = true
-			for k, v in pairs(data.seq[data.active].tick[x]) do
-				if rangeCheck(v.note[5], data.sel.b, data.sel.t) then
-					table.insert(outnotes, deepCopy(v))
-				end
-			end
-		end
-
-		return outnotes
-
-	end,
-
 	-- Toggle select-mode boundaries, which are dragged by the pointers
 	toggleSelect = function(data, cmd)
 
-		-- Set selection-table target names
-		local s1, s2 = "ls", "rs"
+		if cmd == "clear" then -- Clear selection-tables
 
-		if cmd == "clear" then -- Clear selection-tables and abort function
 			data.movedat = {}
-			data.ls = {x = false, y = false}
-			data.rs = {x = false, y = false}
-			data.sel = {
-				l = false,
-				r = false,
-				t = false,
-				b = false,
+			data.seltop = {
+				x = false,
+				y = false,
 			}
+
+			data.selbot = {
+				x = false,
+				y = false,
+			}
+
 			print("toggleSelect: cleared selection positions!")
-			return nil
-		elseif cmd == "left" then -- Prepare to set left selection-table
-			print("toggleSelect: setting lefthand selection pointer")
-		elseif cmd == "right" then -- Prepare to set right selection-table instead
-			s1, s2 = s2, s1
-			print("toggleSelect: setting righthand selection pointer")
-		else -- If an unknown command was received, abort function
-			print("toggleSelect: warning: received unknown cmd, \"" .. cmd .. "\"!")
-			return nil
+
+		elseif cmd == "top" then -- Set top selection-pointer
+
+			data.seltop = {
+				x = ((data.seltop.x ~= false) and data.tp) or math.min(data.tp, data.selbot.x or data.tp),
+				y = ((data.seltop.y ~= false) and data.np) or math.max(data.np, data.selbot.y or data.np),
+			}
+
+			data.selbot = {
+				x = data.selbot.x or data.tp,
+				y = data.selbot.y or data.np,
+			}
+
+			print("toggleSelect: set top select position!")
+
+		elseif cmd == "bottom" then -- Set bottom selection-pointer
+
+			data.seltop = {
+				x = data.seltop.x or data.tp,
+				y = data.seltop.y or data.np,
+			}
+
+			data.selbot = {
+				x = ((data.selbot.x ~= false) and data.tp) or math.max(data.tp, data.seltop.x or data.tp),
+				y = ((data.selbot.y ~= false) and data.np) or math.min(data.np, data.seltop.y or data.tp),
+			}
+
+			print("toggleSelect: set bottom select position!")
+
 		end
 
-		-- Set the selection-point specified by cmd
-		data[s1] = {
-			x = data.tp,
-			y = data.np,
-		}
-
-		-- Set other selection-point similarly, if it doesn't already hold values
-		data[s2] = {
-			x = data[s2].x or data[s1].x,
-			y = data[s2].y or data[s1].y,
-		}
-
-		-- Update concrete selection borders
+		-- Update the select area, based on current select-pointers
 		data.sel = {
-			l = data.ls.x,
-			r = data.rs.x,
-			t = math.max(data.ls.y, data.rs.y),
-			b = math.min(data.ls.y, data.rs.y),
+			l = (data.seltop.x ~= false) and math.min(data.seltop.x, data.selbot.x),
+			r = (data.seltop.x ~= false) and math.max(data.seltop.x, data.selbot.x),
+			t = (data.seltop.x ~= false) and math.max(data.seltop.y, data.selbot.y),
+			b = (data.seltop.x ~= false) and math.min(data.seltop.y, data.selbot.y),
 		}
-
-		print("toggleSelect: selection pointer positions:")
-		print("left: x" .. data.ls.x .. ", y" .. data.ls.y)
-		print("right: x" .. data.rs.x .. ", y" .. data.rs.y)
 
 	end,
 
 	-- Copy the currently selected chunk of notes and ticks
-	copySelection = function(data, relative, add)
+	copySelection = function(data, add)
 
-		-- If nothing is selected, abort function
-		if not data.ls.x then
-			print("copySelection: warning: nothing was selected!")
-			return nil
+		-- If nothing is selected, select the active tick/note
+		if not data.sel.l then
+			data:toggleSelect()
 		end
 
-		-- If additive copy, grab the copy-tables. Else make new tables
-		local concout = (add and deepCopy(copydat)) or {}
-		local relout = (add and deepCopy(copyrel)) or {}
+		-- Get duplicates of the selected notes
+		local n = deepCopy(
+			data:getNotes(
+				data.active,
+				data.sel.l, data.sel.r,
+				data.sel.b, data.sel.t
+			)
+		)
 
-		local relxdist = 0
-		local relydist = 0
+		-- Reduce tick values relative to the left selection-pointer's position
+		for i = 1, #n do
+			n[i].tick = n[i].tick - (data.sel.l - 1)
+			n[i].note[2] = n[i].tick - 1
+		end
 
-		local iterated = false
-		local limit = #data.seq[data.active].tick
-		local tick = ((data.sel.l - 2) % limit) + 1
-		
-		while (tick ~= data.sel.r) -- While tick hasn't reached right boundary...
-		or (not iterated) -- Or if the loop hasn't iterated at least once...
-		do
+		if add then -- On additive copy...
 
-			tick = (tick % limit) + 1
-			iterated = true
+			local newdat = {}
 
-			-- For every note in the vertical copy range...
-			for notenum, note in pairs(data.seq[data.active].tick[tick]) do
+			-- If any incoming notes overlap with notes in the copy-table,
+			-- replace those copy-table notes with the incoming notes.
+			for k, v in pairs(data.copydat) do
 
-				-- If the note falls within range, copy it
-				if rangeCheck(note.note[5], data.sel.b, data.sel.t) then
+				local onote = deepCopy(v)
 
-					local concnote = deepCopy(note)
-					local relnote = deepCopy(note)
-
-					-- If copy-type is relative, shift copied notes' internal values
-					-- relative to the selection's boundaries,
-					-- and keep track of the relative-select-window's size
-					if relative then
-
-						relnote.tick = data.sel.l + (tick - data.sel.l)
-						relnote.note[2] = relnote.tick - 1
-						relnote.note[5] = data.sel.b + (note - data.sel.b)
-
-						relxdist = math.max(relxdist, relnote.tick)
-						relydist = math.max(relydist, relnote.note[5])
-
+				for i = #n, 1, -1 do
+					if checkNoteOverlap(n, v, true) then
+						onote = table.remove(n, i)
+						break
 					end
-
-					-- Match notes against other notes in the copy-tables,
-					-- and overwrite any conflicts
-					for k, v in pairs(concout) do
-						if (v.note[5] == concnote.note[5])
-						and (v.tick == concnote.tick)
-						then
-							table.remove(concout, k)
-							break
-						end
-					end
-					for k, v in pairs(relout) do
-						if (v.note[5] == relnote.note[5])
-						and (v.tick == relnote.tick)
-						then
-							table.remove(relout, k)
-							break
-						end
-					end
-
-					-- Put the notes into the outgoing copy-tables
-					table.insert(concout, concnote)
-					table.insert(relout, relnote)
-
 				end
+
+				table.insert(newdat, onote)
 
 			end
 
-		end
+			-- Put remaining incoming notes into the combined copy-table
+			for k, v in pairs(n) do
+				table.insert(newdat, v)
+			end
 
-		if add then -- If this is an additive copy...
-
-			-- Expand the concrete copy-area borders
-			data.copy.l = math.min(data.copy.l, data.sel.l)
-			data.copy.r = math.max(data.copy.r, data.sel.r)
-			data.copy.t = math.max(data.copy.t, data.sel.t)
-			data.copy.b = math.min(data.copy.b, data.sel.b)
-
-			-- Expand the relative copy-area size
-			data.copyrel.x = math.max(data.copyrel.x, relxdist)
-			data.copyrel.y = math.max(data.copyrel.y, relydist)
-
-		else -- If this is a non-additive copy...
-
-			-- Set the absolute copy-range equal to the selection-range
-			data.copy = deepCopy(data.sel)
-
-			-- Set the relative copy range equal to the relative note-boundaries
-			data.copyrel.x = relxdist
-			data.copyrel.y = relydist
+			n = newdat
 
 		end
 
-		-- Save copied relative and absolute notes to the copy-data tables
-		data.copydat = concout
-		data.reldat = relout
+		-- Put the copied notes into the copy-table
+		data.copydat = n
 
 	end,
 
 	-- Cut the currently selected chunk of notes and ticks
-	cutSelection = function(data, relative, add, undo)
+	cutSelection = function(data, add, undo)
 
-		-- If nothing is selected, abort function
+		-- If nothing is selected, select the active tick/note
 		if not data.sel.l then
-			print("copySelection: warning: nothing was selected!")
-			return nil
+			data:toggleSelect()
 		end
 
 		-- Copy the selection like a normal copy command
 		data:copySelection(relative, add)
 
-		-- Remove the copied notes from the seq,
-		-- forming a chained undo during removal
+		-- Remove the copied notes from the seq, adding an undo command
 		data:removeNotes(data.active, data.copydat, undo)
 
 	end,
 
 	-- Paste the selection-table's contents at the current pointer position
-	pasteSelection = function(data, relative, undo)
+	pasteSelection = function(data, undo)
 
-		local outtab = {}
-		local xbase = data.tp
-		local ybase = (relative and data.np) or 0
+		-- Duplicate the copy-table, to prevent reference bugs
+		local ptab = deepCopy(data.copydat)
 
-		if relative then -- If relative-paste, add note-pointer to copied pitches
-			outtab = deepCopy(data.reldat)
-			for k, v in pairs(outtab) do
-				outtab[k].note[5] = wrapNum(v.note[5] + ybase, data.bounds.np)
-			end
-		else -- If absolute-paste, convey the copied notes straightforwardly
-			outtab = deepCopy(data.copydat)
+		-- Adjust the contents of the paste-table relative to the tick-pointer
+		for i = 1, #ptab do
+			ptab[i].tick = wrapNum(
+				ptab[i].tick + (data.tp - 1),
+				1, #data.seq[data.active].tick
+			)
+			ptab[i].note[2] = ptab[i].tick - 1
 		end
 
-		data:addNotes(data.active, outtab, undo)
+		-- Add the paste-notes to current seq, and create an undo command
+		data:addNotes(data.active, ptab, undo)
 
 	end,
 

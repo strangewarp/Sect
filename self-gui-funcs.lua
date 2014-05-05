@@ -438,7 +438,7 @@ return {
 						local cl = left + ol
 						local ct = top + ot
 
-						print("DYE NOTE: " .. vp .. " " .. cl .. ":" .. ct .. " " .. tostring(collisionCheck(left, top, xfull, yfull, cl, ct, xwidth, kheight))) -- DEBUGGING
+						--print("DYE NOTE: " .. vp .. " " .. cl .. ":" .. ct .. " " .. tostring(collisionCheck(left, top, xfull, yfull, cl, ct, xwidth, kheight))) -- DEBUGGING
 
 						-- If the note is onscreen in this chunk, display it
 						if collisionCheck(left, top, xfull, yfull, cl, ct, xwidth, kheight) then

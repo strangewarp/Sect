@@ -92,18 +92,7 @@ return {
 
 			-- Check all notes in the tick against this note, and remove note-collisions, adding them to the collide-table
 			for notenum, n in ipairs(data.seq[p].tick[v.tick]) do
-				if (
-					(v.note[1] == 'note')
-					and (n.note[1] == 'note')
-					and (v.note[5] == n.note[5])
-				)
-				or (
-					(v.note[1] ~= 'note')
-					and (n.note[1] ~= 'note')
-					and (v.note[1] == n.note[1])
-					and (v.note[4] == n.note[4])
-				)
-				then
+				if checkNoteOverlap(v, n, true) then
 					table.insert(collidenotes, deepCopy(n))
 					table.remove(data.seq[p].tick[v.tick], notenum)
 					print("addNotes: removed colliding note: " .. table.concat(collidenotes[#collidenotes].note, " "))

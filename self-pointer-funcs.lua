@@ -11,10 +11,10 @@ return {
 
 		-- Normalize selection-pointers
 		if data.sel.l ~= false then
-			data.ls.x = math.min(data.ls.x, tlimit)
-			data.rs.x = math.min(data.rs.x, tlimit)
-			data.sel.l = data.ls.x
-			data.sel.r = data.rs.x
+			data.seltop.x = math.min(data.ls.x, tlimit)
+			data.selbot.x = math.min(data.rs.x, tlimit)
+			data.sel.l = data.seltop.x
+			data.sel.r = data.selbot.x
 		end
 
 	end,

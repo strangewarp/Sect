@@ -37,11 +37,12 @@ D.cmdundo = {false, false, true} -- Default undo-commands
 D.update = true -- Tracks whether the GUI should be redrawn
 
 -- SELECTION VARS --
-D.ls = { -- Left selection-pointer
+D.selbool = false -- Toggles whether a selection is active
+D.seltop = { -- Top selection-pointer
 	x = false,
 	y = false,
 }
-D.rs = { -- Right selection-pointer
+D.selbot = { -- Bottom selection-pointer
 	x = false,
 	y = false,
 }
@@ -51,19 +52,8 @@ D.sel = { -- Holds the boundaries of the currently selected area
 	t = false, -- Top
 	b = false, -- Bottom
 }
-D.copy = { -- Holds the boundaries of all combined additive copy commands
-	l = false, -- Left
-	r = false, -- Right
-	t = false, -- Top
-	b = false, -- Bottom
-}
-D.copyrel = { -- Holds the x,y boundaries of combined relative copy commands
-	x = false,
-	y = false,
-}
-D.movedat = {} -- Holds the notes that were selected for movement
 D.copydat = {} -- Concrete positions of all copied notes
-D.reldat = {} -- Relative positions of all copied notes
+D.movedat = {} -- Holds the notes that were selected for movement
 
 -- Baseline contents for new sequences
 D.baseseq = {
@@ -76,7 +66,7 @@ D.baseseq = {
 D.bounds = {
 	bpm = {1, false, false}, -- Beats per minute
 	tpq = {1, 1000, false}, -- Ticks per quarter-note
-	np = {0, 11, true}, -- Note-pointer (active pitch)
+	np = {0, 127, true}, -- Note-pointer (active pitch)
 	chan = {0, 15, true}, -- Channel
 	velo = {0, 127, true}, -- Velocity
 	dur = {1, false, false}, -- Duration
@@ -145,17 +135,14 @@ D.cmdfuncs = {
 	INSERT_SEQ = {"addActiveSequence", D.cmdundo},
 	REMOVE_SEQ = {"removeActiveSequence", D.cmdundo},
 
-	TOGGLE_SELECTION = {"toggleSelectMode"},
-	COPY_RELATIVE_ADD = {"copySelection", true, true},
-	COPY_RELATIVE = {"copySelection", true, false},
-	COPY_ABSOLUTE_ADD = {"copySelection", false, true},
-	COPY_ABSOLUTE = {"copySelection", false, false},
-	CUT_RELATIVE_ADD = {"cutSelection", true, true, D.cmdundo},
-	CUT_RELATIVE = {"cutSelection", true, D.cmdundo},
-	CUT_ABSOLUTE_ADD = {"cutSelection", false, true, D.cmdundo},
-	CUT_ABSOLUTE = {"cutSelection", false, D.cmdundo},
-	PASTE_RELATIVE = {"pasteSelection", true, D.cmdundo},
-	PASTE = {"pasteSelection", false, D.cmdundo},
+	TOGGLE_TOP = {"toggleSelect", "top"},
+	TOGGLE_BOT = {"toggleSelect", "bottom"},
+	TOGGLE_CLEAR = {"toggleSelect", "clear"},
+	COPY = {"copySelection", false},
+	COPY_ADD = {"copySelection", true},
+	CUT = {"cutSelection", false, D.cmdundo},
+	CUT_ADD = {"cutSelection", true, D.cmdundo},
+	PASTE = {"pasteSelection", D.cmdundo},
 
 	CHANNEL_UP = {"shiftInternalValue", "chan", false, 1},
 	CHANNEL_DOWN = {"shiftInternalValue", "chan", false, -1},

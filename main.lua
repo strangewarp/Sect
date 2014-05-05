@@ -5,6 +5,7 @@ function love.load()
 
 	guifuncs = require('gui-funcs')
 	keyfuncs = require('key-funcs')
+	notefuncs = require('note-funcs')
 	utilfuncs = require('util-funcs')
 
 	selfdatafuncs = require('self-data-funcs')
@@ -22,6 +23,7 @@ function love.load()
 	utilfuncs:tableToNewContext(_G)
 	tableToNewContext(keyfuncs, _G)
 	tableToNewContext(guifuncs, _G)
+	tableToNewContext(notefuncs, _G)
 
 	tableToNewContext(selfdatafuncs, data)
 	tableToNewContext(selffilefuncs, data)

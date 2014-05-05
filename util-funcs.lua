@@ -226,6 +226,20 @@ return {
 		return math.floor((num * mult) + 0.5) / mult
 	end,
 
+	-- Combine the contents of two tables into a single table.
+	-- ibool states: true to copy indexes, or false to create new indexes.
+	tableCombine = function(t, t2, ibool)
+
+		ibool = ibool or false
+
+		for _, v in pairs(t2) do
+			t[(ibool and k) or (#t + 1)] = v
+		end
+
+		return t
+
+	end,
+
 	-- Move a given table of functions into a different namespace.
 	tableToNewContext = function(tab, context)
 		for k, v in pairs(tab) do
