@@ -21,27 +21,27 @@ return {
 		elseif cmd == "top" then -- Set top selection-pointer
 
 			data.seltop = {
-				x = ((data.seltop.x ~= false) and data.tp) or math.min(data.tp, data.selbot.x or data.tp),
-				y = ((data.seltop.y ~= false) and data.np) or math.max(data.np, data.selbot.y or data.np),
+				x = math.min(data.tp, data.selbot.x or data.tp),
+				y = math.max(data.np, data.selbot.y or data.np),
 			}
 
 			data.selbot = {
-				x = data.selbot.x or data.tp,
-				y = data.selbot.y or data.np,
+				x = math.max(data.tp, data.selbot.x or data.tp),
+				y = math.min(data.np, data.selbot.y or data.np),
 			}
 
 			print("toggleSelect: set top select position!")
 
 		elseif cmd == "bottom" then -- Set bottom selection-pointer
 
-			data.seltop = {
-				x = data.seltop.x or data.tp,
-				y = data.seltop.y or data.np,
+			data.selbot = {
+				x = math.max(data.tp, data.seltop.x or data.tp),
+				y = math.min(data.np, data.seltop.y or data.np),
 			}
 
-			data.selbot = {
-				x = ((data.selbot.x ~= false) and data.tp) or math.max(data.tp, data.seltop.x or data.tp),
-				y = ((data.selbot.y ~= false) and data.np) or math.min(data.np, data.seltop.y or data.tp),
+			data.seltop = {
+				x = math.min(data.tp, data.seltop.x or data.tp),
+				y = math.max(data.np, data.seltop.y or data.np),
 			}
 
 			print("toggleSelect: set bottom select position!")
@@ -121,14 +121,14 @@ return {
 
 		-- If nothing is selected, select the active tick/note
 		if not data.sel.l then
-			data:toggleSelect()
+			data:toggleSelect("top")
 		end
 
 		-- Copy the selection like a normal copy command
 		data:copySelection(relative, add)
 
 		-- Remove the copied notes from the seq, adding an undo command
-		data:removeNotes(data.active, data.copydat, undo)
+		data:removeNotes(data.active, deepCopy(data.copydat), undo)
 
 	end,
 
