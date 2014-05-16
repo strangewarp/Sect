@@ -81,7 +81,7 @@ return {
 
 				-- Insert the keycommands into the command-tables
 				data.cmds[cmdname] = {button}
-				data.cmdfuncs[cmdname] = {"insertNote", k - 1, data.cmdundo}
+				data.cmdfuncs[cmdname] = {"insertNote", k - 1, false}
 
 				iter = iter + 1
 

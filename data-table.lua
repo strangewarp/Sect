@@ -121,7 +121,7 @@ D.cmdfuncs = {
 	UNDO = {"traverseUndo", true},
 	REDO = {"traverseUndo", false},
 
-	INSERT_NOTE = {"insertNote", 0, false},
+	INSERT_NOTE = {"insertNote", false, false},
 	DELETE_NOTE = {"deleteNote", false},
 	DELETE_TICK_NOTES = {"deleteTickNotes", false},
 	DELETE_PITCH_NOTES = {"deletePitchNotes", false},

@@ -140,6 +140,9 @@ return {
 			return nil
 		end
 
+		-- If a distance-from-C isn't given, set it to the note-pointer position
+		dist = dist or (data.np % 12)
+
 		local n = {
 			tick = data.tp, -- 1-indexed tick start-time
 			note = {
@@ -147,12 +150,14 @@ return {
 				data.tp - 1, -- 0-indexed tick start-time
 				data.dur, -- Duration (ticks)
 				data.chan, -- Channel
-				clampNum(data.np + dist, data.bounds.np), -- Pitch + piano key dist
+				clampNum((data.np - (data.np % 12)) + dist, data.bounds.np), -- Pitch + piano key dist
 				data.velo, -- Velocity
 			},
 		}
 
 		data:setNotes(data.active, {n}, undo)
+
+		data:moveTickPointer(1) -- Move ahead by one spacing unit
 
 	end,
 
