@@ -7,7 +7,12 @@ return {
 			table.insert(data.seq[seq].tick, {})
 		end
 
-		data:addMetaUndoTask("shrinkSeq", seq, num, undo)
+		-- Build undo tables
+		data:addUndoStep(
+			((undo == nil) and true) or undo, -- Suppress flag
+			{"shrinkSeq", seq, num}, -- Undo command
+			{"growSeq", seq, num} -- Redo command
+		)
 
 	end,
 	
@@ -18,7 +23,12 @@ return {
 			table.remove(data.seq[seq].tick, #data.seq[seq].tick)
 		end
 
-		data:addMetaUndoTask("growSeq", seq, num, undo)
+		-- Build undo tables
+		data:addUndoStep(
+			((undo == nil) and true) or undo, -- Suppress flag
+			{"growSeq", seq, num}, -- Undo command
+			{"shrinkSeq", seq, num} -- Redo command
+		)
 
 	end,
 
@@ -106,15 +116,19 @@ return {
 		-- Normalize all pointers
 		data:normalizePointers()
 
-		-- Create and store undo-table data that is a reversal of what this function has done
-		data:addMetaUndoTask("removeSequence", seq, undo)
+		-- Build undo tables
+		data:addUndoStep(
+			((undo == nil) and true) or undo, -- Suppress flag
+			{"removeSequence", seq}, -- Undo command
+			{"addSequence", seq} -- Redo command
+		)
 
 	end,
 
 	-- Remove a sequence from the sequence-table at the current active-sequence pointer
 	removeSequence = function(data, seq, undo)
 
-		local undonotes = {}
+		local removenotes = {}
 
 		-- If the seq-pointer is false or nil, or outside of the loaded sequences, then abort function
 		if not seq then
@@ -131,41 +145,24 @@ return {
 			data.active = data.active - 1
 		end
 
-		-- Gather all notes from the sequence into an undo-table
-		for ticknum, tick in ipairs(data.seq[seq].tick) do
-			for notenum, note in pairs(tick) do
-				table.insert(undonotes, note)
-			end
+		-- Gather all notes from the sequence, set them to false, and remove them,
+		-- creating a new undo-table entry in the process.
+		local removenotes = data:getNotes(seq, 1, #data.seq[seq].tick, _, _)
+		if #removenotes > 0 then
+			removenotes = notesToRemove(removenotes)
+			data:setNotes(seq, removenotes, ((undo == nil) and true) or undo)
 		end
 
 		-- Remove the sequence from the seqs-table
 		table.remove(data.seq, seq)
 		print("removeSequence: removed sequence from position " .. seq)
 
-		-- Create and store undo-table data that is a reversal of what this function has done
-		data:addMetaUndoTask("addSequence", seq, undo)
-		data:addMetaUndoTask("addNotes", seq, undonotes, {undo[1], true, undo[3]})
-
-	end,
-
-	-- Add a sequence, bundled with notes
-	addSequenceAndNotes = function(data, seq, notes, undo)
-
-		data:addSequence(seq, {true, undo[2], undo[3]})
-		data:addNotes(seq, notes, {true, undo[2], undo[3]})
-
-		data:addMetaUndoTask("removeSequenceAndNotes", seq, undo)
-
-	end,
-
-	-- Get a sequence's notes, and remove the notes and sequence
-	removeSequenceAndNotes = function(data, seq, undo)
-
-		local notes = data:getNotes(seq, 1, #data.seq[seq].tick)
-
-		data:removeSequence(seq, {true, undo[2], undo[3]})
-
-		data:addMetaUndoTask("addSequenceAndNotes", seq, notes, undo)
+		-- Build undo tables
+		data:addUndoStep(
+			((undo == nil) and true) or undo, -- Suppress flag
+			{"addSequence", seq}, -- Undo command
+			{"removeSequence", seq} -- Redo command
+		)
 
 	end,
 
@@ -176,7 +173,7 @@ return {
 
 	-- Remove the currently active sequence, with proper undo-wrapping
 	removeActiveSequence = function(data, undo)
-		data:removeSequenceAndNotes(data.active, undo)
+		data:removeSequence(data.active, undo)
 	end,
 
 }

@@ -46,6 +46,18 @@ return {
 
 			print("toggleSelect: set bottom select position!")
 
+		elseif cmd == "all" then -- Select all
+
+			data.selbot = {
+				x = #data.seq[data.active].tick,
+				y = data.bounds.np[1],
+			}
+
+			data.seltop = {
+				x = 1,
+				y = data.bounds.np[2],
+			}
+
 		end
 
 		-- Update the select area, based on current select-pointers
@@ -55,6 +67,9 @@ return {
 			t = (data.seltop.x ~= false) and math.max(data.seltop.y, data.selbot.y),
 			b = (data.seltop.x ~= false) and math.min(data.seltop.y, data.selbot.y),
 		}
+
+		-- Put selected notes into move-memory
+		data.movedat = data:getNotes(data.active, data.sel.l, data.sel.r, data.sel.b, data.sel.t)
 
 	end,
 
@@ -125,10 +140,10 @@ return {
 		end
 
 		-- Copy the selection like a normal copy command
-		data:copySelection(relative, add)
+		data:copySelection(add)
 
 		-- Remove the copied notes from the seq, adding an undo command
-		data:removeNotes(data.active, deepCopy(data.copydat), undo)
+		data:setNotes(data.active, notesToRemove(deepCopy(data.copydat)), undo)
 
 	end,
 
@@ -148,7 +163,7 @@ return {
 		end
 
 		-- Add the paste-notes to current seq, and create an undo command
-		data:addNotes(data.active, ptab, undo)
+		data:setNotes(data.active, ptab, undo)
 
 	end,
 
@@ -214,7 +229,7 @@ return {
 
 		-- Add the modified notes, and collapse into the same undo command
 		undo[2] = true
-		data:addNotes(data.active, newnotes, undo)
+		data:setNotes(data.active, newnotes, undo)
 
 	end,
 
@@ -291,7 +306,7 @@ return {
 		end
 
 		-- Set the undo to collect-mode, and add the notes in new positions
-		data:addNotes(data.active, data.movedat, undo)
+		data:setNotes(data.active, data.movedat, undo)
 
 	end,
 

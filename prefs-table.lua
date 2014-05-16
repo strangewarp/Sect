@@ -87,6 +87,38 @@ return {
 
 	},
 
+	pianokeys = { -- Keyboard-keys that correspond to piano-keys
+		"z", -- C
+		"s", -- Db
+		"x", -- D
+		"d", -- Eb
+		"c", -- E
+		"v", -- F
+		"g", -- Gb
+		"b", -- G
+		"h", -- Ab
+		"n", -- A
+		"j", -- Bb
+		"m", -- B
+		{",", "q"}, -- C
+		{"l", "2"}, -- Db
+		{".", "w"}, -- D
+		{";", "3"}, -- Eb
+		{"/", "e"}, -- E
+		"r", -- F
+		"5", -- Gb
+		"t", -- G
+		"6", -- Ab
+		"y", -- A
+		"7", -- Bb
+		"u", -- B
+		"i", -- C
+		"9", -- Db
+		"o", -- D
+		"0", -- Eb
+		"p", -- E
+	},
+
 	cmds = { -- Links between command-names and keychords
 
 		LOAD_FILE = {"ctrl", "o"},
@@ -100,6 +132,7 @@ return {
 		TOGGLE_TOP = {"ctrl", ","},
 		TOGGLE_BOT = {"ctrl", "."},
 		TOGGLE_CLEAR = {"ctrl", "/"},
+		SELECT_ALL = {"ctrl", "a"},
 		COPY = {"ctrl", "c"},
 		COPY_ADD = {"ctrl", "shift", "c"},
 		CUT = {"ctrl", "x"},

@@ -47,7 +47,7 @@ return {
 
 		local out = {}
 
-		print("FULL RANGE: "..base.." "..size.." "..origin.." "..extent) -- DEBUGGING
+		--print("FULL RANGE: "..base.." "..size.." "..origin.." "..extent) -- DEBUGGING
 
 		-- If base-size range is not fully contained by origin-extent range,
 		-- search for origin-extent sub-ranges.
@@ -71,7 +71,7 @@ return {
 				if rangeCheck(asub, base, size)
 				or rangeCheck(bsub, base, size)
 				then
-					print("RANGE "..offset..": "..asub.." "..bsub) -- DEBUGGING
+					--print("RANGE "..offset..": "..asub.." "..bsub) -- DEBUGGING
 					out[#out + 1] = {
 						o = offset,
 						a = asub,
@@ -79,7 +79,7 @@ return {
 					}
 					offset = offset + ((bool and -1) or 1)
 				else
-					print("INVALID RANGE "..offset..": "..asub.." "..bsub) -- DEBUGGING
+					--print("INVALID RANGE "..offset..": "..asub.." "..bsub) -- DEBUGGING
 					invalid = invalid + 1
 					offset = 1
 					bool = false
@@ -89,7 +89,7 @@ return {
 
 		else -- If base-size range is contained, return origin-extent range.
 
-			print("RANGE 0: "..origin.." "..extent) -- DEBUGGING
+			--print("RANGE 0: "..origin.." "..extent) -- DEBUGGING
 			out[1] = {
 				o = 0,
 				a = origin,

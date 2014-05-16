@@ -28,10 +28,8 @@ D.zoomx = 4 -- Multiplier for X-axis zoom
 D.zoomy = 4 -- Multiplier for Y-axis zoom
 
 -- UNDO VARS --
-D.undo = {} -- Undo-function stack
-D.redo = {} -- Redo-function stack
-D.dotarget = "undo" -- Toggles whether undo-funcs go into undo- or redo-table
-D.cmdundo = {false, false, true} -- Default undo-commands
+D.dostack = {} -- Holds the stack of undo/redo command pairs
+D.dopointer = 1 -- Currently active undo-table pair
 
 -- CANVAS VARS --
 D.update = true -- Tracks whether the GUI should be redrawn
@@ -112,37 +110,38 @@ D.pianometa = {
 -- Links between command-names and functions (with args as needed)
 D.cmdfuncs = {
 
-	LOAD_FILE = {"loadFile", D.cmdundo},
+	LOAD_FILE = {"loadFile", false},
 	SAVE_FILE = {"saveFile"},
-	LOAD_DIALOG = {"loadViaDialog", D.cmdundo},
+	LOAD_DIALOG = {"loadViaDialog", false},
 	SAVE_DIALOG = {"saveViaDialog"},
 	
 	HOTSEAT_UP = {"moveHotseatPointer", -1},
 	HOTSEAT_DOWN = {"moveHotseatPointer", 1},
 
-	UNDO = {"traverseUndo", "undo"},
-	REDO = {"traverseUndo", "redo"},
+	UNDO = {"traverseUndo", true},
+	REDO = {"traverseUndo", false},
 
-	INSERT_NOTE = {"insertNote", D.cmdundo},
-	DELETE_NOTE = {"deleteNote", D.cmdundo},
-	DELETE_TICK_NOTES = {"deleteTickNotes", D.cmdundo},
-	DELETE_PITCH_NOTES = {"deletePitchNotes", D.cmdundo},
-	DELETE_BEAT_NOTES = {"deleteBeatNotes", D.cmdundo},
+	INSERT_NOTE = {"insertNote", 0, false},
+	DELETE_NOTE = {"deleteNote", false},
+	DELETE_TICK_NOTES = {"deleteTickNotes", false},
+	DELETE_PITCH_NOTES = {"deletePitchNotes", false},
+	DELETE_BEAT_NOTES = {"deleteBeatNotes", false},
 
-	INSERT_TICKS = {"insertSpacingTicks", D.cmdundo},
-	REMOVE_TICKS = {"removeSpacingTicks", D.cmdundo},
+	INSERT_TICKS = {"insertSpacingTicks", false},
+	REMOVE_TICKS = {"removeSpacingTicks", false},
 
-	INSERT_SEQ = {"addActiveSequence", D.cmdundo},
-	REMOVE_SEQ = {"removeActiveSequence", D.cmdundo},
+	INSERT_SEQ = {"addActiveSequence", false},
+	REMOVE_SEQ = {"removeActiveSequence", false},
 
 	TOGGLE_TOP = {"toggleSelect", "top"},
 	TOGGLE_BOT = {"toggleSelect", "bottom"},
 	TOGGLE_CLEAR = {"toggleSelect", "clear"},
+	SELECT_ALL = {"toggleSelect", "all"},
 	COPY = {"copySelection", false},
 	COPY_ADD = {"copySelection", true},
-	CUT = {"cutSelection", false, D.cmdundo},
-	CUT_ADD = {"cutSelection", true, D.cmdundo},
-	PASTE = {"pasteSelection", D.cmdundo},
+	CUT = {"cutSelection", false, false},
+	CUT_ADD = {"cutSelection", true, false},
+	PASTE = {"pasteSelection", false},
 
 	CHANNEL_UP = {"shiftInternalValue", "chan", false, 1},
 	CHANNEL_DOWN = {"shiftInternalValue", "chan", false, -1},
@@ -167,26 +166,26 @@ D.cmdfuncs = {
 	BPM_UP_10 = {"shiftInternalValue", "bpm", false, 10},
 	BPM_DOWN_10 = {"shiftInternalValue", "bpm", false, -10},
 
-	TPQ_UP = {"shiftTicksAndRebalance", false, 1, D.cmdundo},
-	TPQ_DOWN = {"shiftTicksAndRebalance", false, -1, D.cmdundo},
-	TPQ_UP_MULTI = {"shiftTicksAndRebalance", true, 2, D.cmdundo},
-	TPQ_DOWN_MULTI = {"shiftTicksAndRebalance", true, 0.5, D.cmdundo},
+	TPQ_UP = {"shiftTicksAndRebalance", false, 1, false},
+	TPQ_DOWN = {"shiftTicksAndRebalance", false, -1, false},
+	TPQ_UP_MULTI = {"shiftTicksAndRebalance", true, 2, false},
+	TPQ_DOWN_MULTI = {"shiftTicksAndRebalance", true, 0.5, false},
 
-	MOD_CHANNEL_UP = {"modActiveNoteChannel", 1, D.cmdundo},
-	MOD_CHANNEL_DOWN = {"modActiveNoteChannel", -1, D.cmdundo},
+	MOD_CHANNEL_UP = {"modActiveNoteChannel", 1, false},
+	MOD_CHANNEL_DOWN = {"modActiveNoteChannel", -1, false},
 
-	MOD_VELOCITY_UP = {"modActiveNoteVelocity", 1, D.cmdundo},
-	MOD_VELOCITY_DOWN = {"modActiveNoteVelocity", -1, D.cmdundo},
-	MOD_VELOCITY_UP_10 = {"modActiveNoteVelocity", 10, D.cmdundo},
-	MOD_VELOCITY_DOWN_10 = {"modActiveNoteVelocity", -10, D.cmdundo},
+	MOD_VELOCITY_UP = {"modActiveNoteVelocity", 1, false},
+	MOD_VELOCITY_DOWN = {"modActiveNoteVelocity", -1, false},
+	MOD_VELOCITY_UP_10 = {"modActiveNoteVelocity", 10, false},
+	MOD_VELOCITY_DOWN_10 = {"modActiveNoteVelocity", -10, false},
 
-	MOD_NOTE_UP = {"moveActiveNote", 0, 1, D.cmdundo},
-	MOD_NOTE_DOWN = {"moveActiveNote", 0, -1, D.cmdundo},
-	MOD_NOTE_LEFT = {"moveActiveNote", -1, 0, D.cmdundo},
-	MOD_NOTE_RIGHT = {"moveActiveNote", 1, 0, D.cmdundo},
+	MOD_NOTE_UP = {"moveActiveNote", 0, 1, false},
+	MOD_NOTE_DOWN = {"moveActiveNote", 0, -1, false},
+	MOD_NOTE_LEFT = {"moveActiveNote", -1, 0, false},
+	MOD_NOTE_RIGHT = {"moveActiveNote", 1, 0, false},
 
-	MOD_SEQ_UP = {"moveActiveSeq", -1, D.cmdundo},
-	MOD_SEQ_DOWN = {"moveActiveSeq", 1, D.cmdundo},
+	MOD_SEQ_UP = {"moveActiveSeq", -1, false},
+	MOD_SEQ_DOWN = {"moveActiveSeq", 1, false},
 
 	POINTER_UP = {"shiftInternalValue", "np", false, 1},
 	POINTER_DOWN = {"shiftInternalValue", "np", false, -1},

@@ -61,6 +61,36 @@ return {
 
 	end,
 
+	-- Convert user-defined keyboard-buttons into piano-keys,
+	-- and attach commands to them in the command-tables.
+	buttonsToPianoKeys = function(data, keys)
+
+		local iter = 0
+
+		for k, v in pairs(keys) do
+
+			-- Format single keys in the same manner as multiple keys
+			v = ((type(v) == "table") and v) or {v}
+
+			-- For every button that corresponds to a piano-key,
+			-- put corresponding commands into the command-tables.
+			for _, button in pairs(v) do
+
+				-- Make a unique command name
+				local cmdname = "PIANO_KEY_" .. iter
+
+				-- Insert the keycommands into the command-tables
+				data.cmds[cmdname] = {button}
+				data.cmdfuncs[cmdname] = {"insertNote", k - 1, data.cmdundo}
+
+				iter = iter + 1
+
+			end
+
+		end
+
+	end,
+
 	-- Sort all key-command tables, to allow simple comparison
 	sortKeyComboTables = function(data)
 		for i = 1, #data.cmds do

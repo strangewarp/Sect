@@ -53,13 +53,15 @@ function love.load()
 	canvas = love.graphics.newCanvas(width, height)
 
 	fontsmall = love.graphics.newFont("Milavregarian.ttf", 8)
-	fontlarge = love.graphics.newFont("Milavregarian.ttf", 12)
 
 	love.keyboard.setKeyRepeat(true)
 
 	love.graphics.setLineStyle("rough")
 	love.graphics.setLineWidth(1)
 	
+	-- Attach user-defined keyboard-buttons to commands
+	data:buttonsToPianoKeys(data.pianokeys)
+
 	data:sortKeyComboTables()
 
 	print("love.load: Launched!")

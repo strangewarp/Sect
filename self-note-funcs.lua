@@ -18,7 +18,7 @@ return {
 				if ((v.note[1] == 'note') and rangeCheck(v.note[5], nbot, ntop))
 				or ((v.note[1] ~= 'note') and rangeCheck(v.note[4], nbot, ntop))
 				then -- If the note is within note-range, grab it
-					table.insert(outnotes, v)
+					table.insert(outnotes, deepCopy(v))
 				end
 			end
 		end
@@ -27,11 +27,84 @@ return {
 
 	end,
 
+	-- Insert a given table of note values into a sequence
+	setNotes = function(data, p, notes, undo)
+
+		-- Make duplicates of the notes, to prevent reference bugs
+		notes = deepCopy(notes)
+
+		local undonotes = {}
+		local redonotes = {}
+
+		local removenotes = {}
+		local addnotes = {}
+
+		-- Find all overlapping notes, and all to-be-removed notes
+		for i = #notes, 1, -1 do
+
+			local n = notes[i]
+
+			-- For all notes in every tick...
+			for k, v in pairs(data.seq[p].tick[n.tick]) do
+
+				-- If the incoming setNote command is for removal,
+				-- and it matches the old note, then remove the old note.
+				-- Else if the new note matches the old note,
+				-- put old note into remove-table, and new note into add-table.
+				if (n.note[1] == 'remove') and checkNoteOverlap(n, v) then
+					table.insert(removenotes, v)
+					break
+				elseif checkNoteOverlap(n, v) then
+					table.insert(removenotes, v)
+					table.insert(addnotes, table.remove(notes, i))
+					break
+				end
+
+			end
+
+		end
+
+		-- Shift remaining incoming notes into their tables
+		for k, v in pairs(notes) do
+			if v.note[1] ~= 'remove' then
+				table.insert(addnotes, deepCopy(v))
+			end
+		end
+
+		-- Remove all removenotes
+		for k, v in pairs(removenotes) do
+			for i = 1, #data.seq[p].tick[v.tick] do
+				local n = data.seq[p].tick[v.tick][i]
+				if checkNoteOverlap(v, n) then
+					local rnote = table.remove(data.seq[p].tick[v.tick], i)
+					table.insert(undonotes, rnote)
+					table.insert(redonotes, {tick = v.tick, note = {'remove', v.note[5]}})
+					break
+				end
+			end
+		end
+
+		-- Add all addnotes
+		for k, v in pairs(addnotes) do
+			table.insert(data.seq[p].tick[v.tick], v)
+			table.insert(redonotes, v)
+			table.insert(undonotes, {tick = v.tick, note = {'remove', v.note[5]}})
+		end
+
+		-- Build undo tables
+		data:addUndoStep(
+			((undo == nil) and true) or undo, -- Suppress flag
+			{"setNotes", p, undonotes}, -- Undo command
+			{"setNotes", p, redonotes} -- Redo command
+		)
+
+	end,
+
 	-- Move a given table of notes in a given sequence by a given direction
 	moveNotes = function(data, p, notes, tdir, ndir, undo)
 
-		-- Prevent modifications to the undo table's original referent
-		undo = deepCopy(undo)
+		-- Make a duplicate of notes-table, to prevent reference bugs
+		notes = deepCopy(notes)
 
 		tdir = tdir or 0
 		ndir = ndir or 0
@@ -50,103 +123,16 @@ return {
 			print("DYE 1: " .. nt[k].tick .. " " .. nt[k].note[2] .. " " .. nt[k].note[5]) --DEBUGGING
 		end
 
+		notes = notesToRemove(notes)
+
 		-- Remove old notes and add new notes, chaining this into the undo tables
-		data:removeNotes(p, notes, undo)
-		undo[2] = true
-		data:addNotes(p, nt, undo)
+		data:setNotes(p, notes, undo)
+		data:setNotes(p, nt, undo)
 
 	end,
 
-	-- Insert a given table of timestamped notes into a given sequence
-	addNotes = function(data, p, notes, undo)
-
-		-- Prevent modifications to the undo table's original referent
-		undo = deepCopy(undo)
-
-		local undonotes = {}
-		local collidenotes = {}
-		local maxpos = 1
-		local oldlen = #data.seq[p].tick
-
-		-- Convert naked single-note-tables into the proper table format for the iterators
-		if (notes.tick ~= nil) and (notes.note ~= nil) then
-			notes = {notes}
-		end
-
-		-- Find the largest position-index among the inserted notes
-		for k, v in pairs(notes) do
-			if v.tick > maxpos then
-				maxpos = v.tick
-			end
-		end
-
-		-- If the sequence isn't long enough, extend its ticks
-		if maxpos > #data.seq[p].tick then
-			local addpoint = #data.seq[p].tick + 1
-			local amt = maxpos - #data.seq[p].tick
-			data:addTicks(p, addpoint, amt, undo)
-			undo[2] = true
-		end
-
-		for k, v in ipairs(notes) do -- For every incoming note...
-
-			-- Check all notes in the tick against this note, and remove note-collisions, adding them to the collide-table
-			for notenum, n in ipairs(data.seq[p].tick[v.tick]) do
-				if checkNoteOverlap(v, n, true) then
-					table.insert(collidenotes, deepCopy(n))
-					table.remove(data.seq[p].tick[v.tick], notenum)
-					print("addNotes: removed colliding note: " .. table.concat(collidenotes[#collidenotes].note, " "))
-					break
-				end
-			end
-
-			-- Insert notes into the sequence-table, and insert corresponding removal-data into a temp undo-notes-table
-			local vout = deepCopy(v)
-			table.insert(data.seq[p].tick[v.tick], vout)
-			table.insert(undonotes, vout)
-			print("addNotes: added note: " .. table.concat(vout.note, " "))
-
-		end
-
-		-- Create and store undo-table data that is a reversal of what this function has done
-		data:addMetaUndoTask("removeNotes", p, undonotes, undo)
-		undo[2] = true
-
-		if #collidenotes > 0 then -- If any colliding notes were removed, add them back, but only after removing the notes that were just added
-			data:addMetaUndoTask("addNotes", p, collidenotes, undo)
-		end
-
-	end,
-
-	-- Remove a series of timestamped, order-stamped notes from a given sequence
-	removeNotes = function(data, p, notes, undo)
-
-		local undonotes = {}
-
-		-- Convert naked single-note-tables into the proper table format for the iterator
-		if (notes.tick ~= nil) and (notes.note ~= nil) then
-			notes = {notes}
-		end
-
-		-- Remove matching notes from the sequence-table, and insert corresponding addition-data into a temporary undo-table
-		for k, v in ipairs(notes) do
-			for notenum, n in pairs(data.seq[p].tick[v.tick]) do
-				if crossCompare(n.note, v.note) then
-					local oldnote = table.remove(data.seq[p].tick[v.tick], notenum)
-					table.insert(undonotes, oldnote)
-					print("removeNotes: removed note (" .. table.concat(oldnote.note, " ") .. ") at tick (" .. oldnote.tick .. ")")
-					break
-				end
-			end
-		end
-
-		-- Create and store undo-table data that is a reversal of what this function has done
-		data:addMetaUndoTask("addNotes", p, undonotes, undo)
-
-	end,
-
-	-- Insert the current note, with the current note-var settings
-	insertNote = function(data, undo)
+	-- Insert a note, with the current note-var settings
+	insertNote = function(data, dist, undo)
 
 		-- If no sequences are loaded, abort function
 		if data.active == false then
@@ -161,12 +147,12 @@ return {
 				data.tp - 1, -- 0-indexed tick start-time
 				data.dur, -- Duration (ticks)
 				data.chan, -- Channel
-				data.np, -- Pitch
+				clampNum(data.np + dist, data.bounds.np), -- Pitch + piano key dist
 				data.velo, -- Velocity
 			},
 		}
 
-		data:addNotes(data.active, {n}, undo)
+		data:setNotes(data.active, {n}, undo)
 
 	end,
 
@@ -174,10 +160,11 @@ return {
 	deleteNote = function(data, undo)
 
 		local delnotes = data:getNotes(data.active, data.tp, data.tp, data.np, data.np)
+		delnotes = notesToRemove(delnotes)
 
 		-- If any matching notes were found, send them through removeNotes
 		if #delnotes > 0 then
-			data:removeNotes(data.active, delnotes, undo)
+			data:setNotes(data.active, delnotes, undo)
 		end
 
 	end,
@@ -186,10 +173,11 @@ return {
 	deleteTickNotes = function(data, undo)
 
 		local delnotes = data:getNotes(data.active, data.tp, data.tp, _, _)
+		delnotes = notesToRemove(delnotes)
 
 		-- If any matching notes were found, send them through removeNotes
 		if #delnotes > 0 then
-			data:removeNotes(data.active, delnotes, undo)
+			data:setNotes(data.active, delnotes, undo)
 		end
 
 	end,
@@ -197,12 +185,12 @@ return {
 	-- Delete all notes in the active pitch
 	deletePitchNotes = function(data, undo)
 
-		local delnotes = {}
 		local delnotes = data:getNotes(data.active, _, _, data.np, data.np)
+		delnotes = notesToRemove(delnotes)
 
 		-- If any matching notes were found, send them through removeNotes
 		if #delnotes > 0 then
-			data:removeNotes(data.active, delnotes, undo)
+			data:setNotes(data.active, delnotes, undo)
 		end
 
 	end,
@@ -218,10 +206,11 @@ return {
 		local rtick = math.min(#data.seq[data.active].tick, (ltick + (data.tpq * 4)) - 1)
 
 		local delnotes = data:getNotes(data.active, ltick, rtick, _, _)
+		delnotes = notesToRemove(delnotes)
 
 		-- If any matching notes were found, send them through removeNotes
 		if #delnotes > 0 then
-			data:removeNotes(data.active, delnotes, undo)
+			data:setNotes(data.active, delnotes, undo)
 		end
 
 	end,

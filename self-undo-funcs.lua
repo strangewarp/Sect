@@ -1,47 +1,39 @@
 return {
 	
-	-- Add tasks to either the undo or redo table, depending on context
-	addMetaUndoTask = function(data, ...)
+	-- Add an undo step to the undo stack,
+	-- comprised of an undo-direction and redo-direction command.
+	addUndoStep = function(data, suppress, u, r)
 
-		-- Put the list of arguments into a table, and copy them,
-		-- to prevent any modifying of original values.
-		local t = deepCopy({...})
-
-		-- Get contents of undo-command table
-		local suppress, collect, newcmd = unpack(t[#t])
+		print("DYE 1: " .. tostring(suppress)) -- DEBUGGING
 
 		-- If undo-suppression is not invoked on this function call...
 		if not suppress then
 
 			-- If a task is being added to the undo stack via new commands,
-			-- empty the newly irrelevant tasks from the redo table,
-			-- set the do-command target table to the undo-tab,
-			-- and set the newcmd flag to false for storage.
-			if newcmd then
-				data.redo = {}
-				data.dotarget = "undo"
-				t[#t][3] = false
-			end
-
-			-- If this function is to be collected in the latest do-entry...
-			if collect then
-
-				-- Create an empty table on top of the do-stack if none are there
-				if #data[data.dotarget] == 0 then
-					table.insert(data[data.dotarget], {})
+			-- empty the newly irrelevant redo-tasks.
+			if data.dopointer <= #data.dostack then
+				for i = #data.dostack, data.dopointer - 1, -1 do
+					table.remove(data.dostack, i)
 				end
-
-				table.insert(data[data.dotarget][#data[data.dotarget]], t)
-
-			else -- If the func-args represent a new do-entry, insert them as one
-				table.insert(data[data.dotarget], {t})
 			end
+
+			local composite = {
+				true, -- Suppress flag
+				u, -- Incoming undo command
+				r, -- Incoming redo command
+			}
+
+			-- Put the command-pair, and flags, atop the undo-stack
+			table.insert(data.dostack, composite)
 
 			-- If there are more undo states than max-undo-states,
-			-- remove the most distant undo item.
-			if #data.undo > data.maxundo then
-				table.remove(data.undo, 1)
+			-- remove the most distant command pair.
+			if #data.dostack > data.maxundo then
+				table.remove(data.dostack, 1)
 			end
+
+			-- Set the dopointer at the top of the dostack
+			data.dopointer = #data.dostack + 1
 
 		end
 
@@ -49,28 +41,36 @@ return {
 
 	-- Traverse one step within data.undo or data.redo table,
 	-- and execute the step's table of functions.
-	traverseUndo = function(data, dotype)
+	traverseUndo = function(data, back)
 
-		if #data[dotype] > 0 then -- If the do-table isn't empty...
+		if (back and (data.dopointer <= 1))
+		or ((not back) and (data.dopointer == (#data.dostack + 1)))
+		then
 
-			-- Set the do-target to the opposite stack from the do-command
-			data.dotarget = ((dotype == "redo") and "undo") or "redo"
+			print("traverseUndo: reached " .. ((back and "lower") or "upper") .. " limit!")
 
-			-- Remove a single step-table from either the undo or redo table
-			local funcs = table.remove(data[dotype])
+		elseif #data.dostack == 0 then
 
-			-- Call all functions in the do-step, in the do-type's order
-			local order = dotype == "redo"
-			for i = (order and 1) or #funcs,
-				(order and #funcs) or 1,
-				(order and 1) or -1
-			do
-				data:executeObjectFunction(unpack(funcs[i]))
-				print("traverseUndo: performed " .. dotype .. " function " .. funcs[i][1] .. "!")
-			end
-
-		else
 			print("traverseUndo: do-stack was empty!")
+
+		else -- If the do-command is valid...
+
+			-- Move the do-target pointer back before undo
+			data.dopointer = data.dopointer + ((back and -1) or 0)
+
+			-- Get a single command-pair from the do-stack
+			local flags, undo, redo = unpack(deepCopy(data.dostack[data.dopointer]))
+
+			-- If undo, get the undo command, else get the redo command
+			local cmd = (back and undo) or redo
+
+			-- Execute the function, with its attendant args
+			data:executeObjectFunction(unpack(cmd))
+			print("traverseUndo: performed function: " .. cmd[1] .. "! (" .. data.dopointer .. ")")
+
+			-- Move the do-target pointer forward after redo
+			data.dopointer = data.dopointer + ((back and 0) or 1)
+
 		end
 
 	end,
