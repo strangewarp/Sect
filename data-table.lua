@@ -50,8 +50,8 @@ D.sel = { -- Holds the boundaries of the currently selected area
 	t = false, -- Top
 	b = false, -- Bottom
 }
-D.copydat = {} -- Concrete positions of all copied notes
-D.movedat = {} -- Holds the notes that were selected for movement
+D.seldat = {} -- Holds the notes that were selected for commands
+D.copydat = {} -- Table for copied notes
 
 -- Baseline contents for new sequences
 D.baseseq = {
@@ -135,8 +135,10 @@ D.cmdfuncs = {
 
 	TOGGLE_TOP = {"toggleSelect", "top"},
 	TOGGLE_BOT = {"toggleSelect", "bottom"},
-	TOGGLE_CLEAR = {"toggleSelect", "clear"},
+	CLEAR_SELECT_RANGE = {"toggleSelect", "clear"},
+	CLEAR_SELECT_MEMORY = {"clearSelectMemory"},
 	SELECT_ALL = {"toggleSelect", "all"},
+
 	COPY = {"copySelection", false},
 	COPY_ADD = {"copySelection", true},
 	CUT = {"cutSelection", false, false},

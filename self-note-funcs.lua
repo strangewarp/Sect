@@ -44,18 +44,18 @@ return {
 
 			local n = notes[i]
 
-			-- For all notes in every tick...
+			-- Populate the removal-table
 			for k, v in pairs(data.seq[p].tick[n.tick]) do
 
 				-- If the incoming setNote command is for removal,
-				-- and it matches the old note, then remove the old note.
+				-- and it matches the old note, then put old note into remove-table.
 				-- Else if the new note matches the old note,
 				-- put old note into remove-table, and new note into add-table.
 				if (n.note[1] == 'remove') and checkNoteOverlap(n, v) then
-					table.insert(removenotes, v)
+					table.insert(removenotes, deepCopy(v))
 					break
 				elseif checkNoteOverlap(n, v) then
-					table.insert(removenotes, v)
+					table.insert(removenotes, deepCopy(v))
 					table.insert(addnotes, table.remove(notes, i))
 					break
 				end
@@ -71,11 +71,10 @@ return {
 			end
 		end
 
-		-- Remove all removenotes
+		-- Remove all removenotes, and shape undo tables accordingly
 		for k, v in pairs(removenotes) do
 			for i = 1, #data.seq[p].tick[v.tick] do
-				local n = data.seq[p].tick[v.tick][i]
-				if checkNoteOverlap(v, n) then
+				if checkNoteOverlap(v, data.seq[p].tick[v.tick][i]) then
 					local rnote = table.remove(data.seq[p].tick[v.tick], i)
 					table.insert(undonotes, rnote)
 					table.insert(redonotes, {tick = v.tick, note = {'remove', v.note[5]}})
@@ -84,10 +83,10 @@ return {
 			end
 		end
 
-		-- Add all addnotes
+		-- Add all addnotes, and shape undo tables accordingly
 		for k, v in pairs(addnotes) do
-			table.insert(data.seq[p].tick[v.tick], v)
-			table.insert(redonotes, v)
+			table.insert(data.seq[p].tick[v.tick], deepCopy(v))
+			table.insert(redonotes, deepCopy(v))
 			table.insert(undonotes, {tick = v.tick, note = {'remove', v.note[5]}})
 		end
 
@@ -143,6 +142,9 @@ return {
 		-- If a distance-from-C isn't given, set it to the note-pointer position
 		dist = dist or (data.np % 12)
 
+		-- Get the note-pointer position, modulated by dist-offset
+		local npoffset = dist + (data.np - (data.np % 12))
+
 		local n = {
 			tick = data.tp, -- 1-indexed tick start-time
 			note = {
@@ -150,7 +152,7 @@ return {
 				data.tp - 1, -- 0-indexed tick start-time
 				data.dur, -- Duration (ticks)
 				data.chan, -- Channel
-				clampNum((data.np - (data.np % 12)) + dist, data.bounds.np), -- Pitch + piano key dist
+				clampNum(npoffset, data.bounds.np), -- Pitch + piano key dist
 				data.velo, -- Velocity
 			},
 		}

@@ -10,6 +10,10 @@ return {
 		local fname = table.remove(t, 1)
 		data[fname](data, unpack(t))
 
+		-- Sanitize data structures, which may have been changed
+		data:normalizePointers()
+		data:removeOldSelectItems()
+
 	end,
 
 }

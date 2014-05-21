@@ -74,6 +74,7 @@ return {
 			quiet = {6, 220, 235, 255},
 			loud = {255, 10, 20, 255},
 			highlight = {230, 240, 240, 255},
+			selected = {0, 0, 255, 255},
 			border = {5, 4, 8, 255},
 			adjborder = {210, 210, 220, 255},
 			lightborder = {255, 255, 255, 255},
@@ -131,8 +132,10 @@ return {
 
 		TOGGLE_TOP = {"ctrl", ","},
 		TOGGLE_BOT = {"ctrl", "."},
-		TOGGLE_CLEAR = {"ctrl", "/"},
+		CLEAR_SELECT_RANGE = {"ctrl", "/"},
+		CLEAR_SELECT_MEMORY = {"ctrl", "shift", "/"},
 		SELECT_ALL = {"ctrl", "a"},
+
 		COPY = {"ctrl", "c"},
 		COPY_ADD = {"ctrl", "shift", "c"},
 		CUT = {"ctrl", "x"},

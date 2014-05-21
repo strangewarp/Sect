@@ -3,6 +3,11 @@ return {
 	-- Normalize all pointers (e.g. after a command that changes seq length)
 	normalizePointers = function(data)
 	
+		-- If no sequences are loaded, do nothing
+		if not data.active then
+			return false
+		end
+
 		local tlimit = #data.seq[data.active].tick
 
 		-- Normalize tick and note pointers

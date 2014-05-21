@@ -220,10 +220,64 @@ return {
 
 	end,
 
+	-- Remove duplicate entries from different indexes of a table
+	removeDuplicates = function(t)
+
+		if #t < 2 then
+			return t
+		end
+
+		for i = #t, 2, -1 do
+
+			local item = t[i]
+			local r = 0
+
+			for c = i - 1, 1, -1 do
+				if strictCompare(item, t[c]) then
+					table.remove(t, c)
+					r = r + 1
+				end
+			end
+
+			i = i - r
+
+		end
+
+		return t
+
+	end,
+
 	-- Round number num, at decimal place dec.
 	roundNum = function(num, dec)
 		local mult = 10 ^ dec
 		return math.floor((num * mult) + 0.5) / mult
+	end,
+
+	-- Compare the contents of two tables, including element-ordering
+	strictCompare = function(t, t2)
+
+		if #t ~= #t2 then
+			return false
+		end
+
+		for k, v in pairs(t) do
+
+			if t2[k] == nil then
+				return false
+			elseif type(v) ~= type(t2[k]) then
+				return false
+			elseif (type(v) == "table")
+			and (not strictCompare(v, t2[k]))
+			then
+				return false
+			elseif v ~= t2[k] then
+				return false
+			end
+
+		end
+
+		return true
+
 	end,
 
 	-- Combine the contents of two tables into a single table.
@@ -232,7 +286,7 @@ return {
 
 		ibool = ibool or false
 
-		for _, v in pairs(t2) do
+		for k, v in pairs(t2) do
 			t[(ibool and k) or (#t + 1)] = v
 		end
 

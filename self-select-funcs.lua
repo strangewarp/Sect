@@ -68,27 +68,66 @@ return {
 			b = (data.seltop.x ~= false) and math.min(data.seltop.y, data.selbot.y),
 		}
 
-		-- Put selected notes into move-memory
-		data.movedat = data:getNotes(data.active, data.sel.l, data.sel.r, data.sel.b, data.sel.t)
+		-- Merge selected notes into selection-memory table
+		local n = data:getNotes(data.active, data.sel.l, data.sel.r, data.sel.b, data.sel.t)
+		data.seldat = tableCombine(n, data.seldat, false)
+		data.seldat = removeDuplicates(data.seldat)
+
+	end,
+
+	-- Clear the select-table
+	clearSelectMemory = function(data)
+		data.seldat = {}
+	end,
+
+	-- Remove notes that no longer exist from the select-table
+	removeOldSelectItems = function(data)
+
+		for i = #data.seldat, 1, -1 do
+
+			local n = data.seldat[i]
+			local r = 0
+
+			-- If the corresponding tick doesn't exist anymore, remove the entry
+			if data.seq[data.active].tick[n.tick] == nil then
+
+				table.remove(data.seldat, i)
+				r = r + 1
+
+			else -- If the corresponding tick still exists...
+
+				local match = false
+
+				-- For every note in the seldat item's tick,
+				-- if there's a note overlap, replace selnote entry with seq entry.
+				for k, v in pairs(data.seq[data.active].tick[n.tick]) do
+					if checkNoteOverlap(n, v) then
+						data.seldat[i] = deepCopy(v)
+						match = true
+						break
+					end
+				end
+
+				-- If no matching notes were found, remove the seldat entry
+				if not match then
+					table.remove(data.seldat, i)
+					r = r + 1
+				end
+
+			end
+
+			-- Skip downwards by the number of entries removed
+			i = i - r
+
+		end
 
 	end,
 
 	-- Copy the currently selected chunk of notes and ticks
 	copySelection = function(data, add)
 
-		-- If nothing is selected, select the active tick/note
-		if not data.sel.l then
-			data:toggleSelect()
-		end
-
-		-- Get duplicates of the selected notes
-		local n = deepCopy(
-			data:getNotes(
-				data.active,
-				data.sel.l, data.sel.r,
-				data.sel.b, data.sel.t
-			)
-		)
+		-- Get duplicates of the notes in selection-memory
+		local n = deepCopy(data.seldat)
 
 		-- Reduce tick values relative to the left selection-pointer's position
 		for i = 1, #n do
@@ -134,16 +173,11 @@ return {
 	-- Cut the currently selected chunk of notes and ticks
 	cutSelection = function(data, add, undo)
 
-		-- If nothing is selected, select the active tick/note
-		if not data.sel.l then
-			data:toggleSelect("top")
-		end
-
-		-- Copy the selection like a normal copy command
+		-- Copy the selected notes
 		data:copySelection(add)
 
-		-- Remove the copied notes from the seq, adding an undo command
-		data:setNotes(data.active, notesToRemove(deepCopy(data.copydat)), undo)
+		-- Remove the selected notes from the seq
+		data:setNotes(data.active, notesToRemove(deepCopy(data.seldat)), undo)
 
 	end,
 

@@ -466,6 +466,15 @@ return {
 			love.graphics.rectangle("fill", colleft, coltop, colwidth, colheight)
 		end
 
+		-- Index the note-and-tick locations of all selected notes
+		local selindex = {}
+		for k, v in pairs(data.seldat) do
+			selindex[v.tick] = selindex[v.tick] or {}
+			if v.note[1] == 'note' then
+				selindex[v.tick][v.note[5]] = true
+			end
+		end
+
 		-- Draw all note-squares on top of the sequence-grid
 		for k, v in ipairs(drawnotes) do
 
@@ -476,6 +485,7 @@ return {
 			local c1 = deepCopy(data.color.note.quiet)
 			local c2 = deepCopy(data.color.note.loud)
 
+			-- If the note is on the notepointer or tickpointer line, highlight it
 			if (n.tick == data.tp) and (n.note[5] == data.np) then
 				for hue, chroma in pairs(c1) do
 					c1[hue] = (chroma + data.color.note.lightborder[hue]) / 2
@@ -486,12 +496,24 @@ return {
 				linecolor = deepCopy(data.color.note.adjborder)
 			end
 
+			-- Modify the note's color based on velocity
 			local velomap = n.note[6] / data.bounds.velo[2]
 			local velorev = (data.bounds.velo[2] - n.note[6]) / data.bounds.velo[2]
 			for hue, chroma in pairs(c1) do
 				notecolor[hue] = ((chroma * velorev) + (c2[hue] * velomap))
 			end
 
+			-- If the note is currently selected, modify its color
+			if (n.note[1] == 'note')
+			and (selindex[n.tick] ~= nil)
+			and (selindex[n.tick][n.note[5]] ~= nil)
+			then
+				for hue, chroma in pairs(deepCopy(data.color.note.selected)) do
+					notecolor[hue] = (chroma + notecolor[hue]) / 2
+				end
+			end
+
+			-- Draw the note-rectangle
 			love.graphics.setColor(notecolor)
 			love.graphics.rectangle("fill", nleft, ntop, nx, ny)
 			love.graphics.setColor(linecolor)
