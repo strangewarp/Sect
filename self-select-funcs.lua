@@ -47,7 +47,7 @@ return {
 
 		elseif cmd == "all" then -- Select all
 
-			data.seldat = data:getNotes(data.active, _, _, _, _)
+			data.seldat = data:getNotes(data.active)
 
 		end
 
