@@ -3,9 +3,8 @@ return {
 	-- Toggle select-mode boundaries, which are dragged by the pointers
 	toggleSelect = function(data, cmd)
 
-		if cmd == "clear" then -- Clear selection-tables
+		if cmd == "clear" then -- Clear selection-tables, but leave selnotes alone
 
-			data.movedat = {}
 			data.seltop = {
 				x = false,
 				y = false,
@@ -69,15 +68,49 @@ return {
 		}
 
 		-- Merge selected notes into selection-memory table
-		local n = data:getNotes(data.active, data.sel.l, data.sel.r, data.sel.b, data.sel.t)
-		data.seldat = tableCombine(n, data.seldat, false)
-		data.seldat = removeDuplicates(data.seldat)
+		if cmd ~= "clear" then
+			local n = data:getNotes(data.active, data.sel.l, data.sel.r, data.sel.b, data.sel.t)
+			data.seldat = tableCombine(n, data.seldat, false)
+			data.seldat = removeDuplicates(data.seldat)
+		end
 
 	end,
 
 	-- Clear the select-table
 	clearSelectMemory = function(data)
-		data.seldat = {}
+
+		-- If something is selected, remove all non-selected notes from seldat
+		if data.sel.l ~= false then
+
+			-- Get a table of all currently-selected notes
+			local n = data:getNotes(data.active, data.sel.l, data.sel.r, data.sel.b, data.sel.t)
+
+			-- Match all seldat notes against the subset of selected notes
+			for i = #data.seldat, 1, -1 do
+
+				local keep = false
+
+				-- If a match is found, earmark the note as a keeper
+				for k, v in pairs(n) do
+					if checkNoteOverlap(data.seldat[i], v) then
+						print("DYE 1") -- DEBUGGING
+						table.remove(n, k)
+						keep = true
+						break
+					end
+				end
+
+				-- If the note is outside the selected-notes, remove it
+				if not keep then
+					table.remove(data.seldat, i)
+				end
+
+			end
+
+		else -- If nothing is selected, clear the selection table
+			data.seldat = {}
+		end
+
 	end,
 
 	-- Remove notes that no longer exist from the select-table

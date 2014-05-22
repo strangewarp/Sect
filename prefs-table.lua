@@ -101,8 +101,8 @@ return {
 		"n", -- A
 		"j", -- Bb
 		"m", -- B
-		"q", -- C
-		"2", -- Db
+		{",", "q"}, -- C
+		{"l", "2"}, -- Db
 		"w", -- D
 		"3", -- Eb
 		"e", -- E
@@ -177,10 +177,10 @@ return {
 		BPM_UP_10 = {"shift", "/"},
 		BPM_DOWN_10 = {"shift", "."},
 
-		TPQ_UP = {","},
-		TPQ_DOWN = {"m"},
-		TPQ_UP_MULTI = {"shift", ","},
-		TPQ_DOWN_MULTI = {"shift", "m"},
+		TPQ_UP = {"tab", "/"},
+		TPQ_DOWN = {"tab", "."},
+		TPQ_UP_MULTI = {"shift", "tab", "/"},
+		TPQ_DOWN_MULTI = {"shift", "tab", "."},
 
 		MOD_CHANNEL_UP = {"shift", "tab", "up"},
 		MOD_CHANNEL_DOWN = {"shift", "tab", "down"},

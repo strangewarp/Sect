@@ -168,10 +168,10 @@ D.cmdfuncs = {
 	BPM_UP_10 = {"shiftInternalValue", "bpm", false, 10},
 	BPM_DOWN_10 = {"shiftInternalValue", "bpm", false, -10},
 
-	TPQ_UP = {"shiftTicksAndRebalance", false, 1, false},
-	TPQ_DOWN = {"shiftTicksAndRebalance", false, -1, false},
-	TPQ_UP_MULTI = {"shiftTicksAndRebalance", true, 2, false},
-	TPQ_DOWN_MULTI = {"shiftTicksAndRebalance", true, 0.5, false},
+	TPQ_UP = {"shiftInternalValue", "tpq", false, 1},
+	TPQ_DOWN = {"shiftInternalValue", "tpq", false, -1},
+	TPQ_UP_MULTI = {"shiftInternalValue", "tpq", false, 10},
+	TPQ_DOWN_MULTI = {"shiftInternalValue", "tpq", false, -10},
 
 	MOD_CHANNEL_UP = {"modActiveNoteChannel", 1, false},
 	MOD_CHANNEL_DOWN = {"modActiveNoteChannel", -1, false},
