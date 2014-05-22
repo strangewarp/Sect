@@ -47,15 +47,7 @@ return {
 
 		elseif cmd == "all" then -- Select all
 
-			data.selbot = {
-				x = #data.seq[data.active].tick,
-				y = data.bounds.np[1],
-			}
-
-			data.seltop = {
-				x = 1,
-				y = data.bounds.np[2],
-			}
+			data.seldat = data:getNotes(data.active, _, _, _, _)
 
 		end
 
