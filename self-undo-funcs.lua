@@ -9,10 +9,8 @@ return {
 
 			-- If a task is being added to the undo stack via new commands,
 			-- empty the newly irrelevant redo-tasks.
-			if data.dopointer <= #data.dostack then
-				for i = #data.dostack, data.dopointer - 1, -1 do
-					table.remove(data.dostack, i)
-				end
+			if #data.redo > 0 then
+				data.redo = {}
 			end
 
 			local composite = {
@@ -22,16 +20,13 @@ return {
 			}
 
 			-- Put the command-pair, and flags, atop the undo-stack
-			table.insert(data.dostack, composite)
+			table.insert(data.undo, composite)
 
 			-- If there are more undo states than max-undo-states,
 			-- remove the most distant command pair.
-			if #data.dostack > data.maxundo then
-				table.remove(data.dostack, 1)
+			if #data.undo > data.maxundo then
+				table.remove(data.undo, 1)
 			end
-
-			-- Set the dopointer at the top of the dostack
-			data.dopointer = #data.dostack + 1
 
 		end
 
@@ -41,36 +36,32 @@ return {
 	-- and execute the step's table of functions.
 	traverseUndo = function(data, back)
 
-		-- If a limit was reached, do nothing
-		if (back and (data.dopointer <= 1))
-		or ((not back) and (data.dopointer == (#data.dostack + 1)))
-		then
+		-- Get the target stack names, based on the command type
+		local stack = (back and "undo") or "redo"
+		local otherstack = (back and "redo") or "undo"
 
-			print("traverseUndo: reached " .. ((back and "lower") or "upper") .. " limit!")
-			return nil
+		-- If the do-stack is empty, do nothing
+		if #data[stack] == 0 then
 
-		elseif #data.dostack == 0 then -- If do-stack is empty, do nothing
-
-			print("traverseUndo: do-stack was empty!")
+			print("traverseUndo: \"" .. stack .. "\" stack was empty!")
 			return nil
 
 		else -- If the do-command is valid...
 
-			-- Move the do-target pointer back before undo
-			data.dopointer = data.dopointer + ((back and -1) or 0)
+			-- Get a single command-table from the do-stack,
+			-- and place it into the other-do-stack.
+			local ctab = table.remove(data[stack])
+			table.insert(data[otherstack], ctab)
 
-			-- Get a single command-pair from the do-stack
-			local flags, undo, redo = unpack(deepCopy(data.dostack[data.dopointer]))
+			-- Unpack the do-command table
+			local flags, undo, redo = unpack(ctab)
 
 			-- If undo, get the undo command, else get the redo command
 			local cmd = (back and undo) or redo
 
 			-- Execute the function, with its attendant args
 			data:executeObjectFunction(unpack(cmd))
-			print("traverseUndo: performed function: " .. cmd[1] .. "! (" .. data.dopointer .. ")")
-
-			-- Move the do-target pointer forward after redo
-			data.dopointer = data.dopointer + ((back and 0) or 1)
+			print("traverseUndo: performed function: " .. cmd[1] .. "! (" .. stack .. ")")
 
 		end
 

@@ -28,8 +28,8 @@ D.zoomx = 4 -- Multiplier for X-axis zoom
 D.zoomy = 4 -- Multiplier for Y-axis zoom
 
 -- UNDO VARS --
-D.dostack = {} -- Holds the stack of undo/redo command pairs
-D.dopointer = 1 -- Currently active undo-table pair
+D.undo = {} -- Holds the stack of command-pairs accessed by undo
+D.redo = {} -- Holds the stack of command-pairs accessed by redo
 
 -- CANVAS VARS --
 D.update = true -- Tracks whether the GUI should be redrawn
