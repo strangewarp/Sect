@@ -4,6 +4,9 @@ local D = {}
 -- DATA VARS --
 D.seq = {} -- Sequence-data table
 D.keys = {} -- Keystroke-tracking table
+D.overlay = {} -- Overlay-render tracking table
+D.drawnotes = true -- Toggles whether to draw notes
+D.recording = true -- Toggles whether note-recording is enabled
 
 D.active = false -- Currently active sequence (false if nothing loaded)
 D.tp = false -- Current tick-pointer position (false if nothing loaded)
@@ -56,7 +59,7 @@ D.copydat = {} -- Table for copied notes
 -- Baseline contents for new sequences
 D.baseseq = {
 	point = 1, -- Internal pointer, for playing decoupled from global tick
-	mute = false, -- If sequence is muted, none of its notes will play
+	overlay = false, -- Toggles whether the seq shadows other seqs
 	tick = {}, -- Table that holds all ticks (each holds its own notes)
 }
 
@@ -112,11 +115,14 @@ D.cmdfuncs = {
 
 	LOAD_FILE = {"loadFile", false},
 	SAVE_FILE = {"saveFile"},
-	LOAD_DIALOG = {"loadViaDialog", false},
-	SAVE_DIALOG = {"saveViaDialog"},
-	
+
 	HOTSEAT_UP = {"moveHotseatPointer", -1},
 	HOTSEAT_DOWN = {"moveHotseatPointer", 1},
+
+	TOGGLE_SEQ_OVERLAY = {"toggleSeqOverlay"},
+	TOGGLE_NOTE_DRAW = {"toggleNoteDraw"},
+
+	TOGGLE_RECORDING = {"toggleRecording"},
 
 	UNDO = {"traverseUndo", true},
 	REDO = {"traverseUndo", false},
@@ -203,10 +209,8 @@ D.cmdfuncs = {
 	Y_ZOOM_INC = {"shiftInternalValue", "zoomy", true, 0.5},
 	Y_ZOOM_DEC = {"shiftInternalValue", "zoomy", true, 2},
 
-	SEQ_TAB_UP = {"tabToSeq", -1},
-	SEQ_TAB_DOWN = {"tabToSeq", 1},
-
-	TOGGLE_PLAYING = {"togglePlaying"},
+	SEQ_TAB_UP = {"tabActiveSeq", -1},
+	SEQ_TAB_DOWN = {"tabActiveSeq", 1},
 
 	MIDI_PANIC = {"haltAllSustains"},
 

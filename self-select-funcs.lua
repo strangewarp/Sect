@@ -46,7 +46,7 @@ return {
 			print("toggleSelect: set bottom select position!")
 
 		elseif cmd == "all" then -- Select all
-
+			
 			data.seldat = data:getNotes(data.active)
 
 		end

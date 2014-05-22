@@ -114,6 +114,8 @@ return {
 				"duration " .. data.dur,
 				"spacing " .. data.spacing,
 				"",
+				"recording: " .. ((data.recording and "on") or "off"),
+				"notes: " .. ((data.drawnotes and "visible") or "hidden"),
 			}
 			printMultilineText(outtab, tleft, ttop, tright, "left")
 			ttop = ttop + (#outtab * fontheight) + roundNum(fontheight / 2, 0)
@@ -309,6 +311,7 @@ return {
 		local tintcolumns = {}
 		local triangles = {}
 		local drawnotes = {}
+		local overnotes = {}
 
 		-- Get all factors of the ticks-per-beat, for later column colorization
 		local beatsize = data.tpq * 4
@@ -421,6 +424,7 @@ return {
 		local xranges = getTileAxisBounds(left, xfull, thalf, fullwidth)
 		local yranges = getTileAxisBounds(top, yfull, nhalf, fullheight)
 
+		-- TODO: REFACTOR THIS
 		-- For every note in every tick...
 		for k, v in pairs(data.seq[data.active].tick) do
 			for kk, vv in pairs(v) do
@@ -462,6 +466,50 @@ return {
 			end
 		end
 
+		-- TODO: REFACTOR THIS
+		-- Get the notes from sequences with overlay-bool toggled to true
+		for snum, s in pairs(data.seq) do
+			if s.overlay then
+				for k, v in pairs(s.tick) do
+					for kk, vv in pairs(v) do
+
+						-- Get the pitch-value, or pitch-corresponding value, of a given note
+						local vp = ((vv.note[1] == 'note') and vv.note[5]) or (vv.note[4] or 0)
+
+						local xwidth = cellwidth * vv.note[3] -- Note's width, via duration
+
+						-- For every combination of on-screen X-ranges and Y-ranges,
+						-- check the note's visibility there, and render if visible.
+						for _, xr in pairs(xranges) do
+							for _, yr in pairs(yranges) do
+
+								-- Get note's inner-grid-concrete and absolute left and top offsets
+								local ol = xr.a + ((vv.tick - 1) * cellwidth)
+								local ot = yr.b - ((vp - yr.o) * kheight)
+								local cl = left + ol
+								local ct = top + ot
+
+								-- If the note is onscreen in this chunk, display it
+								if collisionCheck(left, top, xfull, yfull, cl, ct, xwidth, kheight) then
+
+									-- If the note's leftmost boundary falls outside of frame,
+									-- clip its left-position, and its width to match.
+									local outwidth = xwidth - math.max(0, left - cl)
+									local outleft = cl - (outwidth - xwidth)
+
+									-- Add the note to the draw-table
+									table.insert(overnotes, {vv, outleft, ct, outwidth, kheight})
+
+								end
+
+							end
+						end
+
+					end
+				end
+			end
+		end
+
 		-- Draw all tinted beat-columns
 		for k, v in ipairs(tintcolumns) do
 			local tick, colleft, coltop, colwidth, colheight, color = unpack(v)
@@ -478,25 +526,22 @@ return {
 			end
 		end
 
-		-- Draw all note-squares on top of the sequence-grid
-		for k, v in ipairs(drawnotes) do
+		-- TODO: REFACTOR ME
+		-- Draw all overlay-notes on top of the sequence grid
+		for k, v in pairs(overnotes) do
 
 			local n, nleft, ntop, nx, ny = unpack(v)
 
 			local notecolor = {}
-			local linecolor = deepCopy(data.color.note.border)
-			local c1 = deepCopy(data.color.note.quiet)
-			local c2 = deepCopy(data.color.note.loud)
+			local c1 = deepCopy(data.color.note.overlay_quiet)
+			local c2 = deepCopy(data.color.note.overlay_loud)
 
 			-- If the note is on the notepointer or tickpointer line, highlight it
-			if (n.tick == data.tp) and (n.note[5] == data.np) then
+			if (n.tick == data.tp) or (n.note[5] == data.np) then
 				for hue, chroma in pairs(c1) do
 					c1[hue] = (chroma + data.color.note.lightborder[hue]) / 2
 					c2[hue] = (c2[hue] + data.color.note.lightborder[hue]) / 2
 				end
-				linecolor = deepCopy(data.color.note.lightborder)
-			elseif (n.tick == data.tp) or (n.note[5] == data.np) then
-				linecolor = deepCopy(data.color.note.adjborder)
 			end
 
 			-- Modify the note's color based on velocity
@@ -516,12 +561,59 @@ return {
 				end
 			end
 
-			-- Draw the note-rectangle
+			-- Draw the overlay-rectangle
 			love.graphics.setColor(notecolor)
 			love.graphics.rectangle("fill", nleft, ntop, nx, ny)
-			love.graphics.setColor(linecolor)
-			love.graphics.rectangle("line", nleft, ntop, nx, ny)
 
+		end
+
+		-- TODO: REFACTOR ME
+		-- Draw all note-squares on top of the sequence-grid
+		if data.drawnotes then
+			for k, v in ipairs(drawnotes) do
+
+				local n, nleft, ntop, nx, ny = unpack(v)
+
+				local notecolor = {}
+				local linecolor = deepCopy(data.color.note.border)
+				local c1 = deepCopy(data.color.note.quiet)
+				local c2 = deepCopy(data.color.note.loud)
+
+				-- If the note is on the notepointer or tickpointer line, highlight it
+				if (n.tick == data.tp) and (n.note[5] == data.np) then
+					for hue, chroma in pairs(c1) do
+						c1[hue] = (chroma + data.color.note.lightborder[hue]) / 2
+						c2[hue] = (c2[hue] + data.color.note.lightborder[hue]) / 2
+					end
+					linecolor = deepCopy(data.color.note.lightborder)
+				elseif (n.tick == data.tp) or (n.note[5] == data.np) then
+					linecolor = deepCopy(data.color.note.adjborder)
+				end
+
+				-- Modify the note's color based on velocity
+				local velomap = n.note[6] / data.bounds.velo[2]
+				local velorev = (data.bounds.velo[2] - n.note[6]) / data.bounds.velo[2]
+				for hue, chroma in pairs(c1) do
+					notecolor[hue] = ((chroma * velorev) + (c2[hue] * velomap))
+				end
+
+				-- If the note is currently selected, modify its color
+				if (n.note[1] == 'note')
+				and (selindex[n.tick] ~= nil)
+				and (selindex[n.tick][n.note[5]] ~= nil)
+				then
+					for hue, chroma in pairs(deepCopy(data.color.note.selected)) do
+						notecolor[hue] = (chroma + notecolor[hue]) / 2
+					end
+				end
+
+				-- Draw the note-rectangle
+				love.graphics.setColor(notecolor)
+				love.graphics.rectangle("fill", nleft, ntop, nx, ny)
+				love.graphics.setColor(linecolor)
+				love.graphics.rectangle("line", nleft, ntop, nx, ny)
+
+			end
 		end
 
 		-- Draw all beat-triangles along the bottom of the sequence frame

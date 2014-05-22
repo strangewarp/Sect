@@ -75,6 +75,8 @@ return {
 			loud = {255, 10, 20, 255},
 			highlight = {230, 240, 240, 255},
 			selected = {0, 0, 255, 255},
+			overlay_quiet = {6, 180, 200, 255},
+			overlay_loud = {210, 5, 10, 255},
 			border = {5, 4, 8, 255},
 			adjborder = {210, 210, 220, 255},
 			lightborder = {255, 255, 255, 255},
@@ -124,8 +126,14 @@ return {
 
 		LOAD_FILE = {"ctrl", "o"},
 		SAVE_FILE = {"ctrl", "s"},
+
 		HOTSEAT_UP = {"ctrl", "pageup"},
 		HOTSEAT_DOWN = {"ctrl", "pagedown"},
+
+		TOGGLE_SEQ_OVERLAY = {"backspace"},
+		TOGGLE_NOTE_DRAW = {"shift", "backspace"},
+
+		TOGGLE_RECORDING = {"space"},
 
 		UNDO = {"ctrl", "z"},
 		REDO = {"ctrl", "y"},
@@ -214,8 +222,6 @@ return {
 
 		SEQ_TAB_UP = {"pageup"},
 		SEQ_TAB_DOWN = {"pagedown"},
-
-		TOGGLE_PLAYING = {"space"},
 
 		MIDI_PANIC = {"ctrl", "space"},
 

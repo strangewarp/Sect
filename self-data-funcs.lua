@@ -1,5 +1,10 @@
 return {
 
+	-- Change the currently active sequence
+	tabActiveSeq = function(data, dir)
+		data.active = wrapNum(data.active + dir, 1, #data.seq)
+	end,
+
 	-- Insert a number ofticks at the end of a sequence
 	growSeq = function(data, seq, num, undo)
 
@@ -141,12 +146,11 @@ return {
 
 		if #data.seq == 1 then -- If only one sequence remains, set the active pointer to false, to signify that none exist
 			data.active = false
-		elseif (seq == data.active) and (seq == #data.seq) then -- If the highest sequence is being removed, and is active, then move the activity pointer downward
+		elseif data.active == #data.seq then -- If the highest sequence is being removed, and is active, then move the activity pointer downward
 			data.active = data.active - 1
 		end
 
-		-- Gather all notes from the sequence, set them to false, and remove them,
-		-- creating a new undo-table entry in the process.
+		-- Gather all notes from the sequence, set them to false, and remove them
 		local removenotes = data:getNotes(seq, 1, #data.seq[seq].tick, _, _)
 		if #removenotes > 0 then
 			removenotes = notesToRemove(removenotes)

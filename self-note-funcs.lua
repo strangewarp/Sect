@@ -137,6 +137,9 @@ return {
 		if data.active == false then
 			print("insertNote: warning: no active sequence!")
 			return nil
+		elseif not data.recording then -- If recording is off, abort function
+			print("insertNote: note insertion disabled!")
+			return nil
 		end
 
 		-- If a distance-from-C isn't given, set it to the note-pointer position
