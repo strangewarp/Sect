@@ -93,7 +93,6 @@ return {
 				-- If a match is found, earmark the note as a keeper
 				for k, v in pairs(n) do
 					if checkNoteOverlap(data.seldat[i], v) then
-						print("DYE 1") -- DEBUGGING
 						table.remove(n, k)
 						keep = true
 						break

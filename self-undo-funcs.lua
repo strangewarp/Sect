@@ -4,8 +4,6 @@ return {
 	-- comprised of an undo-direction and redo-direction command.
 	addUndoStep = function(data, suppress, u, r)
 
-		print("DYE 1: " .. tostring(suppress)) -- DEBUGGING
-
 		-- If undo-suppression is not invoked on this function call...
 		if not suppress then
 
@@ -43,15 +41,18 @@ return {
 	-- and execute the step's table of functions.
 	traverseUndo = function(data, back)
 
+		-- If a limit was reached, do nothing
 		if (back and (data.dopointer <= 1))
 		or ((not back) and (data.dopointer == (#data.dostack + 1)))
 		then
 
 			print("traverseUndo: reached " .. ((back and "lower") or "upper") .. " limit!")
+			return nil
 
-		elseif #data.dostack == 0 then
+		elseif #data.dostack == 0 then -- If do-stack is empty, do nothing
 
 			print("traverseUndo: do-stack was empty!")
+			return nil
 
 		else -- If the do-command is valid...
 
