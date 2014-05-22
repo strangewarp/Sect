@@ -55,6 +55,7 @@ D.sel = { -- Holds the boundaries of the currently selected area
 }
 D.seldat = {} -- Holds the notes that were selected for commands
 D.copydat = {} -- Table for copied notes
+D.selindex = {} -- Selected notes, indexed by [tick][note]
 
 -- Baseline contents for new sequences
 D.baseseq = {

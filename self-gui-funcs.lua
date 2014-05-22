@@ -511,20 +511,7 @@ return {
 		end
 
 		-- Draw all tinted beat-columns
-		for k, v in ipairs(tintcolumns) do
-			local tick, colleft, coltop, colwidth, colheight, color = unpack(v)
-			love.graphics.setColor(color)
-			love.graphics.rectangle("fill", colleft, coltop, colwidth, colheight)
-		end
-
-		-- Index the note-and-tick locations of all selected notes
-		local selindex = {}
-		for k, v in pairs(data.seldat) do
-			selindex[v.tick] = selindex[v.tick] or {}
-			if v.note[1] == 'note' then
-				selindex[v.tick][v.note[5]] = true
-			end
-		end
+		drawBeatColumns(tintcolumns)
 
 		-- TODO: REFACTOR ME
 		-- Draw all overlay-notes on top of the sequence grid
@@ -553,8 +540,8 @@ return {
 
 			-- If the note is currently selected, modify its color
 			if (n.note[1] == 'note')
-			and (selindex[n.tick] ~= nil)
-			and (selindex[n.tick][n.note[5]] ~= nil)
+			and (data.selindex[n.tick] ~= nil)
+			and (data.selindex[n.tick][n.note[5]] ~= nil)
 			then
 				for hue, chroma in pairs(deepCopy(data.color.note.selected)) do
 					notecolor[hue] = (chroma + notecolor[hue]) / 2
@@ -599,8 +586,8 @@ return {
 
 				-- If the note is currently selected, modify its color
 				if (n.note[1] == 'note')
-				and (selindex[n.tick] ~= nil)
-				and (selindex[n.tick][n.note[5]] ~= nil)
+				and (data.selindex[n.tick] ~= nil)
+				and (data.selindex[n.tick][n.note[5]] ~= nil)
 				then
 					for hue, chroma in pairs(deepCopy(data.color.note.selected)) do
 						notecolor[hue] = (chroma + notecolor[hue]) / 2

@@ -1,5 +1,16 @@
 return {
 	
+	-- Draw all tinted beat-solumns in the sequence pane
+	drawBeatColumns = function(tintcolumns)
+
+		for k, v in ipairs(tintcolumns) do
+			local tick, colleft, coltop, colwidth, colheight, color = unpack(v)
+			love.graphics.setColor(color)
+			love.graphics.rectangle("fill", colleft, coltop, colwidth, colheight)
+		end
+
+	end,
+
 	-- Draw a table of piano-key rectangles, with text overlay
 	drawTabledKeys = function(tab, kind)
 

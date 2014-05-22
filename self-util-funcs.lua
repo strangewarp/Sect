@@ -13,6 +13,7 @@ return {
 		-- Sanitize data structures, which may have been changed
 		data:normalizePointers()
 		data:removeOldSelectItems()
+		data:selectionDataToIndexes()
 
 	end,
 

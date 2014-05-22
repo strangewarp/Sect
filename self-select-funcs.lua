@@ -1,5 +1,18 @@
 return {
 
+	-- Index the note-and-tick locations of all selected notes
+	selectionDataToIndexes = function(data)
+
+		data.selindex = {}
+		for k, v in pairs(data.seldat) do
+			data.selindex[v.tick] = data.selindex[v.tick] or {}
+			if v.note[1] == 'note' then
+				data.selindex[v.tick][v.note[5]] = true
+			end
+		end
+
+	end,
+
 	-- Toggle select-mode boundaries, which are dragged by the pointers
 	toggleSelect = function(data, cmd)
 
@@ -46,7 +59,7 @@ return {
 			print("toggleSelect: set bottom select position!")
 
 		elseif cmd == "all" then -- Select all
-			
+
 			data.seldat = data:getNotes(data.active)
 
 		end
@@ -65,6 +78,8 @@ return {
 			data.seldat = tableCombine(n, data.seldat, false)
 			data.seldat = removeDuplicates(data.seldat)
 		end
+
+		data:selectionDataToIndexes()
 
 	end,
 
@@ -101,6 +116,8 @@ return {
 		else -- If nothing is selected, clear the selection table
 			data.seldat = {}
 		end
+
+		data:selectionDataToIndexes()
 
 	end,
 
