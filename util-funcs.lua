@@ -171,6 +171,65 @@ return {
 
 	end,
 
+	-- Get all boundaries of a repeating 1D range,
+	-- as tiled inside a larger range, starting at an origin point.
+	getTileAxisBounds = function(base, size, origin, extent)
+
+		local out = {}
+
+		-- If base-size range is not fully contained by origin-extent range,
+		-- search for origin-extent sub-ranges.
+		local oc = rangeCheck(origin, base, size)
+		local oec = rangeCheck(origin + extent, base, size)
+		if ((origin + extent) < (base + size))
+		or (oc ~= oec)
+		then
+
+			local invalid, outside, offset = 0, 0, 0
+			local bool = true
+
+			-- Until invalid inner-range chunks have been reached on both sides,
+			-- add inner-range boundaries to the outgoing table.
+			while invalid < 2 do
+
+				local asub = origin + (extent * offset)
+				local bsub = asub + extent
+
+				--if collisionCheck(base, 0, size, 1, asub, 0, bsub, 1) then
+				if rangeCheck(asub, base, size)
+				or rangeCheck(bsub, base, size)
+				then
+					--print("RANGE "..offset..": "..asub.." "..bsub) -- DEBUGGING
+					out[#out + 1] = {
+						o = offset,
+						a = asub,
+						b = bsub,
+					}
+					offset = offset + ((bool and -1) or 1)
+				else
+					--print("INVALID RANGE "..offset..": "..asub.." "..bsub) -- DEBUGGING
+					invalid = invalid + 1
+					offset = 1
+					bool = false
+				end
+
+			end
+
+		else -- If base-size range is contained, return origin-extent range.
+
+			--print("RANGE 0: "..origin.." "..extent) -- DEBUGGING
+			out[1] = {
+				o = 0,
+				a = origin,
+				b = origin + extent,
+			}
+
+		end
+
+		return out
+
+	end,
+
 	-- Compare two flat, ordered tables, and return true on exact match.
 	orderedCompare = function(t, t2)
 
@@ -294,11 +353,17 @@ return {
 
 	end,
 
-	-- Move a given table of functions into a different namespace.
-	tableToNewContext = function(tab, context)
-		for k, v in pairs(tab) do
-			context[k] = v
+	-- Move a given group of function-tables into a different namespace.
+	tableToNewContext = function(context, ...)
+
+		local t = {...}
+
+		for k, v in pairs(t) do
+			for kk, vv in pairs(v) do
+				context[kk] = vv
+			end
 		end
+
 	end,
 
 	-- Wrap a number to a given range.

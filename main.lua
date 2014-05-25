@@ -3,7 +3,9 @@ function love.load()
 
 	MIDI = require('MIDI')
 
-	guifuncs = require('gui-funcs')
+	guigridfuncs = require('gui-grid-funcs')
+	guinotefuncs = require('gui-note-funcs')
+	guimiscfuncs = require('gui-misc-funcs')
 	keyfuncs = require('key-funcs')
 	notefuncs = require('note-funcs')
 	utilfuncs = require('util-funcs')
@@ -21,21 +23,29 @@ function love.load()
 
 	data = require('data-table')
 
-	utilfuncs:tableToNewContext(_G)
-	tableToNewContext(keyfuncs, _G)
-	tableToNewContext(guifuncs, _G)
-	tableToNewContext(notefuncs, _G)
+	utilfuncs.tableToNewContext(
+		_G,
+		keyfuncs,
+		guigridfuncs,
+		guinotefuncs,
+		guimiscfuncs,
+		notefuncs,
+		utilfuncs
+	)
 
-	tableToNewContext(selfdatafuncs, data)
-	tableToNewContext(selffilefuncs, data)
-	tableToNewContext(selfguifuncs, data)
-	tableToNewContext(selfkeyfuncs, data)
-	tableToNewContext(selfmodefuncs, data)
-	tableToNewContext(selfnotefuncs, data)
-	tableToNewContext(selfpointerfuncs, data)
-	tableToNewContext(selfselectfuncs, data)
-	tableToNewContext(selfundofuncs, data)
-	tableToNewContext(selfutilfuncs, data)
+	tableToNewContext(
+		data,
+		selfdatafuncs,
+		selffilefuncs,
+		selfguifuncs,
+		selfkeyfuncs,
+		selfmodefuncs,
+		selfnotefuncs,
+		selfpointerfuncs,
+		selfselectfuncs,
+		selfundofuncs,
+		selfutilfuncs
+	)
 
 	-- If the userprefs file doesn't exist, create it in the savefile folder,
 	-- require it like a regular module, and then add it to data-table context.
@@ -49,7 +59,7 @@ function love.load()
 	else
 		prefs = require('userprefs')
 	end
-	tableToNewContext(prefs, data)
+	tableToNewContext(data, prefs)
 
 	local width, height = love.graphics.getDimensions()
 	canvas = love.graphics.newCanvas(width, height)

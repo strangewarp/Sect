@@ -77,15 +77,16 @@ D.bounds = {
 	zoomy = {1, 16, false}, -- Y-axis zoom (note axis)
 }
 
--- Types of MIDI commands that are accepted in a sequence
+-- Types of MIDI commands that are accepted in a sequence,
+-- and the corresponding values to display.
 D.acceptmidi = {
-	note = true,
-	channel_after_touch = true,
-	control_change = true,
-	patch_change = true,
-	key_after_touch = true,
-	pitch_wheel_change = true,
-	set_tempo = true,
+	note = {5, 6},
+	channel_after_touch = {4, 4},
+	control_change = {4, 5},
+	patch_change = {4, 4},
+	key_after_touch = {4, 5},
+	pitch_wheel_change = {4, 4},
+	set_tempo = {3, 4},
 }
 
 -- Names of keys that start with "l"/"r", which collapse into single keys

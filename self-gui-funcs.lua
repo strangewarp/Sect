@@ -1,11 +1,5 @@
 return {
 
-	-- Build the window's background
-	buildBackground = function(data, width, height)
-		love.graphics.setColor(data.color.window.dark)
-		love.graphics.rectangle("fill", 0, 0, width, height)
-	end,
-
 	-- Build a series of flat lines that summarize all currently-loaded sequences
 	buildSummaryLines = function(data, left, top, right, bot, lheight)
 
@@ -157,89 +151,6 @@ return {
 
 	end,
 
-	-- Convert a note, and various positioning data, into an item in the two drawtables
-	pianoNoteToDrawTables = function(data, whitedraw, blackdraw, note, left, center, midheight, flareheight, kwidth, highlight)
-
-		local midhalf = midheight / 2
-		local flarehalf = flareheight / 2
-		local kcenter = kwidth * 0.6
-
-		local key = wrapNum(note + 1, 1, 12)
-		local octave = math.floor(note / 12)
-		local whicharr = true
-		local shape = data.pianometa[key][1]
-
-		local intab = {
-			name = data.pianometa[key][2] .. "-" .. octave,
-			color = data.color.piano.light,
-			l = left,
-			t = center - midhalf,
-			b = center + midhalf,
-			r = left + kwidth,
-			fl = kcenter, -- Left key-text offset
-			fr = kwidth - kcenter, -- Right key-text limit
-		}
-
-		-- Insert color type and rectangle polygon, based on key type
-		if shape == 0 then -- Black note poly
-			whicharr = false
-			intab.color = data.color.piano.dark
-			intab.r = left + left + kcenter
-			intab.fl = 0
-			intab.fr = kcenter
-			intab.poly = {
-				left, center + midhalf,
-				left, center - midhalf,
-				left + kcenter, center - midhalf,
-				left + kcenter, center + midhalf,
-			}
-		elseif (shape == 3) or (note == data.bounds.np[2]) then -- White note poly 3 (E, B)
-			intab.b = center + flarehalf
-			intab.poly = {
-				left, center + midhalf,
-				left, center - midhalf,
-				left + kwidth, center - midhalf,
-				left + kwidth, center + flarehalf,
-				left + kcenter, center + flarehalf,
-				left + kcenter, center + midhalf,
-			}
-		elseif shape == 1 then -- White note poly 1 (C, F)
-			intab.t = center - flarehalf
-			intab.poly = {
-				left, center + midhalf,
-				left, center - midhalf,
-				left + kcenter, center - midhalf,
-				left + kcenter, center - flarehalf,
-				left + kwidth, center - flarehalf,
-				left + kwidth, center + midhalf,
-			}
-		elseif shape == 2 then -- White note poly 2 (D, G, A)
-			intab.t = center - flarehalf
-			intab.b = center + flarehalf
-			intab.poly = {
-				left, center + midhalf,
-				left, center - midhalf,
-				left + kcenter, center - midhalf,
-				left + kcenter, center - flarehalf,
-				left + kwidth, center - flarehalf,
-				left + kwidth, center + flarehalf,
-				left + kcenter, center + flarehalf,
-				left + kcenter, center + midhalf,
-			}
-		end
-
-		-- If a highlight command has been received, set the key to a highlighted color
-		if highlight then
-			intab.color = data.color.piano.highlight
-		end
-
-		-- Put the key-table into the relevant draw-table
-		table.insert((whicharr and whitedraw) or blackdraw, intab)
-
-		return whitedraw, blackdraw
-
-	end,
-
 	-- Draw the column of piano-keys in the sequence window
 	drawPianoRoll = function(data, left, kwidth, kheight, width, height)
 
@@ -255,7 +166,7 @@ return {
 		local ycenter = height / 2
 
 		-- Add the active note, in center position, with highlighted color, to the relevant draw-table
-		whitedraw, blackdraw = data:pianoNoteToDrawTables(whitedraw, blackdraw, data.np, left, ycenter, ymid, yflare, kwidth, true)
+		whitedraw, blackdraw = pianoNoteToDrawTables(whitedraw, blackdraw, data.np, left, ycenter, ymid, yflare, kwidth, true)
 
 		-- Moving outwards from center, add piano-keys to the draw-tables, until fully passing the stencil border
 		local upkey, downkey, uppos, downpos = data.np, data.np, ycenter, ycenter
@@ -268,8 +179,8 @@ return {
 			downpos = downpos + kheight
 
 			-- Add the two outermost notes, with normal color, to the relevant draw-tables
-			whitedraw, blackdraw = data:pianoNoteToDrawTables(whitedraw, blackdraw, upkey, left, uppos, ymid, yflare, kwidth, false)
-			whitedraw, blackdraw = data:pianoNoteToDrawTables(whitedraw, blackdraw, downkey, left, downpos, ymid, yflare, kwidth, false)
+			whitedraw, blackdraw = pianoNoteToDrawTables(whitedraw, blackdraw, upkey, left, uppos, ymid, yflare, kwidth, false)
+			whitedraw, blackdraw = pianoNoteToDrawTables(whitedraw, blackdraw, downkey, left, downpos, ymid, yflare, kwidth, false)
 
 		end
 
@@ -424,245 +335,46 @@ return {
 		local xranges = getTileAxisBounds(left, xfull, thalf, fullwidth)
 		local yranges = getTileAxisBounds(top, yfull, nhalf, fullheight)
 
-		-- TODO: REFACTOR THIS
-		-- For every note in every tick...
-		for k, v in pairs(data.seq[data.active].tick) do
-			for kk, vv in pairs(v) do
-
-				-- Get the pitch-value, or pitch-corresponding value, of a given note
-				local vp = ((vv.note[1] == 'note') and vv.note[5]) or (vv.note[4] or 0)
-
-				local xwidth = cellwidth * vv.note[3] -- Note's width, via duration
-
-				-- For every combination of on-screen X-ranges and Y-ranges,
-				-- check the note's visibility there, and render if visible.
-				for _, xr in pairs(xranges) do
-					for _, yr in pairs(yranges) do
-
-						-- Get note's inner-grid-concrete and absolute left and top offsets
-						local ol = xr.a + ((vv.tick - 1) * cellwidth)
-						local ot = yr.b - ((vp - yr.o) * kheight)
-						local cl = left + ol
-						local ct = top + ot
-
-						--print("DYE NOTE: " .. vp .. " " .. cl .. ":" .. ct .. " " .. tostring(collisionCheck(left, top, xfull, yfull, cl, ct, xwidth, kheight))) -- DEBUGGING
-
-						-- If the note is onscreen in this chunk, display it
-						if collisionCheck(left, top, xfull, yfull, cl, ct, xwidth, kheight) then
-
-							-- If the note's leftmost boundary falls outside of frame,
-							-- clip its left-position, and its width to match.
-							local outwidth = xwidth - math.max(0, left - cl)
-							local outleft = cl - (outwidth - xwidth)
-
-							-- Add the note to the draw-table
-							table.insert(drawnotes, {vv, outleft, ct, outwidth, kheight})
-
-						end
-
-					end
-				end
-
-			end
-		end
-
-		-- TODO: REFACTOR THIS
-		-- Get the notes from sequences with overlay-bool toggled to true
+		-- Get render-note data from all visible sequences
 		for snum, s in pairs(data.seq) do
+
+			-- Get all shadow notes
 			if s.overlay then
-				for k, v in pairs(s.tick) do
-					for kk, vv in pairs(v) do
-
-						-- Get the pitch-value, or pitch-corresponding value, of a given note
-						local vp = ((vv.note[1] == 'note') and vv.note[5]) or (vv.note[4] or 0)
-
-						local xwidth = cellwidth * vv.note[3] -- Note's width, via duration
-
-						-- For every combination of on-screen X-ranges and Y-ranges,
-						-- check the note's visibility there, and render if visible.
-						for _, xr in pairs(xranges) do
-							for _, yr in pairs(yranges) do
-
-								-- Get note's inner-grid-concrete and absolute left and top offsets
-								local ol = xr.a + ((vv.tick - 1) * cellwidth)
-								local ot = yr.b - ((vp - yr.o) * kheight)
-								local cl = left + ol
-								local ct = top + ot
-
-								-- If the note is onscreen in this chunk, display it
-								if collisionCheck(left, top, xfull, yfull, cl, ct, xwidth, kheight) then
-
-									-- If the note's leftmost boundary falls outside of frame,
-									-- clip its left-position, and its width to match.
-									local outwidth = xwidth - math.max(0, left - cl)
-									local outleft = cl - (outwidth - xwidth)
-
-									-- Add the note to the draw-table
-									table.insert(overnotes, {vv, outleft, ct, outwidth, kheight})
-
-								end
-
-							end
-						end
-
-					end
-				end
+				drawnotes = tableCombine(
+					drawnotes,
+					makeNoteRenderTable(
+						s.tick, 'shadow',
+						left, top, xfull, yfull,
+						cellwidth, kheight, xranges, yranges
+					)
+				)
 			end
+
+			-- Get all active notes, if active notes are toggled visible
+			if data.drawnotes and (snum == data.active) then
+				drawnotes = tableCombine(
+					drawnotes,
+					makeNoteRenderTable(
+						s.tick, 'active',
+						left, top, xfull, yfull,
+						cellwidth, kheight, xranges, yranges
+					)
+				)
+			end
+
 		end
 
 		-- Draw all tinted beat-columns
 		drawBeatColumns(tintcolumns)
 
-		-- TODO: REFACTOR ME
 		-- Draw all overlay-notes on top of the sequence grid
-		for k, v in pairs(overnotes) do
-
-			local n, nleft, ntop, nx, ny = unpack(v)
-
-			local notecolor = {}
-			local c1 = deepCopy(data.color.note.overlay_quiet)
-			local c2 = deepCopy(data.color.note.overlay_loud)
-
-			-- If the note is on the notepointer or tickpointer line, highlight it
-			if (n.tick == data.tp) or (n.note[5] == data.np) then
-				for hue, chroma in pairs(c1) do
-					c1[hue] = (chroma + data.color.note.lightborder[hue]) / 2
-					c2[hue] = (c2[hue] + data.color.note.lightborder[hue]) / 2
-				end
-			end
-
-			-- Modify the note's color based on velocity
-			local velomap = n.note[6] / data.bounds.velo[2]
-			local velorev = (data.bounds.velo[2] - n.note[6]) / data.bounds.velo[2]
-			for hue, chroma in pairs(c1) do
-				notecolor[hue] = ((chroma * velorev) + (c2[hue] * velomap))
-			end
-
-			-- If the note is currently selected, modify its color
-			if (n.note[1] == 'note')
-			and (data.selindex[n.tick] ~= nil)
-			and (data.selindex[n.tick][n.note[5]] ~= nil)
-			then
-				for hue, chroma in pairs(deepCopy(data.color.note.selected)) do
-					notecolor[hue] = (chroma + notecolor[hue]) / 2
-				end
-			end
-
-			-- Draw the overlay-rectangle
-			love.graphics.setColor(notecolor)
-			love.graphics.rectangle("fill", nleft, ntop, nx, ny)
-
-		end
-
-		-- TODO: REFACTOR ME
-		-- Draw all note-squares on top of the sequence-grid
-		if data.drawnotes then
-			for k, v in ipairs(drawnotes) do
-
-				local n, nleft, ntop, nx, ny = unpack(v)
-
-				local notecolor = {}
-				local linecolor = deepCopy(data.color.note.border)
-				local c1 = deepCopy(data.color.note.quiet)
-				local c2 = deepCopy(data.color.note.loud)
-
-				-- If the note is on the notepointer or tickpointer line, highlight it
-				if (n.tick == data.tp) and (n.note[5] == data.np) then
-					for hue, chroma in pairs(c1) do
-						c1[hue] = (chroma + data.color.note.lightborder[hue]) / 2
-						c2[hue] = (c2[hue] + data.color.note.lightborder[hue]) / 2
-					end
-					linecolor = deepCopy(data.color.note.lightborder)
-				elseif (n.tick == data.tp) or (n.note[5] == data.np) then
-					linecolor = deepCopy(data.color.note.adjborder)
-				end
-
-				-- Modify the note's color based on velocity
-				local velomap = n.note[6] / data.bounds.velo[2]
-				local velorev = (data.bounds.velo[2] - n.note[6]) / data.bounds.velo[2]
-				for hue, chroma in pairs(c1) do
-					notecolor[hue] = ((chroma * velorev) + (c2[hue] * velomap))
-				end
-
-				-- If the note is currently selected, modify its color
-				if (n.note[1] == 'note')
-				and (data.selindex[n.tick] ~= nil)
-				and (data.selindex[n.tick][n.note[5]] ~= nil)
-				then
-					for hue, chroma in pairs(deepCopy(data.color.note.selected)) do
-						notecolor[hue] = (chroma + notecolor[hue]) / 2
-					end
-				end
-
-				-- Draw the note-rectangle
-				love.graphics.setColor(notecolor)
-				love.graphics.rectangle("fill", nleft, ntop, nx, ny)
-				love.graphics.setColor(linecolor)
-				love.graphics.rectangle("line", nleft, ntop, nx, ny)
-
-			end
-		end
+		drawNoteTable(drawnotes)
 
 		-- Draw all beat-triangles along the bottom of the sequence frame
-		for k, v in ipairs(triangles) do
-			local tick, xpos = unpack(v)
-			local beat = ((tick - 1) / beatsize) + 1
-			love.graphics.setColor(data.color.seq.highlight)
-			love.graphics.polygon("fill", xpos - 19, yfull, xpos + 19, yfull, xpos, tritop)
-			love.graphics.setColor(data.color.font.light)
-			love.graphics.printf(beat, xpos - 19, trifonttop, 38, "center")
-		end
+		drawBeatTriangles(triangles, beatsize, yfull, tritop, trifonttop)
 
-		-- Draw the tick reticule
-		local trh = 38
-		local trw = 38
-		local trl = left + xhalf - 19
-		local trt = top + yhalf - 19
-		local trr = trl + trw
-		local trb = trt + trh
-		trt = trt - ycellhalf
-		trb = trb + ycellhalf
-		love.graphics.setColor(data.color.reticule.dark)
-		love.graphics.polygon(
-			"fill",
-			trl, trt,
-			trr, trt,
-			left + xhalf, top + yhalf - ycellhalf
-		)
-		love.graphics.polygon(
-			"fill",
-			trl, trb,
-			trr, trb,
-			left + xhalf, top + yhalf + ycellhalf
-		)
-
-		-- Draw the note-duration reticule
-		local nrh = ycellhalf
-		local nrw = ycellhalf
-		local nrlr = left + xhalf - xcellhalf
-		local nrll = nrlr - nrw
-		local nrrl = nrlr + (cellwidth * data.dur)
-		local nrrr = nrrl + nrw
-		local nrt = yhalf - nrh
-		local nrb = yhalf + nrh
-		love.graphics.setColor(data.color.reticule.light)
-		love.graphics.polygon(
-			"fill",
-			nrll, nrt,
-			nrlr, yhalf,
-			nrll, nrb
-		)
-		if nrrl < right then
-			love.graphics.polygon(
-				"fill",
-				nrrr, nrt,
-				nrrl, yhalf,
-				nrrr, nrb
-			)
-		end
-
-
-
+		-- Draw the tick and note-duration reticules
+		drawReticules(left, top, right, xhalf, yhalf, xcellhalf, ycellhalf, cellwidth)
 
 	end,
 
@@ -693,7 +405,7 @@ return {
 
 	buildGUI = function(data, cnv, width, height)
 
-		data:buildBackground(width, height)
+		buildBackground(width, height)
 		data:buildSidebar(0, 2, 100, height - 4, width, height)
 		data:buildSeqFrame(100, 0, width, height)
 

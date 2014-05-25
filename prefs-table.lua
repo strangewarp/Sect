@@ -90,6 +90,12 @@ return {
 
 	},
 
+	reticule = { -- Reticule properties
+
+		width = 38, -- Tick-pointer reticule width
+		
+	},
+
 	pianokeys = { -- Keyboard-keys that correspond to piano-keys
 		"z", -- C
 		"s", -- Db
