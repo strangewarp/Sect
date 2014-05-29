@@ -48,20 +48,14 @@ return {
 	end,
 
 	-- Get a note's color based on velocity.
-	-- midicmd: MIDI command-type (as named in MIDI.lua).
 	-- c1, c2: "quiet" and "loud" colors.
 	getVelocityColor = function(n, c1, c2)
 
-		local notecolor = {}
 		local veloval = n.note[data.acceptmidi[n.note[1]][2]]
 		local velomap = veloval / data.bounds.velo[2]
 		local velorev = (data.bounds.velo[2] - veloval) / data.bounds.velo[2]
 
-		for hue, chroma in pairs(c1) do
-			notecolor[hue] = ((chroma * velorev) + (c2[hue] * velomap))
-		end
-
-		return notecolor
+		return mixColors(c2, c1, velorev)
 
 	end,
 
@@ -145,6 +139,19 @@ return {
 		table.insert((whicharr and whitedraw) or blackdraw, intab)
 
 		return whitedraw, blackdraw
+
+	end,
+
+	-- Mix two colors, with the average biased in the given direction
+	mixColors = function(c1, c2, bias)
+
+		local outcolor = {}
+
+		for hue, chroma in pairs(c1) do
+			outcolor[hue] = (chroma + (c2[hue] * bias)) / (bias + 1)
+		end
+
+		return outcolor
 
 	end,
 

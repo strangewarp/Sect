@@ -82,4 +82,55 @@ return {
 
 	end,
 
+	-- Draw a table of wrapped visible selection-positions
+	drawSelectionTable = function(sels)
+
+		love.graphics.setLineWidth(2)
+
+		for k, v in pairs(sels) do
+
+			local l, t, w, h = unpack(v)
+
+			love.graphics.setColor(data.color.selection.fill)
+			love.graphics.rectangle("fill", l, t, w, h)
+
+			love.graphics.setColor(data.color.selection.line)
+			love.graphics.rectangle("line", l, t, w, h)
+
+		end
+
+		love.graphics.setLineWidth(1)
+
+	end,
+
+	-- Make a wrapping render-table of all visible positions of the selection
+	makeSelectionRenderTable = function(
+		left, top, xfull, yfull,
+		selleft, seltop, selwidth, selheight,
+		xranges, yranges
+	)
+
+		local sels = {}
+
+		-- For every combination of on-screen X-ranges and Y-ranges,
+		-- check the selection's visibility there, and render if visible.
+		for _, xr in pairs(xranges) do
+			for _, yr in pairs(yranges) do
+
+				-- Get the concrete offsets of the wrapped selection position
+				local l = left + xr.a + selleft
+				local t = top + yr.a + seltop
+
+				-- If the selection is onscreen in this chunk, table it for display
+				if collisionCheck(left, top, xfull, yfull, l, t, selwidth, selheight) then
+					table.insert(sels, {l, t, selwidth, selheight})
+				end
+
+			end
+		end
+
+		return sels
+
+	end,
+
 }

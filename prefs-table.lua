@@ -52,6 +52,13 @@ return {
 			highlight = {60, 255, 50, 255},
 		},
 
+		summary = { -- Summary-line colors
+			empty = {100, 100, 220, 255},
+			full = {220, 100, 100, 255},
+			pointer = {5, 5, 255, 255},
+			pointer_border = {255, 255, 255, 255},
+		},
+
 		piano = { -- Vertical-piano colors
 			dark = {20, 20, 30, 255},
 			light = {240, 240, 250, 255},
@@ -63,11 +70,11 @@ return {
 
 		seq = { -- Sequence-roll colors
 			dark = {180, 180, 190, 255},
-			light = {200, 200, 210, 255},
-			beat = {35, 30, 220, 255},
-			active = {220, 30, 35, 255},
+			light = {200, 200, 209, 255},
+			beat = {0, 0, 220, 250},
+			active = {255, 0, 0, 200},
 			font = {252, 240, 240, 255},
-			highlight = {9, 10, 253, 255},
+			highlight = {0, 100, 255, 200},
 		},
 
 		note = { -- Note colors
@@ -82,10 +89,15 @@ return {
 			lightborder = {255, 255, 255, 255},
 		},
 
+		selection = { -- Selection colors
+			fill = {10, 10, 255, 100},
+			line = {255, 255, 255, 200},
+		},
+
 		reticule = { -- Reticule colors
 			line = {235, 235, 235, 100},
-			light = {255, 255, 255, 100},
-			dark = {5, 5, 255, 75},
+			light = {255, 255, 255, 125},
+			dark = {5, 5, 255, 90},
 		},
 
 	},

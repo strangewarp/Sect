@@ -7,25 +7,18 @@ return {
 
 		local nindex = n.note[data.acceptmidi[n.note[1]][1]]
 		local linecolor = deepCopy(data.color.note.border)
+		local highlight = data.color.note.highlight
 
 		-- If the note is on both axes, highlight it distinctly
 		if (n.tick == data.tp) and (nindex == data.np) then
 
-			for hue, chroma in pairs(c1) do
-				c1[hue] = (chroma + (data.color.note.highlight[hue] * 2)) / 3
-				c2[hue] = (c2[hue] + (data.color.note.highlight[hue] * 2)) / 3
-			end
-
+			c1, c2 = mixColors(c1, highlight, 2), mixColors(c2, highlight, 2)
 			linecolor = deepCopy(data.color.note.lightborder)
 
 		-- Else if the note is on one axis, highlight it moderately
 		elseif (n.tick == data.tp) or (nindex == data.np) then
 
-			for hue, chroma in pairs(c1) do
-				c1[hue] = ((chroma * 2) + data.color.note.highlight[hue]) / 3
-				c2[hue] = ((c2[hue] * 2) + data.color.note.highlight[hue]) / 3
-			end
-
+			c1, c2 = mixColors(c1, highlight, 0.5), mixColors(c2, highlight, 0.5)
 			linecolor = deepCopy(data.color.note.adjborder)
 
 		end
@@ -35,7 +28,7 @@ return {
 	end,
 
 	-- Draw a given table of render-notes
-	drawNoteTable = function(notes, c1, c2, linecolor)
+	drawNoteTable = function(notes)
 
 		local c1, c2, linecolor = {}, {}, {}
 
@@ -82,7 +75,7 @@ return {
 		n, kind,
 		left, top,
 		xfull, yfull,
-		cellwidth, kheight,
+		cellwidth, cellheight,
 		xranges, yranges
 	)
 
@@ -102,22 +95,26 @@ return {
 				for _, xr in pairs(xranges) do
 					for _, yr in pairs(yranges) do
 
+						print("DYE 1: " .. xr.o .. " " .. yr.o) -- DEBUGGING
+
 						-- Get note's inner-grid-concrete and absolute left and top offsets
 						local ol = xr.a + ((vv.tick - 1) * cellwidth)
-						local ot = yr.b - ((vp - yr.o) * kheight)
+						local ot = yr.b - ((vp - yr.o) * cellheight)
 						local cl = left + ol
 						local ct = top + ot
 
 						-- If the note is onscreen in this chunk, display it
-						if collisionCheck(left, top, xfull, yfull, cl, ct, xwidth, kheight) then
+						if collisionCheck(left, top, xfull, yfull, cl, ct, xwidth, cellheight) then
 
 							-- If the note's leftmost boundary falls outside of frame,
 							-- clip its left-position, and its width to match.
-							local outwidth = xwidth - math.max(0, left - cl)
-							local outleft = cl - (outwidth - xwidth)
+							if cl < left then
+								xwidth = xwidth - (left - cl)
+								cl = left
+							end
 
 							-- Add the note to the draw-table
-							table.insert(notes, {kind, vv, outleft, ct, outwidth, kheight})
+							table.insert(notes, {kind, vv, cl, ct, xwidth, cellheight})
 
 						end
 
