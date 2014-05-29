@@ -1,7 +1,7 @@
 return {
 	
 	-- Normalize all pointers (e.g. after a command that changes seq length)
-	normalizePointers = function(data)
+	normalizePointers = function()
 	
 		-- If no sequences are loaded, do nothing
 		if not data.active then
@@ -25,7 +25,7 @@ return {
 	end,
 
 	-- Move the tick pointer, based on spacing, bounded to the current seq's ticks
-	moveTickPointer = function(data, dist)
+	moveTickPointer = function(dist)
 
 		-- If no sequences are loaded, abort the function
 		if data.active == false then
@@ -40,7 +40,7 @@ return {
 	end,
 
 	-- Move the tick pointer to a beat-tick, in the given direction
-	moveTickPointerToBeat = function(data, dist)
+	moveTickPointerToBeat = function(dist)
 
 		-- If no sequences are loaded, abort the function
 		if data.active == false then
@@ -69,7 +69,7 @@ return {
 	end,
 
 	-- Shift an internal bounded value, additively or multiplicatively, by a given distance
-	shiftInternalValue = function(data, vname, multi, dist)
+	shiftInternalValue = function(vname, multi, dist)
 
 		-- If no sequences are loaded, abort the function
 		if data.active == false then

@@ -2,7 +2,7 @@ return {
 	
 	-- Add an undo step to the undo stack,
 	-- comprised of an undo-direction and redo-direction command.
-	addUndoStep = function(data, suppress, u, r)
+	addUndoStep = function(suppress, u, r)
 
 		-- If undo-suppression is not invoked on this function call...
 		if not suppress then
@@ -34,7 +34,7 @@ return {
 
 	-- Traverse one step within data.undo or data.redo table,
 	-- and execute the step's table of functions.
-	traverseUndo = function(data, back)
+	traverseUndo = function(back)
 
 		-- Get the target stack names, based on the command type
 		local stack = (back and "undo") or "redo"
@@ -60,7 +60,7 @@ return {
 			local cmd = (back and undo) or redo
 
 			-- Execute the function, with its attendant args
-			data:executeObjectFunction(unpack(cmd))
+			executeFunction(unpack(cmd))
 			print("traverseUndo: performed function: " .. cmd[1] .. "! (" .. stack .. ")")
 
 		end

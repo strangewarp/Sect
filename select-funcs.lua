@@ -1,7 +1,7 @@
 return {
 
 	-- Index the note-and-tick locations of all selected notes
-	selectionDataToIndexes = function(data)
+	selectionDataToIndexes = function()
 
 		data.selindex = {}
 		for k, v in pairs(data.seldat) do
@@ -14,7 +14,7 @@ return {
 	end,
 
 	-- Toggle select-mode boundaries, which are dragged by the pointers
-	toggleSelect = function(data, cmd)
+	toggleSelect = function(cmd)
 
 		if cmd == "clear" then -- Clear selection-tables, but leave selnotes alone
 
@@ -60,7 +60,7 @@ return {
 
 		elseif cmd == "all" then -- Select all
 
-			data.seldat = data:getNotes(data.active)
+			data.seldat = getNotes(data.active)
 
 		end
 
@@ -74,23 +74,23 @@ return {
 
 		-- Merge selected notes into selection-memory table
 		if cmd ~= "clear" then
-			local n = data:getNotes(data.active, data.sel.l, data.sel.r, data.sel.b, data.sel.t)
+			local n = getNotes(data.active, data.sel.l, data.sel.r, data.sel.b, data.sel.t)
 			data.seldat = tableCombine(n, data.seldat, false)
 			data.seldat = removeDuplicates(data.seldat)
 		end
 
-		data:selectionDataToIndexes()
+		selectionDataToIndexes()
 
 	end,
 
 	-- Clear the select-table
-	clearSelectMemory = function(data)
+	clearSelectMemory = function()
 
 		-- If something is selected, remove all non-selected notes from seldat
 		if data.sel.l ~= false then
 
 			-- Get a table of all currently-selected notes
-			local n = data:getNotes(data.active, data.sel.l, data.sel.r, data.sel.b, data.sel.t)
+			local n = getNotes(data.active, data.sel.l, data.sel.r, data.sel.b, data.sel.t)
 
 			-- Match all seldat notes against the subset of selected notes
 			for i = #data.seldat, 1, -1 do
@@ -117,12 +117,12 @@ return {
 			data.seldat = {}
 		end
 
-		data:selectionDataToIndexes()
+		selectionDataToIndexes()
 
 	end,
 
 	-- Remove notes that no longer exist from the select-table
-	removeOldSelectItems = function(data)
+	removeOldSelectItems = function()
 
 		for i = #data.seldat, 1, -1 do
 
@@ -165,7 +165,7 @@ return {
 	end,
 
 	-- Copy the currently selected chunk of notes and ticks
-	copySelection = function(data, add)
+	copySelection = function(add)
 
 		-- Get duplicates of the notes in selection-memory
 		local n = deepCopy(data.seldat)
@@ -212,18 +212,18 @@ return {
 	end,
 
 	-- Cut the currently selected chunk of notes and ticks
-	cutSelection = function(data, add, undo)
+	cutSelection = function(add, undo)
 
 		-- Copy the selected notes
-		data:copySelection(add)
+		copySelection(add)
 
 		-- Remove the selected notes from the seq
-		data:setNotes(data.active, notesToRemove(deepCopy(data.seldat)), undo)
+		setNotes(data.active, notesToRemove(deepCopy(data.seldat)), undo)
 
 	end,
 
 	-- Paste the selection-table's contents at the current pointer position
-	pasteSelection = function(data, undo)
+	pasteSelection = function(undo)
 
 		-- Duplicate the copy-table, to prevent reference bugs
 		local ptab = deepCopy(data.copydat)
@@ -238,12 +238,12 @@ return {
 		end
 
 		-- Add the paste-notes to current seq, and create an undo command
-		data:setNotes(data.active, ptab, undo)
+		setNotes(data.active, ptab, undo)
 
 	end,
 
 	-- Modify a given set of notes
-	modNotes = function(data, cmd, notes, dist, undo)
+	modNotes = function(cmd, notes, dist, undo)
 
 		-- If no notes were received, abort function
 		if #notes == 0 then
@@ -300,42 +300,42 @@ return {
 		end
 
 		-- Remove the old notes
-		data:removeNotes(data.active, oldnotes, undo)
+		removeNotes(data.active, oldnotes, undo)
 
 		-- Add the modified notes, and collapse into the same undo command
 		undo[2] = true
-		data:setNotes(data.active, newnotes, undo)
+		setNotes(data.active, newnotes, undo)
 
 	end,
 
 	-- Modify all selected notes in a given manner
-	modSelectedNotes = function(data, dist, undo)
+	modSelectedNotes = function(dist, undo)
 
 		-- If there is no selection, set it to the pointer position;
 		-- Grab notes regardless;
 		-- If there was no selection, unset sel-pointer positions
 		local notes = {}
 		if not data.sel.l then
-			data:toggleSelect("left")
-			data:toggleSelect("right")
-			notes = data:getNotesFromSelection()
-			data:toggleSelect("clear")
+			toggleSelect("left")
+			toggleSelect("right")
+			notes = getNotesFromSelection()
+			toggleSelect("clear")
 		else
-			notes = data:getNotesFromSelection()
+			notes = getNotesFromSelection()
 		end
 
 		-- Modify the notes within the select range
-		data:modNotes(data.curcmd, notes, dist, undo)
+		modNotes(data.curcmd, notes, dist, undo)
 
 	end,
 
 	-- Move the movedat notes, or the selected notes,
 	-- or the active note if nothing is selected, in that order of precedence.
-	moveCopyNotes = function(data, xdist, ydist, undo)
+	moveCopyNotes = function(xdist, ydist, undo)
 
 		-- If the move-tab is empty, fill it from selection range
 		if #data.movedat == 0 then
-			data.movedat = data:getNotesFromSelection()
+			data.movedat = getNotesFromSelection()
 		end
 
 		-- If the move-tab is STILL empty, abort function
@@ -355,7 +355,7 @@ return {
 		}
 
 		-- Remove the movedat notes from where they presently sit
-		data:removeNotes(data.active, data.movedat, undo)
+		removeNotes(data.active, data.movedat, undo)
 		undo[2] = true
 
 		-- For every note that is tabled for movement...
@@ -375,26 +375,26 @@ return {
 				end
 			end
 			if #collidenotes > 0 then
-				data:removeNotes(data.active, collidenotes, undo)
+				removeNotes(data.active, collidenotes, undo)
 			end
 
 		end
 
 		-- Set the undo to collect-mode, and add the notes in new positions
-		data:setNotes(data.active, data.movedat, undo)
+		setNotes(data.active, data.movedat, undo)
 
 	end,
 
 	-- Move all notes within the selection range
-	moveSelectedNotes = function(data, xdist, ydist, undo)
+	moveSelectedNotes = function(xdist, ydist, undo)
 
 		if not data.sel.l then -- If there is no selection, select pointer-position
-			data:toggleSelect("left")
-			data:toggleSelect("right")
-			data:moveCopyNotes(xdist, ydist, undo)
-			data:toggleSelect("clear")
+			toggleSelect("left")
+			toggleSelect("right")
+			moveCopyNotes(xdist, ydist, undo)
+			toggleSelect("clear")
 		else -- If a selection exists, call moveNotes normally
-			data:moveCopyNotes(xdist, ydist, undo)
+			moveCopyNotes(xdist, ydist, undo)
 		end
 
 	end,

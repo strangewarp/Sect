@@ -3,48 +3,37 @@ function love.load()
 
 	MIDI = require('MIDI')
 
+	datafuncs = require('data-funcs')
+	filefuncs = require('file-funcs')
 	guigridfuncs = require('gui-grid-funcs')
 	guinotefuncs = require('gui-note-funcs')
 	guimiscfuncs = require('gui-misc-funcs')
+	guisidebarfuncs = require('gui-sidebar-funcs')
 	keyfuncs = require('key-funcs')
+	modefuncs = require('mode-funcs')
 	notefuncs = require('note-funcs')
+	pointerfuncs = require('pointer-funcs')
+	selectfuncs = require('select-funcs')
+	undofuncs = require('undo-funcs')
 	utilfuncs = require('util-funcs')
-
-	selfdatafuncs = require('self-data-funcs')
-	selffilefuncs = require('self-file-funcs')
-	selfguifuncs = require('self-gui-funcs')
-	selfkeyfuncs = require('self-key-funcs')
-	selfmodefuncs = require('self-mode-funcs')
-	selfnotefuncs = require('self-note-funcs')
-	selfpointerfuncs = require('self-pointer-funcs')
-	selfselectfuncs = require('self-select-funcs')
-	selfundofuncs = require('self-undo-funcs')
-	selfutilfuncs = require('self-util-funcs')
 
 	data = require('data-table')
 
 	utilfuncs.tableToNewContext(
 		_G,
-		keyfuncs,
+		datafuncs,
+		filefuncs,
 		guigridfuncs,
 		guinotefuncs,
 		guimiscfuncs,
+		guisidebarfuncs,
+		keyfuncs,
+		modefuncs,
 		notefuncs,
+		pointerfuncs,
+		selectfuncs,
+		undofuncs,
 		utilfuncs
-	)
-
-	tableToNewContext(
-		data,
-		selfdatafuncs,
-		selffilefuncs,
-		selfguifuncs,
-		selfkeyfuncs,
-		selfmodefuncs,
-		selfnotefuncs,
-		selfpointerfuncs,
-		selfselectfuncs,
-		selfundofuncs,
-		selfutilfuncs
 	)
 
 	-- If the userprefs file doesn't exist, create it in the savefile folder,
@@ -72,9 +61,9 @@ function love.load()
 	love.graphics.setLineWidth(1)
 	
 	-- Attach user-defined keyboard-buttons to commands
-	data:buttonsToPianoKeys(data.pianokeys)
+	buttonsToPianoKeys(data.pianokeys)
 
-	data:sortKeyComboTables()
+	sortKeyComboTables()
 
 	print("love.load: Launched!")
 
@@ -97,7 +86,7 @@ function love.draw()
 	end
 
 	-- Build the GUI
-	data:buildGUI(canvas, width, height)
+	buildGUI(canvas, width, height)
 
 end
 
@@ -111,9 +100,9 @@ end
 
 function love.keypressed(key, isrepeat)
 	key = tostring(key)
-	data:addKeystroke(key, isrepeat)
+	addKeystroke(key, isrepeat)
 end
 
 function love.keyreleased(key)
-	data:removeKeystroke(key)
+	removeKeystroke(key)
 end

@@ -1,7 +1,8 @@
+
 return {
 	
 	-- Load the current active savefile in the hotseats list
-	loadFile = function(data, undo)
+	loadFile = function(undo)
 
 		local bpm, tpq = false, false
 		local undotasks = {}
@@ -65,7 +66,7 @@ return {
 	end,
 
 	-- Save to the current active hotseat location
-	saveFile = function(data)
+	saveFile = function()
 
 		-- Get save location
 		local saveloc = data.savepath .. data.hotseats[data.activeseat] .. ".mid"

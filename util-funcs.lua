@@ -146,6 +146,23 @@ return {
 		
 	end,
 
+	-- Execute a function, after receiving data in the format:
+	-- Object, "funcName", arg1, arg2, ..., argN
+	executeFunction = function(...)
+
+		local t = {...}
+
+		-- Get the func-name, and call it in data namespace with all of its args
+		local fname = table.remove(t, 1)
+		_G[fname](unpack(t))
+
+		-- Sanitize data structures, which may have been changed
+		normalizePointers()
+		removeOldSelectItems()
+		selectionDataToIndexes()
+
+	end,
+
 	-- Get a table of all factors of a given integer
 	getFactors = function(n)
 
