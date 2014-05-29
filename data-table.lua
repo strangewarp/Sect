@@ -57,6 +57,10 @@ D.seldat = {} -- Holds the notes that were selected for commands
 D.copydat = {} -- Table for copied notes
 D.selindex = {} -- Selected notes, indexed by [tick][note]
 
+-- WHEEL VARS --
+D.scales = {} -- All possible scales (built in wheel-funcs)
+D.wheels = {} -- All possible wheels (built in wheel-funcs)
+
 -- Baseline contents for new sequences
 D.baseseq = {
 	point = 1, -- Internal pointer, for playing decoupled from global tick

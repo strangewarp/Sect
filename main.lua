@@ -16,6 +16,7 @@ function love.load()
 	selectfuncs = require('select-funcs')
 	undofuncs = require('undo-funcs')
 	utilfuncs = require('util-funcs')
+	wheelfuncs = require('wheel-funcs')
 
 	data = require('data-table')
 
@@ -33,7 +34,8 @@ function love.load()
 		pointerfuncs,
 		selectfuncs,
 		undofuncs,
-		utilfuncs
+		utilfuncs,
+		wheelfuncs
 	)
 
 	-- If the userprefs file doesn't exist, create it in the savefile folder,
@@ -54,6 +56,7 @@ function love.load()
 	canvas = love.graphics.newCanvas(width, height)
 
 	fontsmall = love.graphics.newFont("Milavregarian.ttf", 8)
+	love.graphics.setFont(fontsmall)
 
 	love.keyboard.setKeyRepeat(true)
 
@@ -62,8 +65,10 @@ function love.load()
 	
 	-- Attach user-defined keyboard-buttons to commands
 	buttonsToPianoKeys(data.pianokeys)
-
 	sortKeyComboTables()
+
+	-- Generate all musical-combinatoric data tables
+	generateCombinatorics()
 
 	print("love.load: Launched!")
 

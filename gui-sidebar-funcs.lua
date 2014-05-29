@@ -12,8 +12,7 @@ return {
 		love.graphics.setColor(data.color.window.mid)
 		love.graphics.rectangle("fill", left, top, right, bot)
 
-		-- Set the font and font-color
-		love.graphics.setFont(fontsmall)
+		-- Set the font-color
 		love.graphics.setColor(data.color.font.mid)
 
 		-- If no sequences are loaded, write a simple guidance statement,
@@ -206,7 +205,6 @@ return {
 	drawTabledKeys = function(tab, kind)
 
 		local fh = fontsmall:getHeight()
-		love.graphics.setFont(fontsmall)
 
 		for _, v in pairs(tab) do
 
