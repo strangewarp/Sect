@@ -95,8 +95,6 @@ return {
 				for _, xr in pairs(xranges) do
 					for _, yr in pairs(yranges) do
 
-						print("DYE 1: " .. xr.o .. " " .. yr.o) -- DEBUGGING
-
 						-- Get note's inner-grid-concrete and absolute left and top offsets
 						local ol = xr.a + ((vv.tick - 1) * cellwidth)
 						local ot = yr.b - ((vp - yr.o) * cellheight)

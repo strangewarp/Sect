@@ -6,6 +6,45 @@ return {
 		love.graphics.rectangle("fill", 0, 0, width, height)
 	end,
 
+	-- Draw the column of piano-keys in the sequence window
+	drawPianoRoll = function(left, kwidth, cellheight, width, height)
+
+		local whitedraw = {}
+		local blackdraw = {}
+
+		-- Get key heights, and half-key heights, and note-row heights
+		local yflare = cellheight * 1.5
+		local ymid = cellheight
+		local khalf = cellheight / 2
+
+		-- Get the center-point, on which the sequence grid (and by extension, the piano-roll) are fixed
+		local ycenter = height / 1.7
+
+		-- Add the active note, in center position, with highlighted color, to the relevant draw-table
+		whitedraw, blackdraw = pianoNoteToDrawTables(whitedraw, blackdraw, data.np, left, ycenter, ymid, yflare, kwidth, true)
+
+		-- Moving outwards from center, add piano-keys to the draw-tables, until fully passing the stencil border
+		local upkey, downkey, uppos, downpos = data.np, data.np, ycenter, ycenter
+		while uppos >= (0 - khalf) do
+
+			-- Update position and pointer values
+			upkey = wrapNum(upkey + 1, data.bounds.np)
+			downkey = wrapNum(downkey - 1, data.bounds.np)
+			uppos = uppos - cellheight
+			downpos = downpos + cellheight
+
+			-- Add the two outermost notes, with normal color, to the relevant draw-tables
+			whitedraw, blackdraw = pianoNoteToDrawTables(whitedraw, blackdraw, upkey, left, uppos, ymid, yflare, kwidth, false)
+			whitedraw, blackdraw = pianoNoteToDrawTables(whitedraw, blackdraw, downkey, left, downpos, ymid, yflare, kwidth, false)
+
+		end
+
+		-- Draw all tabled keys, in the proper visibility order
+		drawTabledKeys(whitedraw, "white")
+		drawTabledKeys(blackdraw, "black")
+
+	end,
+
 	-- Draw a table of piano-key rectangles, with text overlay
 	drawTabledKeys = function(tab, kind)
 

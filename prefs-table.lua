@@ -94,6 +94,12 @@ return {
 			line = {255, 255, 255, 200},
 		},
 
+		triangle = { -- Beat-triangle colors
+			fill = {0, 0, 255, 255},
+			line = {225, 225, 225, 255},
+			text = {240, 240, 240, 255},
+		},
+
 		reticule = { -- Reticule colors
 			line = {235, 235, 235, 100},
 			light = {255, 255, 255, 125},
