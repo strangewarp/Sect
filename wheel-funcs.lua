@@ -11,6 +11,12 @@ return {
 
 		data.scales = indexByNoteQuantity(data.scales)
 
+		for k, v in pairs(data.scales[7]) do -- DEBUGGING
+			print("SCALE " .. v.bin .. ": ")
+			print(v.conso)
+			print(" ")
+		end -- DEBUGGING
+
 		data.wheels = buildWheels(data.scales)
 
 	end,
@@ -29,7 +35,6 @@ return {
 			-- Collapse the latter half of the intervals into the equivalent former half
 			for i = 8, 12 do
 				local adj = (12 - i) + 1
-				print("DYE 1: " .. adj .. " " .. compare[adj]) -- DEBUGGING
 				compare[adj] = compare[adj] + compare[i]
 			end
 
@@ -67,7 +72,9 @@ return {
 
 				-- For every interval presence, increase the corresponding interval's index
 				for ii = 1, 12 do
-					if s.notes[ii] == r.notes[ii] then
+					if (s.notes[ii] == 1)
+					and (s.notes[ii] == r.notes[ii])
+					then
 						scales[k].ints[i] = scales[k].ints[i] + 1
 					end
 				end
@@ -110,9 +117,10 @@ return {
 			out[b2.bin] = b2
 		end
 
+		height = height + 1
+
 		-- If the tree height is less than the contents of an octave, keep adding branches
 		if height < 12 then
-			height = height + 1
 			out = buildScales(out, height)
 		end
 
@@ -127,7 +135,9 @@ return {
 
 		-- For every scale (indexed by numer of notes)...
 		for k, v in pairs(scales) do
+
 			wheels[k] = {}
+
 			for sk, s in pairs(v) do
 
 				local links, positions = {}, {}
@@ -145,6 +155,7 @@ return {
 
 
 			end
+
 		end
 
 		return wheels
@@ -160,7 +171,7 @@ return {
 		end
 
 		for k, v in pairs(scales) do
-			table.insert(out[v.ints[0]], v)
+			table.insert(out[v.ints[1]], v)
 		end
 
 		return out
@@ -183,6 +194,7 @@ return {
 				-- If any scales match the rotated scale, remove them
 				for k, v in pairs(scales) do
 					if rotated.bin == v.bin then
+						print("REMOVE") -- DEBUGGING
 						table.remove(scales, k)
 						break
 					end
@@ -215,6 +227,8 @@ return {
 		for k, v in ipairs(out.notes) do
 			out.bin = out.bin .. v
 		end
+
+		--print(out.bin) -- DEBUGGING
 
 		return out
 
