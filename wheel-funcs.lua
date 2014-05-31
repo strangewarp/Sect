@@ -5,7 +5,9 @@ return {
 	generateCombinatorics = function()
 
 		data.scales = buildScales()
-		--data.scales = purgeIdenticalScales(data.scales)
+		data.scales = anonymizeKeys(data.scales)
+		data.scales = purgeIdenticalScales(data.scales)
+		data.scales = rotateToFilledPosition(data.scales)
 
 		data.scales = addIntervalSpectrum(data.scales)
 
@@ -15,11 +17,20 @@ return {
 
 		data.scales = addConsonanceRatings(data.scales)
 
-		table.sort(data.scales[5].scales, function(a,b) return a.conso < b.conso end) -- DEBUGGING
-		for k, v in ipairs(data.scales[5].scales) do -- DEBUGGING
-			print("SCALE " .. v.bin .. ": ")
-			print("most consonant: " .. data.scales[5].con)
-			print("most dissonant: " .. data.scales[5].dis)
+		local i = 7 -- DEBUGGING
+		print(" ")
+		print("testing k-species: " .. i)
+		print("scales: " .. #data.scales[i].scales)
+		print(" ")
+		print("most consonant: " .. data.scales[i].con)
+		print("most dissonant: " .. data.scales[i].dis)
+		print("average consonance: " .. data.scales[i].avg)
+		print("median consonance: " .. data.scales[i].median)
+		print(" ")
+		for k, v in ipairs(data.scales[i].scales) do -- DEBUGGING
+			print(".....SCALE: " .. v.bin)
+			print("..clusters: " .. table.concat(v.adjs, " "))
+			print("......gaps: " .. table.concat(v.gaps, " "))
 			print("consonance: " .. v.conso)
 			print(" ")
 		end -- DEBUGGING
@@ -31,50 +42,88 @@ return {
 	-- Assign a consonance rating to each given scale
 	addConsonanceRatings = function(t)
 
+		-- For every k-species...
 		for k, v in pairs(t) do
 
-			t[k].avg = 0
-			t[k].con = 12
+			t[k].con = math.huge
 			t[k].dis = 0
-			local kdiv = 0
+			t[k].avg = 0
+			t[k].median = 0
 
+			local medianlist = {}
+			local kavg = 0
+
+			-- For every scale in a given k-species...
 			for sk, s in pairs(v.scales) do
 
-				local avg, avgdiv = 0, 0
-				local compare = deepCopy(s.ints)
+				local gaps, adjs = {}, {}
+				local adjs = {}
+				local adjacent, adjdifftotal, gapdifftotal, gapavg = 0, 0, 0, 0
 
-				-- Collapse the latter half of the intervals into the equivalent former half
-				for i = 8, 12 do
-					local adj = (12 - i) + 1
-					compare[adj] = compare[adj] + compare[i]
+				-- Get the number of note-adjacent notes
+				for n in s.bin:gmatch("1+") do
+					local nlen = n:len()
+					table.insert(adjs, nlen)
+					if nlen > 1 then
+						adjacent = adjacent + (nlen ^ nlen)
+					end
 				end
 
-				-- Increase the average, and average-divisor, by integer-spectrum values
-				for i = 2, 7 do
-					avgdiv = avgdiv + compare[i]
-					avg = avg + (i * compare[i])
+				-- Modify adjacency penalty based on ordered note-group spacing
+				local adjalt = adjs[1] or 0
+				if #adjs > 1 then
+					for i = 1, #adjs + 1 do
+						local w = wrapNum(i, 1, #adjs)
+						if adjs[w] ~= adjalt then
+							adjdifftotal = adjdifftotal + math.abs(adjalt - adjs[w])
+							adjalt = adjs[w]
+						end
+					end
 				end
 
-				-- Add this scale's averaged integer-spectrum values to the global total
-				kdiv = kdiv + avgdiv
-				t[k].avg = t[k].avg + avg
+				-- Get the number of gaps, and their size, and add it to the gap average
+				for g in s.bin:gmatch("0+") do
+					local glen = g:len()
+					table.insert(gaps, glen)
+					gapavg = gapavg + glen
+				end
 
-				-- Get the scale's consonance-value
-				t[k].scales[sk].conso = avg / avgdiv
+				-- Modify gap bonus based on ordered gap-group spacing
+				local gapalt = gaps[1] or 0
+				if #gaps > 1 then
+					for i = 1, #gaps + 1 do
+						local w = wrapNum(i, 1, #gaps)
+						if gaps[w] ~= gapalt then
+							gapdifftotal = gapdifftotal + math.abs(gapalt - gaps[w])
+							gapalt = gaps[w]
+						end
+					end
+				end
+
+				-- Calculate the consonance value (lower number = more consonant)
+				local conso = ((gapavg + gapdifftotal) / #gaps) + ((adjacent - adjdifftotal) / k)
+
+				-- Add consonance-value to average and median values
+				kavg = kavg + conso
+				table.insert(medianlist, conso)
+
+				-- Test consonance-value against most-consonant and most-dissonant vals
+				t[k].con = math.min(t[k].con, conso)
+				t[k].dis = math.max(t[k].dis, conso)
+
+				-- Save consonance-data into the scale-table
+				t[k].scales[sk].gaps = gaps
+				t[k].scales[sk].adjs = adjs
+				t[k].scales[sk].conso = conso
 
 			end
 
-			-- Get the k-species' average consonance value,
-			-- which is the most-consonant possible value for the k-species.
-			t[k].avg = t[k].avg / kdiv
+			-- Calculate the k-species' average and median consonance vals
+			t[k].avg = kavg / #v.scales
+			t[k].median = medianlist[math.max(1, roundNum(#medianlist, 0))]
 
-			-- Adjust each scale's consonance-value based on the ideal,
-			-- and find the k-species' most consonant and dissonant limits.
-			for sk, s in pairs(v.scales) do
-				t[k].scales[sk].conso = math.abs(s.conso - t[k].avg)
-				t[k].con = math.min(t[k].con, t[k].scales[sk].conso)
-				t[k].dis = math.max(t[k].dis, t[k].scales[sk].conso)
-			end
+			-- Sort each k-species' scale-table by scale-consonance
+			table.sort(t[k].scales, function(a, b) return a.conso < b.conso end)
 
 		end
 
@@ -207,34 +256,30 @@ return {
 	end,
 
 	-- Remove scales that are the same combinatoric k-species as other scales
-	purgeIdenticalScales = function(scales)
+	purgeIdenticalScales = function(t)
 
-		local i = 1
-		while i < #scales do
+		-- For every scale...
+		for i = #t - 1, 1, -1 do
 
-			local s = scales[i]
-
-			-- For each possible position of the given scale...
+			-- For each possible position of a given scale...
 			for p = 1, 11 do
 
-				local rotated = rotateScale(s, p)
+				-- Rotate the scale to that position
+				local rotated = rotateScale(t[i], p)
 
 				-- If any scales match the rotated scale, remove them
-				for k, v in pairs(scales) do
-					if rotated.bin == v.bin then
-						print("REMOVE") -- DEBUGGING
-						table.remove(scales, k)
+				for c = i + 1, #t do
+					if rotated.bin == t[c].bin then
+						table.remove(t, c)
 						break
 					end
 				end
 
 			end
 
-			i = i + 1
-
 		end
 
-		return scales
+		return t
 
 	end,
 
@@ -259,6 +304,23 @@ return {
 		--print(out.bin) -- DEBUGGING
 
 		return out
+
+	end,
+
+	-- Rotate all given scales so that their first note is a filled position
+	rotateToFilledPosition = function(t)
+
+		for k, v in pairs(t) do
+
+			local count = 0
+			while (not ((t[k].bin:sub(1, 1) == "1") and (t[k].bin:sub(12, 12) == "0"))) and (count < 12) do
+				t[k] = rotateScale(t[k], 1)
+				count = count + 1
+			end
+
+		end
+
+		return t
 
 	end,
 

@@ -1,5 +1,18 @@
 return {
 	
+	-- Translate a table's keys into arbitrary numeric order
+	anonymizeKeys = function(t)
+
+		local out = {}
+
+		for _, v in pairs(t) do
+			table.insert(out, v)
+		end
+
+		return out
+		
+	end,
+
 	-- Bound a number between low and high values.
 	-- If either of the values is false, then that side is unbounded.
 	-- If the number is false, it defaults to low, or if low is false, high.
