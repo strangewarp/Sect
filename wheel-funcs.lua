@@ -13,21 +13,19 @@ return {
 
 		data.scales = indexByNoteQuantity(data.scales)
 
-		--data.scales = addIdealRatings(data.scales)
-
 		data.scales = addConsonanceRatings(data.scales)
 
 		local i = 7 -- DEBUGGING
 		print(" ")
 		print("testing k-species: " .. i)
-		print("scales: " .. #data.scales[i].scales)
+		print("scales: " .. #data.scales[i].s)
 		print(" ")
 		print("most consonant: " .. data.scales[i].con)
 		print("most dissonant: " .. data.scales[i].dis)
 		print("average consonance: " .. data.scales[i].avg)
 		print("median consonance: " .. data.scales[i].median)
 		print(" ")
-		for k, v in ipairs(data.scales[i].scales) do -- DEBUGGING
+		for k, v in ipairs(data.scales[i].s) do -- DEBUGGING
 			print(".....SCALE: " .. v.bin)
 			print("..clusters: " .. table.concat(v.adjs, " "))
 			print("......gaps: " .. table.concat(v.gaps, " "))
@@ -36,6 +34,8 @@ return {
 		end -- DEBUGGING
 
 		data.wheels = buildWheels(data.scales)
+
+		data.scales = indexByBin(data.scales)
 
 	end,
 
@@ -54,7 +54,7 @@ return {
 			local kavg = 0
 
 			-- For every scale in a given k-species...
-			for sk, s in pairs(v.scales) do
+			for sk, s in pairs(v.s) do
 
 				local gaps, adjs = {}, {}
 				local adjs = {}
@@ -112,18 +112,18 @@ return {
 				t[k].dis = math.max(t[k].dis, conso)
 
 				-- Save consonance-data into the scale-table
-				t[k].scales[sk].gaps = gaps
-				t[k].scales[sk].adjs = adjs
-				t[k].scales[sk].conso = conso
+				t[k].s[sk].gaps = gaps
+				t[k].s[sk].adjs = adjs
+				t[k].s[sk].conso = conso
 
 			end
 
 			-- Calculate the k-species' average and median consonance vals
-			t[k].avg = kavg / #v.scales
+			t[k].avg = kavg / #v.s
 			t[k].median = medianlist[math.max(1, roundNum(#medianlist, 0))]
 
 			-- Sort each k-species' scale-table by scale-consonance
-			table.sort(t[k].scales, function(a, b) return a.conso < b.conso end)
+			table.sort(t[k].s, function(a, b) return a.conso < b.conso end)
 
 		end
 
@@ -210,26 +210,73 @@ return {
 
 		local wheels = {}
 
-		-- For every scale (indexed by numer of notes)...
-		for k, v in pairs(t) do
+		-- For every k-species of scales...
+		for k, _ in pairs(t) do
+
+			-- Limit wheel size to 8 notes, to quash exponential data requirements
+			if k > 8 then
+				do break end
+			end
 
 			wheels[k] = {}
 
-			for sk, s in pairs(v.scales) do
+			local pointers = {}
 
-				local links, positions = {}, {}
+			-- Generate initial pointers
+			for p = 1, k do
+				pointers[p] = p
+			end
 
-				-- Build a wheel template, using each note-presence as a node
-				for nk, n in pairs(s.notes) do
-					if n == 1 then
-						links[nk] = {i = nk, o = nk}
-						table.insert(positions, nk)
+			-- Get the notes' number of possible permuations
+			local factorial = getFactorial(k)
+
+			for i = 1, factorial do
+
+				-- Index each wheel by a string of its decimal numbers
+				local dec = ""
+				for kk, vv in ipairs(pointers) do
+					dec = dec .. vv
+				end
+				wheels[k][dec] = {}
+
+				-- Build a new wheel out of the rotated pointers
+				for p = 1, #pointers do
+
+					local p2 = wrapNum(p + 1, 1, #pointers)
+
+					-- Populate the current wheel
+					if wheels[k][dec][p] == nil then
+						wheels[k][dec][p] = {
+							n = pointers[p],
+							i = 0,
+							o = pointers[p2],
+						}
+					else
+						wheels[k][dec][p].o = pointers[p2]
 					end
+
+					-- Populate the current adjacent wheel
+					if wheels[k][dec][p2] == nil then
+						wheels[k][dec][p2] = {
+							n = pointers[p2],
+							i = pointers[p],
+							o = 0,
+						}
+					else
+						wheels[k][dec][p2].i = pointers[p]
+					end
+
 				end
 
-				-- TODO: CONNECT WHEEL INDEXES
-
-
+				-- Rotate pointers until arriving at a position with no duplicates
+				repeat
+					for p = #pointers, 1, -1 do
+						pointers[p] = wrapNum(pointers[p] + 1, 1, k)
+						if pointers[p] > 1 then
+							do break end
+						end
+					end
+				until not duplicateCheck(pointers)
 
 			end
 
@@ -239,16 +286,32 @@ return {
 
 	end,
 
+	-- Index a scale by its binary note-presence identity
+	indexByBin = function(t)
+
+		local out = deepCopy(t)
+
+		for k, v in pairs(t) do
+			out[k].s = {}
+			for sk, s in pairs(v.s) do
+				out[k].s[s.bin] = v
+			end
+		end
+
+		return out
+
+	end,
+
 	-- Index a given table of scales by how many notes they contain
 	indexByNoteQuantity = function(t)
 
 		local out = {}
 		for i = 0, 12 do
-			out[i] = {scales = {}}
+			out[i] = {s = {}}
 		end
 
 		for k, v in pairs(t) do
-			table.insert(out[v.ints[1]].scales, v)
+			table.insert(out[v.ints[1]].s, v)
 		end
 
 		return out

@@ -159,6 +159,25 @@ return {
 		
 	end,
 
+	-- Check whether a table contains duplicate values
+	duplicateCheck = function(t)
+
+		if (t == nil) or (#t < 2) then
+			return false
+		end
+
+		for a = 1, #t - 1 do
+			for b = a + 1, #t do
+				if t[a] == t[b] then
+					return true
+				end
+			end
+		end
+
+		return false
+
+	end,
+
 	-- Execute a function, after receiving data in the format:
 	-- Object, "funcName", arg1, arg2, ..., argN
 	executeFunction = function(...)
@@ -174,6 +193,11 @@ return {
 		removeOldSelectItems()
 		selectionDataToIndexes()
 
+	end,
+
+	-- Get the factorial of a given integer
+	getFactorial = function(n)
+		return ((n > 0) and (n * getFactorial(n - 1))) or 1
 	end,
 
 	-- Get a table of all factors of a given integer
