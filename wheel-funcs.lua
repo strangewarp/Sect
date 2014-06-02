@@ -15,6 +15,8 @@ return {
 
 		data.scales = addConsonanceRatings(data.scales)
 
+		data.wheels = buildWheels(data.scales)
+
 		local i = 7 -- DEBUGGING
 		print(" ")
 		print("testing k-species: " .. i)
@@ -33,7 +35,13 @@ return {
 			print(" ")
 		end -- DEBUGGING
 
-		data.wheels = buildWheels(data.scales)
+		for k, v in pairs(data.wheels) do -- DEBUGGING
+			print("WHEEL POSITIONS: " .. k)
+			for wk, w in pairs(v) do
+				print("..........WHEEL " .. wk .. ": " .. w.dec)
+			end
+			print(" ")
+		end -- DEBUGGING
 
 		data.scales = indexByBin(data.scales)
 
@@ -218,26 +226,29 @@ return {
 				do break end
 			end
 
-			wheels[k] = {}
-
-			local pointers = {}
-
 			-- Generate initial pointers
+			local pointers = {}
 			for p = 1, k do
 				pointers[p] = p
 			end
+
+			wheels[k] = {}
 
 			-- Get the notes' number of possible permuations
 			local factorial = getFactorial(k)
 
 			for i = 1, factorial do
 
-				-- Index each wheel by a string of its decimal numbers
-				local dec = ""
-				for kk, vv in ipairs(pointers) do
-					dec = dec .. vv
+				-- Build a new wheel table
+				local wheel = {
+					io = {},
+					dec = "",
+				}
+
+				-- Get the wheel's decimal name
+				for _, pv in ipairs(pointers) do
+					wheel.dec = wheel.dec .. pv
 				end
-				wheels[k][dec] = {}
 
 				-- Build a new wheel out of the rotated pointers
 				for p = 1, #pointers do
@@ -245,28 +256,31 @@ return {
 					local p2 = wrapNum(p + 1, 1, #pointers)
 
 					-- Populate the current wheel
-					if wheels[k][dec][p] == nil then
-						wheels[k][dec][p] = {
+					if wheel.io[p] == nil then
+						wheel.io[p] = {
 							n = pointers[p],
 							i = 0,
 							o = pointers[p2],
 						}
 					else
-						wheels[k][dec][p].o = pointers[p2]
+						wheel.io[p].o = pointers[p2]
 					end
 
 					-- Populate the current adjacent wheel
-					if wheels[k][dec][p2] == nil then
-						wheels[k][dec][p2] = {
+					if wheel.io[p2] == nil then
+						wheel.io[p2] = {
 							n = pointers[p2],
 							i = pointers[p],
 							o = 0,
 						}
 					else
-						wheels[k][dec][p2].i = pointers[p]
+						wheel.io[p2].i = pointers[p]
 					end
 
 				end
+
+				-- Put the new wheel into the wheels table
+				table.insert(wheels[k], wheel)
 
 				-- Rotate pointers until arriving at a position with no duplicates
 				repeat
