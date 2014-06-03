@@ -5,6 +5,7 @@ return {
 	generateCombinatorics = function()
 
 		data.scales = buildScales()
+
 		data.scales = anonymizeKeys(data.scales)
 		data.scales = purgeIdenticalScales(data.scales)
 		data.scales = rotateToFilledPosition(data.scales)
@@ -16,32 +17,6 @@ return {
 		data.scales = addConsonanceRatings(data.scales)
 
 		data.wheels = buildWheels(data.scales)
-
-		local i = 7 -- DEBUGGING
-		print(" ")
-		print("testing k-species: " .. i)
-		print("scales: " .. #data.scales[i].s)
-		print(" ")
-		print("most consonant: " .. data.scales[i].con)
-		print("most dissonant: " .. data.scales[i].dis)
-		print("average consonance: " .. data.scales[i].avg)
-		print("median consonance: " .. data.scales[i].median)
-		print(" ")
-		for k, v in ipairs(data.scales[i].s) do -- DEBUGGING
-			print(".....SCALE: " .. v.bin)
-			print("..clusters: " .. table.concat(v.adjs, " "))
-			print("......gaps: " .. table.concat(v.gaps, " "))
-			print("consonance: " .. v.conso)
-			print(" ")
-		end -- DEBUGGING
-
-		for k, v in pairs(data.wheels) do -- DEBUGGING
-			print("WHEEL POSITIONS: " .. k)
-			for wk, w in pairs(v) do
-				print("..........WHEEL " .. wk .. ": " .. w.dec)
-			end
-			print(" ")
-		end -- DEBUGGING
 
 		data.scales = indexByBin(data.scales)
 
@@ -222,7 +197,7 @@ return {
 		for k, _ in pairs(t) do
 
 			-- Limit wheel size to 8 notes, to quash exponential data requirements
-			if k > 8 then
+			if k > 7 then
 				do break end
 			end
 

@@ -1,6 +1,6 @@
 
 return {
-	
+
 	-- Load the current active savefile in the hotseats list
 	loadFile = function(undo)
 

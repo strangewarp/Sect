@@ -106,6 +106,13 @@ return {
 			dark = {5, 5, 255, 90},
 		},
 
+		loading = { -- Loading-screen colors
+			background = {20, 20, 30, 255},
+			text_normal = {200, 200, 209, 255},
+			text_light1 = {0, 0, 220, 255},
+			text_light2 = {230, 2, 4, 255},
+		},
+
 	},
 
 	reticule = { -- Reticule properties

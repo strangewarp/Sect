@@ -1,13 +1,21 @@
 
+---------------
+--- ON LOAD ---
+---------------
 function love.load()
 
-	MIDI = require('MIDI')
+	MIDI = require('midi/MIDI')
+
+	-- Serial and Compress are third-party libraries,
+	-- and load into global namespace in a different way.
+	require('serial/serial')
+	require('serial/compress')
 
 	datafuncs = require('data-funcs')
 	filefuncs = require('file-funcs')
 	guigridfuncs = require('gui-grid-funcs')
-	guinotefuncs = require('gui-note-funcs')
 	guimiscfuncs = require('gui-misc-funcs')
+	guinotefuncs = require('gui-note-funcs')
 	guisidebarfuncs = require('gui-sidebar-funcs')
 	keyfuncs = require('key-funcs')
 	modefuncs = require('mode-funcs')
@@ -25,8 +33,8 @@ function love.load()
 		datafuncs,
 		filefuncs,
 		guigridfuncs,
-		guinotefuncs,
 		guimiscfuncs,
+		guinotefuncs,
 		guisidebarfuncs,
 		keyfuncs,
 		modefuncs,
@@ -38,28 +46,58 @@ function love.load()
 		wheelfuncs
 	)
 
+	local defaultprefs, _ = love.filesystem.read('prefs-table.lua')
+
 	-- If the userprefs file doesn't exist, create it in the savefile folder,
 	-- require it like a regular module, and then add it to data-table context.
-	local defaultprefs, _ = love.filesystem.read('prefs-table.lua')
 	if not love.filesystem.exists("userprefs.lua") then
-		f = love.filesystem.newFile("userprefs.lua")
-		f:open('w')
-		f:write(defaultprefs)
-		f:close()
+
+		local uf = love.filesystem.newFile("userprefs.lua")
+		uf:open('w')
+		uf:write(defaultprefs)
+		uf:close()
 		prefs = require('prefs-table')
-	else
+
+	else -- If userprefs exist, simply require them.
 		prefs = require('userprefs')
 	end
+
 	tableToNewContext(data, prefs)
 
+	-- If combinatoric data tables don't exist, generate and store them
+	if (not love.filesystem.exists("scales.lua"))
+	or (not love.filesystem.exists("wheels.lua"))
+	then
+
+		generateCombinatorics()
+
+		-- Serialize and compress scale and wheel data
+		local serialscales = serialize(data.scales)
+		local serialwheels = serialize(data.wheels)
+
+		-- Save compressed scale data
+		local sf = love.filesystem.newFile("scales.lua")
+		sf:open('w')
+		sf:write(serialscales)
+		sf:close()
+
+		-- Save compressed wheel data		
+		local wf = love.filesystem.newFile("wheels.lua")
+		wf:open('w')
+		wf:write(serialwheels)
+		wf:close()
+		
+	else -- Else, if combinatoric tables exist, load them
+		data.scales = require('scales')
+		data.wheels = require('wheels')
+	end
+
+	-- Initialize GUI miscellany
 	local width, height = love.graphics.getDimensions()
 	canvas = love.graphics.newCanvas(width, height)
-
 	fontsmall = love.graphics.newFont("Milavregarian.ttf", 8)
+	sectlogo = love.graphics.newImage("img/biglogo.png", "normal")
 	love.graphics.setFont(fontsmall)
-
-	love.keyboard.setKeyRepeat(true)
-
 	love.graphics.setLineStyle("rough")
 	love.graphics.setLineWidth(1)
 	
@@ -67,17 +105,20 @@ function love.load()
 	buttonsToPianoKeys(data.pianokeys)
 	sortKeyComboTables()
 
-	-- Generate all musical-combinatoric data tables
-	generateCombinatorics()
-
-	print("love.load: Launched!")
+	love.keyboard.setKeyRepeat(true)
 
 end
 
+-----------------
+--- ON UPDATE ---
+-----------------
 function love.update(dt)
 
 end
 
+---------------
+--- ON DRAW ---
+---------------
 function love.draw()
 
 	-- Get window dimensions
@@ -95,19 +136,31 @@ function love.draw()
 
 end
 
+----------------------
+--- ON MOUSE PRESS ---
+----------------------
 function love.mousepressed(x, y, button)
 
 end
 
+------------------------
+--- ON MOUSE RELEASE ---
+------------------------
 function love.mousereleased(x, y, button)
 
 end
 
+--------------------
+--- ON KEY PRESS ---
+--------------------
 function love.keypressed(key, isrepeat)
 	key = tostring(key)
 	addKeystroke(key, isrepeat)
 end
 
+----------------------
+--- ON KEY RELEASE ---
+----------------------
 function love.keyreleased(key)
 	removeKeystroke(key)
 end
