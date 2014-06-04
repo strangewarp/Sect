@@ -21,6 +21,7 @@ function love.load()
 	guimiscfuncs = require('gui-misc-funcs')
 	guinotefuncs = require('gui-note-funcs')
 	guisidebarfuncs = require('gui-sidebar-funcs')
+	guiwheelfuncs = require('gui-wheel-funcs')
 	keyfuncs = require('key-funcs')
 	modefuncs = require('mode-funcs')
 	notefuncs = require('note-funcs')
@@ -41,6 +42,7 @@ function love.load()
 		guimiscfuncs,
 		guinotefuncs,
 		guisidebarfuncs,
+		guiwheelfuncs,
 		keyfuncs,
 		modefuncs,
 		notefuncs,
@@ -102,7 +104,6 @@ function love.load()
 
 	-- Initialize GUI miscellany
 	local width, height = love.graphics.getDimensions()
-	canvas = love.graphics.newCanvas(width, height)
 	fontsmall = love.graphics.newFont("Milavregarian.ttf", 8)
 	sectlogo = love.graphics.newImage("img/biglogo.png", "normal")
 	loadingbg = love.graphics.newImage("img/loadingbg.png", "normal")
@@ -141,13 +142,6 @@ function love.draw()
 	-- Get window dimensions
 	local width, height = love.graphics.getDimensions()
 
-	-- If the canvas-dimensions don't match the window-dimensions,
-	-- change the dimensions of the canvas
-	local cwidth, cheight = canvas:getDimensions()
-	if (width ~= cwidth) or (height ~= cheight) then
-		canvas = love.graphics.newCanvas(width, height)
-	end
-
 	-- If still loading, render a loading screen
 	if data.loading then
 		executeLoadingFuncAndDraw(canvas, width, height)
@@ -155,7 +149,7 @@ function love.draw()
 	end
 
 	-- Build the GUI
-	buildGUI(canvas, width, height)
+	buildGUI(width, height)
 
 end
 

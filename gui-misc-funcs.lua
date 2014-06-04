@@ -8,14 +8,11 @@ return {
 	end,
 
 	-- Build the entire GUI
-	buildGUI = function(cnv, width, height)
+	buildGUI = function(width, height)
 
 		buildBackground(width, height)
 		buildSidebar(0, 2, 100, height - 4, width, height)
 		buildSeqFrame(100, 0, width, height)
-
-		-- Draw the canvas onto the screen
-		love.graphics.draw(cnv, 0, 0)
 
 	end,
 

@@ -25,7 +25,7 @@ function love.conf(t)
     --t.window.highdpi = false -- Enable high-dpi mode for the window on a Retina display (boolean). Added in 0.9.1
     --t.window.srgb = false -- Enable sRGB gamma correction when drawing to the screen (boolean). Added in 0.9.1
 
-    t.modules.audio = true -- Enable the audio module (boolean)
+    t.modules.audio = false -- Enable the audio module (boolean)
     t.modules.event = true -- Enable the event module (boolean)
     t.modules.graphics = true -- Enable the graphics module (boolean)
     t.modules.image = true -- Enable the image module (boolean)

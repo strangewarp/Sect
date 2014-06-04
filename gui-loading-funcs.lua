@@ -25,11 +25,6 @@ return {
 		love.graphics.setColor(data.color.loading.text)
 		love.graphics.printf(data.loadtext, 50, 50, width - 100, "left")
 
-		-- Draw the canvas onto the screen
-		love.graphics.draw(cnv, 0, 0)
-
-		print(cmd[1]) -- DEBUGGING
-
 		-- Execute the loading-command
 		executeFunction(unpack(cmd))
 

@@ -165,6 +165,9 @@ return {
 
 		TOGGLE_RECORDING = {"space"},
 
+		TOGGLE_WHEEL_MODE = {"shift", "space"},
+		TOGGLE_CHORDWHEEL_MODE = {"shift", "tab", "space"},
+
 		UNDO = {"ctrl", "z"},
 		REDO = {"ctrl", "y"},
 

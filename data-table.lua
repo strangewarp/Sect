@@ -136,6 +136,9 @@ D.cmdfuncs = {
 
 	TOGGLE_RECORDING = {"toggleRecording"},
 
+	TOGGLE_WHEEL_MODE = {"toggleWheelMode"},
+	TOGGLE_CHORDWHEEL_MODE = {"toggleChordWheelMode"},
+
 	UNDO = {"traverseUndo", true},
 	REDO = {"traverseUndo", false},
 
