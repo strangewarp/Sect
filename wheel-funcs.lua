@@ -1,37 +1,21 @@
 
 return {
 
-	-- Generate all musical combinatoric data (called once on startup)
-	generateCombinatorics = function()
-
-		data.scales = buildScales()
-
+	-- Directly call anonymizeKeys for data.scales
+	anonymizeScaleKeys = function()
 		data.scales = anonymizeKeys(data.scales)
-		data.scales = purgeIdenticalScales(data.scales)
-		data.scales = rotateToFilledPosition(data.scales)
-
-		data.scales = addIntervalSpectrum(data.scales)
-
-		data.scales = indexByNoteQuantity(data.scales)
-
-		data.scales = addConsonanceRatings(data.scales)
-
-		data.wheels = buildWheels(data.scales)
-
-		data.scales = indexByBin(data.scales)
-
 	end,
 
 	-- Assign a consonance rating to each given scale
-	addConsonanceRatings = function(t)
+	buildConsonanceRatings = function()
 
 		-- For every k-species...
-		for k, v in pairs(t) do
+		for k, v in pairs(data.scales) do
 
-			t[k].con = math.huge
-			t[k].dis = 0
-			t[k].avg = 0
-			t[k].median = 0
+			data.scales[k].con = math.huge
+			data.scales[k].dis = 0
+			data.scales[k].avg = 0
+			data.scales[k].median = 0
 
 			local medianlist = {}
 			local kavg = 0
@@ -91,41 +75,39 @@ return {
 				table.insert(medianlist, conso)
 
 				-- Test consonance-value against most-consonant and most-dissonant vals
-				t[k].con = math.min(t[k].con, conso)
-				t[k].dis = math.max(t[k].dis, conso)
+				data.scales[k].con = math.min(data.scales[k].con, conso)
+				data.scales[k].dis = math.max(data.scales[k].dis, conso)
 
 				-- Save consonance-data into the scale-table
-				t[k].s[sk].gaps = gaps
-				t[k].s[sk].adjs = adjs
-				t[k].s[sk].conso = conso
+				data.scales[k].s[sk].gaps = gaps
+				data.scales[k].s[sk].adjs = adjs
+				data.scales[k].s[sk].conso = conso
 
 			end
 
 			-- Calculate the k-species' average and median consonance vals
-			t[k].avg = kavg / #v.s
-			t[k].median = medianlist[math.max(1, roundNum(#medianlist, 0))]
+			data.scales[k].avg = kavg / #v.s
+			data.scales[k].median = medianlist[math.max(1, roundNum(#medianlist, 0))]
 
 			-- Sort each k-species' scale-table by scale-consonance
-			table.sort(t[k].s, function(a, b) return a.conso < b.conso end)
+			table.sort(data.scales[k].s, function(a, b) return a.conso < b.conso end)
 
 		end
-
-		return t
 
 	end,
 
 	-- Calculate each scale's interval spectrum, and add it to each scale-table
-	addIntervalSpectrum = function(scales)
+	buildIntervalSpectrum = function()
 
 		-- For every given scale...
-		for k, s in pairs(scales) do
+		for k, s in pairs(data.scales) do
 
-			scales[k].ints = {}
+			data.scales[k].ints = {}
 
 			-- For every possible interval size within the scale...
 			for i = 1, 12 do
 
-				scales[k].ints[i] = 0
+				data.scales[k].ints[i] = 0
 
 				-- Rotate a scale by the interval size, to match against
 				local r = rotateScale(s, i - 1)
@@ -135,15 +117,13 @@ return {
 					if (s.notes[ii] == 1)
 					and (s.notes[ii] == r.notes[ii])
 					then
-						scales[k].ints[i] = scales[k].ints[i] + 1
+						data.scales[k].ints[i] = data.scales[k].ints[i] + 1
 					end
 				end
 
 			end
 
 		end
-
-		return scales
 
 	end,
 
@@ -188,13 +168,18 @@ return {
 
 	end,
 
+	-- Function-call for buildScales that acts directly upon the current data.scales
+	buildDataScales = function()
+		data.scales = buildScales()
+	end,
+
 	-- Build all fully cyclic combinatoric wheels
-	buildWheels = function(t)
+	buildWheels = function()
 
 		local wheels = {}
 
 		-- For every k-species of scales...
-		for k, _ in pairs(t) do
+		for k, _ in pairs(data.scales) do
 
 			-- Limit wheel size to 8 notes, to quash exponential data requirements
 			if k > 7 then
@@ -271,58 +256,54 @@ return {
 
 		end
 
-		return wheels
+		data.wheels = wheels
 
 	end,
 
-	-- Index a scale by its binary note-presence identity
-	indexByBin = function(t)
+	-- Index data.scales by their binary note-presence identities
+	indexScalesByBin = function()
 
-		local out = deepCopy(t)
-
-		for k, v in pairs(t) do
-			out[k].s = {}
+		for k, v in pairs(data.scales) do
+			data.scales[k].s = {}
 			for sk, s in pairs(v.s) do
-				out[k].s[s.bin] = v
+				data.scales[k].s[s.bin] = v
 			end
 		end
-
-		return out
 
 	end,
 
 	-- Index a given table of scales by how many notes they contain
-	indexByNoteQuantity = function(t)
+	indexScalesByNoteQuantity = function()
 
 		local out = {}
 		for i = 0, 12 do
 			out[i] = {s = {}}
 		end
 
-		for k, v in pairs(t) do
+		for k, v in pairs(data.scales) do
 			table.insert(out[v.ints[1]].s, v)
 		end
 
-		return out
+		data.scales = out
 
 	end,
 
 	-- Remove scales that are the same combinatoric k-species as other scales
-	purgeIdenticalScales = function(t)
+	purgeIdenticalScales = function()
 
 		-- For every scale...
-		for i = #t - 1, 1, -1 do
+		for i = #data.scales - 1, 1, -1 do
 
 			-- For each possible position of a given scale...
 			for p = 1, 11 do
 
 				-- Rotate the scale to that position
-				local rotated = rotateScale(t[i], p)
+				local rotated = rotateScale(data.scales[i], p)
 
 				-- If any scales match the rotated scale, remove them
-				for c = i + 1, #t do
-					if rotated.bin == t[c].bin then
-						table.remove(t, c)
+				for c = i + 1, #data.scales do
+					if rotated.bin == data.scales[c].bin then
+						table.remove(data.scales, c)
 						break
 					end
 				end
@@ -330,8 +311,6 @@ return {
 			end
 
 		end
-
-		return t
 
 	end,
 
@@ -359,20 +338,25 @@ return {
 
 	end,
 
-	-- Rotate all given scales so that their first note is a filled position
-	rotateToFilledPosition = function(t)
+	-- Rotate all data.scales so that their first note is a filled position
+	rotateScalesToFilledPosition = function(t)
 
-		for k, v in pairs(t) do
+		for k, v in pairs(data.scales) do
 
 			local count = 0
-			while (not ((t[k].bin:sub(1, 1) == "1") and (t[k].bin:sub(12, 12) == "0"))) and (count < 12) do
-				t[k] = rotateScale(t[k], 1)
+			while (
+				not (
+					(data.scales[k].bin:sub(1, 1) == "1")
+					and (data.scales[k].bin:sub(12, 12) == "0")
+				)
+			)
+			and (count < 12)
+			do
+				data.scales[k] = rotateScale(data.scales[k], 1)
 				count = count + 1
 			end
 
 		end
-
-		return t
 
 	end,
 

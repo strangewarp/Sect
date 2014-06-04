@@ -1,6 +1,33 @@
 
 return {
 
+	-- Load the scale and wheel files
+	loadScalesAndWheels = function()
+		data.scales = require('scales')
+		data.wheels = require('wheels')
+	end,
+
+	-- Save the scale and wheel tables
+	saveScalesAndWheels = function()
+
+		-- Serialize and compress scale and wheel data
+		local serialscales = serialize(data.scales)
+		local serialwheels = serialize(data.wheels)
+
+		-- Save compressed scale data
+		local sf = love.filesystem.newFile("scales.lua")
+		sf:open('w')
+		sf:write(serialscales)
+		sf:close()
+
+		-- Save compressed wheel data		
+		local wf = love.filesystem.newFile("wheels.lua")
+		wf:open('w')
+		wf:write(serialwheels)
+		wf:close()
+		
+	end,
+
 	-- Load the current active savefile in the hotseats list
 	loadFile = function(undo)
 

@@ -13,7 +13,7 @@ return {
 		love.graphics.rectangle("fill", left, top, right, bot)
 
 		-- Draw the Sect logo
-		love.graphics.draw(sectlogo, left, top + bot - sectlogo:getHeight())		
+		love.graphics.draw(sectlogo, left, top + bot - sectlogo:getHeight())
 
 		-- Set the font-color
 		love.graphics.setColor(data.color.font.mid)

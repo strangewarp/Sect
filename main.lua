@@ -4,6 +4,9 @@
 ---------------
 function love.load()
 
+	-- Set user-input to false, for duration of loading
+	love.keyboard.setTextInput(false)
+
 	MIDI = require('midi/MIDI')
 
 	-- Serial and Compress are third-party libraries,
@@ -14,6 +17,7 @@ function love.load()
 	datafuncs = require('data-funcs')
 	filefuncs = require('file-funcs')
 	guigridfuncs = require('gui-grid-funcs')
+	guiloadingfuncs = require('gui-loading-funcs')
 	guimiscfuncs = require('gui-misc-funcs')
 	guinotefuncs = require('gui-note-funcs')
 	guisidebarfuncs = require('gui-sidebar-funcs')
@@ -33,6 +37,7 @@ function love.load()
 		datafuncs,
 		filefuncs,
 		guigridfuncs,
+		guiloadingfuncs,
 		guimiscfuncs,
 		guinotefuncs,
 		guisidebarfuncs,
@@ -69,27 +74,30 @@ function love.load()
 	or (not love.filesystem.exists("wheels.lua"))
 	then
 
-		generateCombinatorics()
+		-- Append combinatoric generation commands to loading-cmd table
+		tableCombine(
+			data.loadcmds,
+			{
+				{{"buildDataScales"}, "Building scales..."},
+				{{"anonymizeScaleKeys"}, "Indexing scales..."},
+				{{"purgeIdenticalScales"}, "Purging identical scales..."},
+				{{"rotateScalesToFilledPosition"}, "Rotating scales..."},
+				{{"buildIntervalSpectrum"}, "Building interval spectra..."},
+				{{"indexScalesByNoteQuantity"}, "Indexing scales by k-species..."},
+				{{"buildConsonanceRatings"}, "Building consonance ratings..."},
+				{{"buildWheels"}, "Building wheels..."},
+				{{"indexScalesByBin"}, "Re-indexing scales by binary identity..."},
+				{{"saveScalesAndWheels"}, "Saving scale and wheel data..."},
+			}
+		)
 
-		-- Serialize and compress scale and wheel data
-		local serialscales = serialize(data.scales)
-		local serialwheels = serialize(data.wheels)
-
-		-- Save compressed scale data
-		local sf = love.filesystem.newFile("scales.lua")
-		sf:open('w')
-		sf:write(serialscales)
-		sf:close()
-
-		-- Save compressed wheel data		
-		local wf = love.filesystem.newFile("wheels.lua")
-		wf:open('w')
-		wf:write(serialwheels)
-		wf:close()
-		
 	else -- Else, if combinatoric tables exist, load them
-		data.scales = require('scales')
-		data.wheels = require('wheels')
+		tableCombine(
+			data.loadcmds,
+			{
+				{{"loadScalesAndWheels"}, "Loading scale and wheel data..."},
+			}
+		)
 	end
 
 	-- Initialize GUI miscellany
@@ -97,15 +105,24 @@ function love.load()
 	canvas = love.graphics.newCanvas(width, height)
 	fontsmall = love.graphics.newFont("Milavregarian.ttf", 8)
 	sectlogo = love.graphics.newImage("img/biglogo.png", "normal")
+	loadingbg = love.graphics.newImage("img/loadingbg.png", "normal")
 	love.graphics.setFont(fontsmall)
 	love.graphics.setLineStyle("rough")
 	love.graphics.setLineWidth(1)
+	love.keyboard.setKeyRepeat(true)
 	
 	-- Attach user-defined keyboard-buttons to commands
 	buttonsToPianoKeys(data.pianokeys)
 	sortKeyComboTables()
 
-	love.keyboard.setKeyRepeat(true)
+	-- Enable keyboard commands after completing all other load-funcs
+		tableCombine(
+			data.loadcmds,
+			{
+				{{"buttonsToPianoKeys", data.pianokeys}, "Assigning computer-piano keys..."},
+				{{"sortKeyComboTables"}, "Sorting key-command tables..."},
+			}
+		)
 
 end
 
@@ -131,6 +148,12 @@ function love.draw()
 		canvas = love.graphics.newCanvas(width, height)
 	end
 
+	-- If still loading, render a loading screen
+	if data.loading then
+		executeLoadingFuncAndDraw(canvas, width, height)
+		return nil
+	end
+
 	-- Build the GUI
 	buildGUI(canvas, width, height)
 
@@ -154,8 +177,15 @@ end
 --- ON KEY PRESS ---
 --------------------
 function love.keypressed(key, isrepeat)
+
+	-- If still on the loading screen, do nothing
+	if data.loading then
+		return nil
+	end
+
 	key = tostring(key)
 	addKeystroke(key, isrepeat)
+
 end
 
 ----------------------
