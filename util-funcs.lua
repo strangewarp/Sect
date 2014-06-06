@@ -184,6 +184,8 @@ return {
 
 		local t = {...}
 
+		print(t[1]) -- DEBUGGING
+
 		-- Get the func-name, and call it in data namespace with all of its args
 		local fname = table.remove(t, 1)
 		_G[fname](unpack(t))

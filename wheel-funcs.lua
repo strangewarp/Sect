@@ -260,6 +260,24 @@ return {
 
 	end,
 
+	-- Compare two scales, and return a difference value based on two-way mismatches
+	getScaleDifference = function(s, s2)
+
+		local c, c2 = 0
+
+		for k, v in pairs(s) do
+			if (v == 1) and (s2[k] == 0) then
+				c = c + 1
+			end
+			if (v == 0) and (s2[k] == 1) then
+				c2 = c2 + 1
+			end
+		end
+
+		return math.min(c, c2)
+
+	end,
+
 	-- Index data.scales by their binary note-presence identities
 	indexScalesByBin = function()
 
@@ -324,7 +342,7 @@ return {
 
 		-- Rotate scale's notes
 		for k, v in pairs(scale.notes) do
-			out.notes[((k + pos - 1) % 12) + 1] = v
+			out.notes[wrapNum(k + pos, 1, 12)] = v
 		end
 
 		-- Match binary string to new note positions

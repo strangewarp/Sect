@@ -18,4 +18,16 @@ return {
 		data.seq[data.active].overlay = not data.seq[data.active].overlay
 	end,
 
+	-- Toggle scale-mode, and turn off chord-mode regardless
+	toggleScaleMode = function()
+		data.scalemode = not data.scalemode
+		data.chordmode = false
+	end,
+
+	-- Toggle chord-mode, and turn off scale-mode regardless
+	toggleChordMode = function()
+		data.chordmode = not data.chordmode
+		data.scalemode = false
+	end,
+
 }

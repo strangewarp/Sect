@@ -9,11 +9,6 @@ function love.load()
 
 	MIDI = require('midi/MIDI')
 
-	-- Serial and Compress are third-party libraries,
-	-- and load into global namespace in a different way.
-	require('serial/serial')
-	require('serial/compress')
-
 	datafuncs = require('data-funcs')
 	filefuncs = require('file-funcs')
 	guigridfuncs = require('gui-grid-funcs')
@@ -88,7 +83,7 @@ function love.load()
 				{{"indexScalesByNoteQuantity"}, "Indexing scales by k-species..."},
 				{{"buildConsonanceRatings"}, "Building consonance ratings..."},
 				{{"buildWheels"}, "Building wheels..."},
-				{{"indexScalesByBin"}, "Re-indexing scales by binary identity..."},
+				--{{"indexScalesByBin"}, "Re-indexing scales by binary identity..."},
 				{{"saveScalesAndWheels"}, "Saving scale and wheel data..."},
 			}
 		)

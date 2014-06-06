@@ -5,8 +5,6 @@ local D = {}
 D.seq = {} -- Sequence-data table
 D.keys = {} -- Keystroke-tracking table
 D.overlay = {} -- Overlay-render tracking table
-D.drawnotes = true -- Toggles whether to draw notes
-D.recording = true -- Toggles whether note-recording is enabled
 
 D.active = false -- Currently active sequence (false if nothing loaded)
 D.tp = false -- Current tick-pointer position (false if nothing loaded)
@@ -19,7 +17,6 @@ D.playing = false -- Toggles whether the tickline is playing or not
 D.loadcmds = {} -- Holds all loading-screen messages
 D.loadtext = "" -- Holds text from finished and active loading-screen cmds
 D.loadnum = 1 -- Iterates through loading-screen cmds
-D.loading = true -- True while loading; false after loading is done
 
 -- HOTSEAT VARS --
 D.activeseat = 1 -- Currently active hotseat-name
@@ -39,9 +36,6 @@ D.zoomy = 4 -- Multiplier for Y-axis zoom
 -- UNDO VARS --
 D.undo = {} -- Holds the stack of command-pairs accessed by undo
 D.redo = {} -- Holds the stack of command-pairs accessed by redo
-
--- CANVAS VARS --
-D.update = true -- Tracks whether the GUI should be redrawn
 
 -- SELECTION VARS --
 D.selbool = false -- Toggles whether a selection is active
@@ -63,9 +57,18 @@ D.seldat = {} -- Holds the notes that were selected for commands
 D.copydat = {} -- Table for copied notes
 D.selindex = {} -- Selected notes, indexed by [tick][note]
 
--- WHEEL VARS --
+-- SCALE VARS --
 D.scales = {} -- All possible scales (built in wheel-funcs)
 D.wheels = {} -- All possible wheels (built in wheel-funcs)
+D.notecompare = 4 -- Number of previous notes to compare to scale-tabs
+D.kspecies = 7 -- Scale-size to compare to seq notes in Scale Mode
+
+-- MODE VARS --
+D.loading = true -- True while loading; false after loading is done
+D.recording = true -- Toggles whether note-recording is enabled
+D.drawnotes = true -- Toggles whether to draw notes
+D.scalemode = false -- Toggles scale-mode
+D.chordmode = false -- Toggles chord-mode
 
 -- Baseline contents for new sequences
 D.baseseq = {
@@ -136,8 +139,8 @@ D.cmdfuncs = {
 
 	TOGGLE_RECORDING = {"toggleRecording"},
 
-	TOGGLE_WHEEL_MODE = {"toggleWheelMode"},
-	TOGGLE_CHORDWHEEL_MODE = {"toggleChordWheelMode"},
+	TOGGLE_SCALE_MODE = {"toggleScaleMode"},
+	TOGGLE_CHORD_MODE = {"toggleChordMode"},
 
 	UNDO = {"traverseUndo", true},
 	REDO = {"traverseUndo", false},

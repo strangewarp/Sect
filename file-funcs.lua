@@ -1,6 +1,47 @@
 
 return {
 
+	serializeTable = function(t, filename, f, height)
+
+		height = height or 0
+
+		if height == 0 then
+			f, _ = love.filesystem.newFile(filename)
+			f:open('w')
+			f:write("\r\nreturn {\r\n")
+		end
+
+		height = height + 1
+
+		for k, v in pairs(t) do
+
+			local tabs = string.rep("\t", height)
+
+			if type(k) == "number" then
+				f:write(tabs .. "[" .. k .. "] = ")
+			else
+				f:write(tabs .. "[\"" .. k .. "\"] = ")
+			end
+
+			if type(v) == "table" then
+				f:write("{\r\n")
+				serializeTable(v, filename, f, height)
+				f:write(tabs .. "},\r\n")
+			elseif type(v) == "string" then
+				f:write("\"" .. v .. "\",\r\n")
+			else
+				f:write(v .. ",\r\n")
+			end
+
+		end
+
+		if height == 1 then
+			f:write("}\r\n")
+			f:close()
+		end
+
+	end,
+
 	-- Load the scale and wheel files
 	loadScalesAndWheels = function()
 		data.scales = require('scales')
@@ -9,23 +50,8 @@ return {
 
 	-- Save the scale and wheel tables
 	saveScalesAndWheels = function()
-
-		-- Serialize and compress scale and wheel data
-		local serialscales = serialize(data.scales)
-		local serialwheels = serialize(data.wheels)
-
-		-- Save compressed scale data
-		local sf = love.filesystem.newFile("scales.lua")
-		sf:open('w')
-		sf:write(serialscales)
-		sf:close()
-
-		-- Save compressed wheel data		
-		local wf = love.filesystem.newFile("wheels.lua")
-		wf:open('w')
-		wf:write(serialwheels)
-		wf:close()
-		
+		serializeTable(data.scales, "scales.lua")
+		serializeTable(data.wheels, "wheels.lua")
 	end,
 
 	-- Load the current active savefile in the hotseats list

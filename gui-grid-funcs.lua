@@ -314,6 +314,15 @@ return {
 		-- Draw the tick and note-duration reticules
 		drawReticules(left, top, right, xanchor, yanchor, xcellhalf, ycellhalf, cellwidth)
 
+		-- If scale-mode is active, draw the scale-suggestion panel
+		if data.scalemode then
+			drawScalePanel(
+				left, top, width, height,
+				xanchor, yanchor,
+				cellwidth, cellheight
+			)
+		end
+
 	end,
 
 	-- Make a wrapping render-table of all visible positions of the selection

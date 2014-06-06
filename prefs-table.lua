@@ -94,6 +94,14 @@ return {
 			line = {255, 255, 255, 200},
 		},
 
+		scale = { -- Scale-mode colors
+			background = {70, 70, 80, 200},
+			border = {80, 80, 90, 255},
+			note_border = {31, 34, 230, 255},
+			consonant = {1, 4, 250, 255},
+			dissonant = {250, 4, 1, 255},
+		},
+
 		triangle = { -- Beat-triangle colors
 			fill = {0, 0, 255, 255},
 			line = {225, 225, 225, 255},
@@ -163,10 +171,10 @@ return {
 		TOGGLE_SEQ_OVERLAY = {"backspace"},
 		TOGGLE_NOTE_DRAW = {"shift", "backspace"},
 
-		TOGGLE_RECORDING = {"space"},
+		TOGGLE_RECORDING = {" "},
 
-		TOGGLE_WHEEL_MODE = {"shift", "space"},
-		TOGGLE_CHORDWHEEL_MODE = {"shift", "tab", "space"},
+		TOGGLE_SCALE_MODE = {"shift", " "},
+		TOGGLE_CHORD_MODE = {"shift", "tab", " "},
 
 		UNDO = {"ctrl", "z"},
 		REDO = {"ctrl", "y"},
@@ -256,9 +264,9 @@ return {
 		SEQ_TAB_UP = {"pageup"},
 		SEQ_TAB_DOWN = {"pagedown"},
 
-		MIDI_PANIC = {"ctrl", "space"},
+		MIDI_PANIC = {"shift", "ctrl", " "},
 
-		EXTROVERT_PLAY_NOTE = {"shift", " "},
+		EXTROVERT_PLAY_NOTE = {"ctrl", " "},
 		EXTROVERT_LOAD_FILE = {"shift", "ctrl", "e"},
 
 	},
