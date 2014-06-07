@@ -339,6 +339,7 @@ return {
 
 	-- Round number num, at decimal place dec.
 	roundNum = function(num, dec)
+		dec = dec or 0
 		local mult = 10 ^ dec
 		return math.floor((num * mult) + 0.5) / mult
 	end,

@@ -87,12 +87,17 @@ return {
 		-- For all scales of the current comparison-k-species...
 		for _, v in pairs(data.scales[data.kspecies]) do
 
-			-- For every rotation of the found-scale, get the scale-diff,
-			-- and add the scale to the similar-tab, indexed by diff.
-			for rk, rv in pairs(rotscales) do
-				local diff = getScaleDifference(v.notes, rv.notes)
-				similar[diff] = similar[diff] or {}
-				table.insert(similar[diff], v)
+			-- For every scale within the k-species...
+			for sk, s in pairs(v) do
+
+				-- For every rotation of the found-scale, get the scale-diff,
+				-- and add the scale to the similar-tab, indexed by diff.
+				for rk, rv in pairs(rotscales) do
+					local diff = getScaleDifference(s.notes, rv.notes)
+					similar[diff] = similar[diff] or {}
+					table.insert(similar[diff], s)
+				end
+
 			end
 
 		end

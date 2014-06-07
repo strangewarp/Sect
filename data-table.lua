@@ -169,6 +169,8 @@ D.cmdfuncs = {
 	CUT_ADD = {"cutSelection", true, false},
 	PASTE = {"pasteSelection", false},
 
+	HUMANIZE = {"humanizeNotes", false},
+
 	CHANNEL_UP = {"shiftInternalValue", "chan", false, 1},
 	CHANNEL_DOWN = {"shiftInternalValue", "chan", false, -1},
 

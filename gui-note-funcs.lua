@@ -12,13 +12,13 @@ return {
 		-- If the note is on both axes, highlight it distinctly
 		if (n.tick == data.tp) and (nindex == data.np) then
 
-			c1, c2 = mixColors(c1, highlight, 2), mixColors(c2, highlight, 2)
+			c1, c2 = mixColors(c1, highlight, 0.6), mixColors(c2, highlight, 0.6)
 			linecolor = deepCopy(data.color.note.lightborder)
 
 		-- Else if the note is on one axis, highlight it moderately
 		elseif (n.tick == data.tp) or (nindex == data.np) then
 
-			c1, c2 = mixColors(c1, highlight, 0.5), mixColors(c2, highlight, 0.5)
+			c1, c2 = mixColors(c1, highlight, 0.25), mixColors(c2, highlight, 0.25)
 			linecolor = deepCopy(data.color.note.adjborder)
 
 		end
@@ -67,6 +67,18 @@ return {
 			end
 
 		end
+
+	end,
+
+	-- Get a note's color based on velocity.
+	-- c1, c2: "quiet" and "loud" colors.
+	getVelocityColor = function(n, c1, c2)
+
+		local veloval = n.note[data.acceptmidi[n.note[1]][2]]
+		local velomap = veloval / data.bounds.velo[2]
+		local velorev = (data.bounds.velo[2] - veloval) / data.bounds.velo[2]
+
+		return mixColors(c2, c1, velorev)
 
 	end,
 

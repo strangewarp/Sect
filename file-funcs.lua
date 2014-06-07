@@ -1,6 +1,7 @@
 
 return {
 
+	-- Serialize a simple table of arbitrary depth (not metatable compatible)
 	serializeTable = function(t, filename, f, height)
 
 		height = height or 0

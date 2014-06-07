@@ -41,18 +41,6 @@ return {
 
 	end,
 
-	-- Get a note's color based on velocity.
-	-- c1, c2: "quiet" and "loud" colors.
-	getVelocityColor = function(n, c1, c2)
-
-		local veloval = n.note[data.acceptmidi[n.note[1]][2]]
-		local velomap = veloval / data.bounds.velo[2]
-		local velorev = (data.bounds.velo[2] - veloval) / data.bounds.velo[2]
-
-		return mixColors(c2, c1, velorev)
-
-	end,
-
 	-- Convert a note, and various positioning data, into an item in the two drawtables
 	pianoNoteToDrawTables = function(whitedraw, blackdraw, note, left, center, midheight, flareheight, kwidth, highlight)
 
@@ -136,13 +124,14 @@ return {
 
 	end,
 
-	-- Mix two colors, with the average biased in the given direction
+	-- Mix two colors, with the average biased in the given direction.
+	-- Var "bias" must be a float in range 0.0 to 1.0.
 	mixColors = function(c1, c2, bias)
 
 		local outcolor = {}
 
 		for hue, chroma in pairs(c1) do
-			outcolor[hue] = (chroma + (c2[hue] * bias)) / (bias + 1)
+			outcolor[hue] = (chroma * (1 - bias)) + (c2[hue] * bias)
 		end
 
 		return outcolor

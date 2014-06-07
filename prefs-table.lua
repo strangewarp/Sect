@@ -103,8 +103,8 @@ return {
 		},
 
 		triangle = { -- Beat-triangle colors
-			fill = {0, 0, 255, 255},
-			line = {225, 225, 225, 255},
+			fill = {0, 0, 245, 255},
+			line = {0, 0, 255, 255},
 			text = {240, 240, 240, 255},
 		},
 
@@ -190,6 +190,8 @@ return {
 		CUT = {"ctrl", "x"},
 		CUT_ADD = {"ctrl", "shift", "x"},
 		PASTE = {"ctrl", "v"},
+
+		HUMANIZE = {"ctrl", "h"},
 
 		INSERT_NOTE = {"return"},
 		DELETE_NOTE = {"delete"},

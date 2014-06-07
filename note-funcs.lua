@@ -297,4 +297,30 @@ return {
 
 	end,
 
+	-- Humanize the volumes of the currently selected notes
+	humanizeNotes = function(undo)
+
+		-- If no notes are selected, abort function
+		if #data.seldat == 0 then
+			return nil
+		end
+
+		-- For every currently-selected note...
+		for k, v in pairs(data.seldat) do
+
+			-- Change the velocities in the selection-table
+			if v.note[1] == 'note' then
+				local rand = math.random(0, data.velo)
+				local newvelo = clampNum(v.note[6] + (roundNum(data.velo / 2) - rand), data.bounds.velo)
+				print(newvelo) -- DEBUGGING
+				data.seldat[k].note[6] = newvelo
+			end
+
+		end
+
+		-- Use setNotes to replace the seq-notes with corresponding selection-tab notes
+		setNotes(data.active, data.seldat, undo)
+
+	end,
+
 }

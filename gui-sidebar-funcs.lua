@@ -120,12 +120,16 @@ return {
 
 			local strength = 0
 			local ticks = #data.seq[i].tick
-			local beats = ticks / data.tpq
 
-			-- Increase color-strength for every note
-			for k, v in pairs(data.seq[i].tick) do
-				strength = strength + (#v / beats)
+			-- Increase color-strength for every note, weighted against ticks/duration
+			for _, v in pairs(data.seq[i].tick) do
+				for _, nv in pairs(v) do
+					if nv.note[1] == 'note' then
+						strength = strength + nv.note[3]
+					end
+				end
 			end
+			strength = math.min(ticks, strength) / ticks
 
 			-- Mix empty and full colors, based on strength
 			local scolor = mixColors(

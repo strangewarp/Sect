@@ -234,7 +234,7 @@ return {
 
 			-- If factor-column, table for later rendering
 			if afactor >= beatthresh then
-				local color = mixColors(beatcolor, invis, (beatsize / afactor) / 2)
+				local color = mixColors(beatcolor, invis, 1 - (1 / (beatsize / afactor)))
 				table.insert(tintcolumns, {tick, left + xleft, top, cellwidth, yfull, color})
 			end
 
@@ -285,8 +285,8 @@ return {
 		-- If there is a selection range, find and store its coordinates
 		if data.sel.l then
 
-			local selleft = tickleft + ((data.tp - data.sel.l) * cellwidth)
-			local seltop = (notetop + ((data.sel.t - 1) * cellheight)) - ycellhalf
+			local selleft = lefttick + ((data.tp - data.sel.l) * cellwidth)
+			local seltop = (topnote + ((data.sel.t - 1) * cellheight)) - ycellhalf
 
 			local selwidth = cellwidth * ((data.sel.r - data.sel.l) + 1)
 			local selheight = cellheight * ((data.sel.t - data.sel.b) + 1)

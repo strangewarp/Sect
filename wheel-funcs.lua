@@ -350,22 +350,20 @@ return {
 			out.bin = out.bin .. v
 		end
 
-		--print(out.bin) -- DEBUGGING
-
 		return out
 
 	end,
 
 	-- Rotate all data.scales so that their first note is a filled position
-	rotateScalesToFilledPosition = function(t)
+	rotateScalesToFilledPosition = function()
 
 		for k, v in pairs(data.scales) do
 
 			local count = 0
 			while (
 				not (
-					(data.scales[k].bin:sub(1, 1) == "1")
-					and (data.scales[k].bin:sub(12, 12) == "0")
+					(data.scales[k].notes[1] == 1)
+					and (data.scales[k].notes[12] == 0)
 				)
 			)
 			and (count < 12)
