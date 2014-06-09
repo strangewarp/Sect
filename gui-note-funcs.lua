@@ -35,16 +35,23 @@ return {
 		-- If linecolor was not given, keep a note of that
 		local line = not (linecolor == nil)
 
+		-- Sort shadow notes to the beginning of the render-table,
+		-- in order to prevent Z-fighting.
+		table.sort(notes, function(a, b) return (a[1] == 'shadow') and (b[1] ~= 'shadow') end)
+
 		-- For every note in the render-table...
 		for k, v in pairs(notes) do
 
 			-- Unpack the note-vars and render-vars
-			local kind, n, nleft, ntop, nx, ny = unpack(v)
+			local kind, seq, n, nleft, ntop, nx, ny = unpack(v)
 
-			-- Set quiet/loud colors differently, for shadow and active notes
+			-- Set quiet/loud colors differently, for shadow/select/active notes
 			if kind == 'shadow' then
 				c1 = deepCopy(data.color.note.overlay_quiet)
 				c2 = deepCopy(data.color.note.overlay_loud)
+			elseif kind == 'select' then
+				c1 = deepCopy(data.color.note.select_quiet)
+				c2 = deepCopy(data.color.note.select_loud)
 			else
 				c1 = deepCopy(data.color.note.quiet)
 				c2 = deepCopy(data.color.note.loud)
@@ -61,7 +68,7 @@ return {
 			love.graphics.rectangle("fill", nleft, ntop, nx, ny)
 
 			-- If a linecolor was given, draw a border around the note
-			if kind == 'active' then
+			if kind ~= 'shadow' then
 				love.graphics.setColor(linecolor)
 				love.graphics.rectangle("line", nleft, ntop, nx, ny)
 			end
@@ -84,7 +91,8 @@ return {
 
 	-- Build a render-table for a given sequence of notes, wrapped to the screen
 	makeNoteRenderTable = function(
-		n, kind,
+		kind,
+		seq, n,
 		left, top,
 		xfull, yfull,
 		cellwidth, cellheight,
@@ -99,13 +107,21 @@ return {
 				-- Get the pitch-value, or pitch-corresponding value, of a given note
 				local vp = vv.note[data.acceptmidi[vv.note[1]][1]]
 
-				-- Get note's width, via duration, or default to 1 for non-note cmds
-				local xwidth = ((vv.note[1] == 'note') and (cellwidth * vv.note[3])) or cellwidth
+				-- Pick out selected notes from within normal notes
+				if (kind ~= 'shadow')
+				and (data.selindex[vv.tick] ~= nil)
+				and (data.selindex[vv.tick][vp] == true)
+				then
+					kind = 'select'
+				end
 
 				-- For every combination of on-screen X-ranges and Y-ranges,
 				-- check the note's visibility there, and render if visible.
 				for _, xr in pairs(xranges) do
 					for _, yr in pairs(yranges) do
+
+						-- Get note's width, via duration, or default to 1 for non-note cmds
+						local xwidth = ((vv.note[1] == 'note') and (cellwidth * vv.note[3])) or cellwidth
 
 						-- Get note's inner-grid-concrete and absolute left and top offsets
 						local ol = xr.a + ((vv.tick - 1) * cellwidth)
@@ -119,12 +135,12 @@ return {
 							-- If the note's leftmost boundary falls outside of frame,
 							-- clip its left-position, and its width to match.
 							if cl < left then
-								xwidth = xwidth - (left - cl)
+								xwidth = xwidth + ol
 								cl = left
 							end
 
 							-- Add the note to the draw-table
-							table.insert(notes, {kind, vv, cl, ct, xwidth, cellheight})
+							table.insert(notes, {kind, seq, vv, cl, ct, xwidth, cellheight})
 
 						end
 

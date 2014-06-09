@@ -256,24 +256,32 @@ return {
 		-- Get render-note data from all visible sequences
 		for snum, s in pairs(data.seq) do
 
-			-- Get all shadow notes
-			if s.overlay then
-				drawnotes = tableCombine(
-					drawnotes,
-					makeNoteRenderTable(
-						s.tick, 'shadow',
-						left, top, xfull, yfull,
-						cellwidth, cellheight, xranges, yranges
-					)
-				)
+			local render = false
+
+			-- Get all on-screen notes
+			if data.drawnotes
+			and (snum == data.active)
+			then
+				render = 'normal'
 			end
 
-			-- Get all active notes, if active notes are toggled visible
-			if data.drawnotes and (snum == data.active) then
+			-- Get all shadow notes
+			if s.overlay
+			and (
+				(data.drawnotes and (snum ~= data.active))
+				or ((not data.drawnotes) and (snum == data.active))
+			)
+			then
+				render = 'shadow'
+			end
+
+			-- Add visible notes to the drawnotes tab
+			if render then
 				drawnotes = tableCombine(
 					drawnotes,
 					makeNoteRenderTable(
-						s.tick, 'active',
+						render,
+						seq, s.tick,
 						left, top, xfull, yfull,
 						cellwidth, cellheight, xranges, yranges
 					)
@@ -285,8 +293,8 @@ return {
 		-- If there is a selection range, find and store its coordinates
 		if data.sel.l then
 
-			local selleft = lefttick + ((data.tp - data.sel.l) * cellwidth)
-			local seltop = (topnote + ((data.sel.t - 1) * cellheight)) - ycellhalf
+			local selleft = ((data.sel.l - 1) * cellwidth)
+			local seltop = (data.bounds.np[2] - data.sel.t) * cellheight
 
 			local selwidth = cellwidth * ((data.sel.r - data.sel.l) + 1)
 			local selheight = cellheight * ((data.sel.t - data.sel.b) + 1)
@@ -294,6 +302,7 @@ return {
 			drawsels = makeSelectionRenderTable(
 				left, top, xfull, yfull,
 				selleft, seltop, selwidth, selheight,
+				cellwidth, cellheight,
 				xranges, yranges
 			)
 
@@ -329,6 +338,7 @@ return {
 	makeSelectionRenderTable = function(
 		left, top, xfull, yfull,
 		selleft, seltop, selwidth, selheight,
+		cellwidth, cellheight,
 		xranges, yranges
 	)
 
@@ -341,7 +351,7 @@ return {
 
 				-- Get the concrete offsets of the wrapped selection position
 				local l = left + xr.a + selleft
-				local t = top + yr.a + seltop
+				local t = top + yr.a + seltop + (cellheight * yr.o)
 
 				-- If the selection is onscreen in this chunk, table it for display
 				if collisionCheck(left, top, xfull, yfull, l, t, selwidth, selheight) then

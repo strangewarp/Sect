@@ -6,9 +6,7 @@ return {
 		data.selindex = {}
 		for k, v in pairs(data.seldat) do
 			data.selindex[v.tick] = data.selindex[v.tick] or {}
-			if v.note[1] == 'note' then
-				data.selindex[v.tick][v.note[5]] = true
-			end
+			data.selindex[v.tick][data.acceptmidi[v.note[1]][1]] = true
 		end
 
 	end,
@@ -28,8 +26,6 @@ return {
 				y = false,
 			}
 
-			print("toggleSelect: cleared selection positions!")
-
 		elseif cmd == "top" then -- Set top selection-pointer
 
 			data.seltop = {
@@ -41,8 +37,6 @@ return {
 				x = math.max(data.tp, data.selbot.x or data.tp),
 				y = math.min(data.np, data.selbot.y or data.np),
 			}
-
-			print("toggleSelect: set top select position!")
 
 		elseif cmd == "bottom" then -- Set bottom selection-pointer
 
@@ -56,11 +50,17 @@ return {
 				y = math.max(data.np, data.seltop.y or data.np),
 			}
 
-			print("toggleSelect: set bottom select position!")
-
 		elseif cmd == "all" then -- Select all
 
-			data.seldat = getNotes(data.active)
+			data.selbot = {
+				x = #data.seq[data.active].tick,
+				y = data.bounds.np[1],
+			}
+
+			data.seltop = {
+				x = 1,
+				y = data.bounds.np[2],
+			}
 
 		end
 
