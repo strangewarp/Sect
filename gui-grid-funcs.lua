@@ -349,13 +349,20 @@ return {
 		for _, xr in pairs(xranges) do
 			for _, yr in pairs(yranges) do
 
+				local sw = selwidth
+
 				-- Get the concrete offsets of the wrapped selection position
 				local l = left + xr.a + selleft
 				local t = top + yr.a + seltop + (cellheight * yr.o)
 
+				if l < left then
+					sw = sw - (left - l)
+					l = left
+				end
+
 				-- If the selection is onscreen in this chunk, table it for display
-				if collisionCheck(left, top, xfull, yfull, l, t, selwidth, selheight) then
-					table.insert(sels, {l, t, selwidth, selheight})
+				if collisionCheck(left, top, xfull, yfull, l, t, sw, selheight) then
+					table.insert(sels, {l, t, sw, selheight})
 				end
 
 			end

@@ -91,7 +91,7 @@ return {
 		},
 
 		selection = { -- Selection colors
-			fill = {10, 10, 255, 100},
+			fill = {10, 10, 255, 80},
 			line = {255, 255, 255, 200},
 		},
 

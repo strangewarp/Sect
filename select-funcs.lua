@@ -86,6 +86,9 @@ return {
 	-- Clear the select-table
 	clearSelectMemory = function()
 
+		-- Clear the currently on-screen selection
+		toggleSelect("clear")
+
 		-- If something is selected, remove all non-selected notes from seldat
 		if data.sel.l ~= false then
 
