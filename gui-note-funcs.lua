@@ -107,12 +107,15 @@ return {
 				-- Get the pitch-value, or pitch-corresponding value, of a given note
 				local vp = vv.note[data.acceptmidi[vv.note[1]][1]]
 
+				-- Duplicate the kind-of-note val, in case of changes
+				local render = kind
+
 				-- Pick out selected notes from within normal notes
 				if (kind ~= 'shadow')
 				and (data.selindex[vv.tick] ~= nil)
 				and (data.selindex[vv.tick][vp] == true)
 				then
-					kind = 'select'
+					render = 'select'
 				end
 
 				-- For every combination of on-screen X-ranges and Y-ranges,
@@ -140,7 +143,7 @@ return {
 							end
 
 							-- Add the note to the draw-table
-							table.insert(notes, {kind, seq, vv, cl, ct, xwidth, cellheight})
+							table.insert(notes, {render, seq, vv, cl, ct, xwidth, cellheight})
 
 						end
 

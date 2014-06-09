@@ -355,6 +355,7 @@ return {
 				local l = left + xr.a + selleft
 				local t = top + yr.a + seltop + (cellheight * yr.o)
 
+				-- Clip the portion of the selection that would overflow the left border
 				if l < left then
 					sw = sw - (left - l)
 					l = left

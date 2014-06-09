@@ -99,7 +99,7 @@ function love.load()
 
 	-- Initialize GUI miscellany
 	local width, height = love.graphics.getDimensions()
-	fontsmall = love.graphics.newFont("Milavregarian.ttf", 8)
+	fontsmall = love.graphics.newFont("img/Milavregarian.ttf", 8)
 	sectlogo = love.graphics.newImage("img/biglogo.png", "normal")
 	loadingbg = love.graphics.newImage("img/loadingbg.png", "normal")
 	love.graphics.setFont(fontsmall)
