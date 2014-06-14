@@ -81,6 +81,7 @@ function love.load()
 				{{"rotateScalesToFilledPosition"}, "Rotating scales..."},
 				{{"buildIntervalSpectrum"}, "Building interval spectra..."},
 				{{"indexScalesByNoteQuantity"}, "Indexing scales by k-species..."},
+				{{"purgeEmptyScales"}, "Purging empty scales..."},
 				{{"buildConsonanceRatings"}, "Building consonance ratings..."},
 				{{"buildWheels"}, "Building wheels..."},
 				--{{"indexScalesByBin"}, "Re-indexing scales by binary identity..."},

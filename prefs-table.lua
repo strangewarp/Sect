@@ -99,8 +99,9 @@ return {
 			background = {70, 70, 80, 200},
 			border = {80, 80, 90, 255},
 			note_border = {31, 34, 230, 255},
-			consonant = {1, 4, 250, 255},
-			dissonant = {250, 4, 1, 255},
+			consonant = {0, 0, 225, 255},
+			dissonant = {225, 4, 8, 255},
+			filled = {127, 127, 127, 255},
 		},
 
 		triangle = { -- Beat-triangle colors

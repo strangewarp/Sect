@@ -317,20 +317,20 @@ return {
 		-- Draw all wrapped selection blocks
 		drawSelectionTable(drawsels)
 
+		-- If scale-mode is active, draw the scale-suggestion panel
+		if data.scalemode then
+			drawScalePanel(
+				left, top, xfull, yfull,
+				xanchor, yanchor,
+				cellwidth, cellheight
+			)
+		end
+
 		-- Draw all beat-triangles along the bottom of the sequence frame
 		drawBeatTriangles(triangles, beatsize, yfull, tritop, trifonttop)
 
 		-- Draw the tick and note-duration reticules
 		drawReticules(left, top, right, xanchor, yanchor, xcellhalf, ycellhalf, cellwidth)
-
-		-- If scale-mode is active, draw the scale-suggestion panel
-		if data.scalemode then
-			drawScalePanel(
-				left, top, width, height,
-				xanchor, yanchor,
-				cellwidth, cellheight
-			)
-		end
 
 	end,
 

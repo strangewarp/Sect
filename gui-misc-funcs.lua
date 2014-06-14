@@ -41,6 +41,20 @@ return {
 
 	end,
 
+	-- Mix two colors, with the average biased in the given direction.
+	-- Var "bias" must be a float in range 0.0 to 1.0.
+	mixColors = function(c1, c2, bias)
+
+		local outcolor = {}
+
+		for hue, chroma in pairs(c1) do
+			outcolor[hue] = (chroma * (1 - bias)) + (c2[hue] * bias)
+		end
+
+		return outcolor
+
+	end,
+
 	-- Convert a note, and various positioning data, into an item in the two drawtables
 	pianoNoteToDrawTables = function(whitedraw, blackdraw, note, left, center, midheight, flareheight, kwidth, highlight)
 
@@ -121,20 +135,6 @@ return {
 		table.insert((whicharr and whitedraw) or blackdraw, intab)
 
 		return whitedraw, blackdraw
-
-	end,
-
-	-- Mix two colors, with the average biased in the given direction.
-	-- Var "bias" must be a float in range 0.0 to 1.0.
-	mixColors = function(c1, c2, bias)
-
-		local outcolor = {}
-
-		for hue, chroma in pairs(c1) do
-			outcolor[hue] = (chroma * (1 - bias)) + (c2[hue] * bias)
-		end
-
-		return outcolor
 
 	end,
 

@@ -263,7 +263,7 @@ return {
 	-- Compare two scales, and return a difference value based on two-way mismatches
 	getScaleDifference = function(s, s2)
 
-		local c, c2 = 0
+		local c, c2 = 0, 0
 
 		for k, v in pairs(s) do
 			if (v == 1) and (s2[k] == 0) then
@@ -274,7 +274,9 @@ return {
 			end
 		end
 
-		return math.min(c, c2)
+		local diff = math.min(c, c2)
+
+		return diff
 
 	end,
 
@@ -306,6 +308,11 @@ return {
 
 	end,
 
+	-- Remove scales that are empty
+	purgeEmptyScales = function()
+		table.remove(data.scales, 0)
+	end,
+
 	-- Remove scales that are the same combinatoric k-species as other scales
 	purgeIdenticalScales = function()
 
@@ -335,10 +342,13 @@ return {
 	-- Rotate a scale-table by a given amount
 	rotateScale = function(scale, pos)
 
-		local out = {
-			notes = {},
-			bin = "",
-		}
+		if pos == 0 then
+			return scale
+		end
+
+		local out = deepCopy(scale)
+		out.notes = {}
+		out.bin = ""
 
 		-- Rotate scale's notes
 		for k, v in pairs(scale.notes) do
