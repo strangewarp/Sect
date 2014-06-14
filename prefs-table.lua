@@ -101,7 +101,7 @@ return {
 			note_border = {31, 34, 230, 255},
 			consonant = {0, 0, 225, 255},
 			dissonant = {225, 4, 8, 255},
-			filled = {127, 127, 127, 255},
+			filled = {127, 127, 127, 0},
 		},
 
 		triangle = { -- Beat-triangle colors
