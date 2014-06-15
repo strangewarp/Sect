@@ -69,6 +69,7 @@ D.recording = true -- Toggles whether note-recording is enabled
 D.drawnotes = true -- Toggles whether to draw notes
 D.scalemode = false -- Toggles scale-mode
 D.chordmode = false -- Toggles chord-mode
+D.chanview = true -- Toggles rendering chan-nums on notes
 
 -- Baseline contents for new sequences
 D.baseseq = {
@@ -88,6 +89,8 @@ D.bounds = {
 	spacing = {0, false, false}, -- Spacing
 	zoomx = {1, 16, false}, -- X-axis zoom (tick axis)
 	zoomy = {1, 16, false}, -- Y-axis zoom (note axis)
+	notecompare = {1, 12, true}, -- Scale Mode: seq notes to compare
+	kspecies = {1, 12, true}, -- Scale Mode: scale size to search
 }
 
 -- Types of MIDI commands that are accepted in a sequence,
@@ -142,6 +145,8 @@ D.cmdfuncs = {
 	TOGGLE_SCALE_MODE = {"toggleScaleMode"},
 	TOGGLE_CHORD_MODE = {"toggleChordMode"},
 
+	TOGGLE_CHAN_NUM_VIEW = {"toggleChanNumView"},
+
 	UNDO = {"traverseUndo", true},
 	REDO = {"traverseUndo", false},
 
@@ -170,6 +175,11 @@ D.cmdfuncs = {
 	PASTE = {"pasteSelection", false},
 
 	HUMANIZE = {"humanizeNotes", false},
+
+	KSPECIES_UP = {"shiftInternalValue", "kspecies", false, 1},
+	KSPECIES_DOWN = {"shiftInternalValue", "kspecies", false, -1},
+	NOTECOMP_UP = {"shiftInternalValue", "notecompare", false, 1},
+	NOTECOMP_DOWN = {"shiftInternalValue", "notecompare", false, -1},
 
 	CHANNEL_UP = {"shiftInternalValue", "chan", false, 1},
 	CHANNEL_DOWN = {"shiftInternalValue", "chan", false, -1},

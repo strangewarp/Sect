@@ -43,6 +43,7 @@ return {
 			local notelet = data.pianometa[wrapNum(data.np + 1, 1, 12)][2]
 			local octave = math.floor(data.np / 12)
 			obeats = ((obeats:sub(-3, -3) == ".") and ("~" .. obeats)) or obeats
+
 			outtab = {
 				"seq " .. data.active .. "/" .. #data.seq,
 				"beats " .. obeats,
@@ -50,6 +51,18 @@ return {
 				"tick " .. data.tp .. "/" .. oticks,
 				"note " .. data.np .. " (" .. notelet .. "-" .. octave .. ")",
 				"",
+			}
+
+			if data.scalemode then
+				local addtab = {
+					"pullnotes: " .. data.notecompare,
+					"k-species: " .. data.kspecies,
+					"",
+				}
+				outtab = tableCombine(outtab, addtab)
+			end
+
+			local addtab2 = {
 				"bpm " .. data.bpm,
 				"tpq " .. data.tpq,
 				"",
@@ -62,6 +75,9 @@ return {
 				"notes: " .. ((data.drawnotes and "visible") or "hidden"),
 				"",
 			}
+
+			outtab = tableCombine(outtab, addtab2)
+
 			printMultilineText(outtab, tleft, ttop, tright, "left")
 			ttop = ttop + (#outtab * fontheight) + roundNum(fontheight / 2, 0)
 

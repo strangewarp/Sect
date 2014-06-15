@@ -178,6 +178,8 @@ return {
 		TOGGLE_SCALE_MODE = {"shift", " "},
 		TOGGLE_CHORD_MODE = {"shift", "tab", " "},
 
+		TOGGLE_CHAN_NUM_VIEW = {"`"}
+
 		UNDO = {"ctrl", "z"},
 		REDO = {"ctrl", "y"},
 
@@ -194,6 +196,11 @@ return {
 		PASTE = {"ctrl", "v"},
 
 		HUMANIZE = {"ctrl", "h"},
+
+		KSPECIES_UP = {"ctrl", "k"},
+		KSPECIES_DOWN = {"shift", "ctrl", "k"},
+		NOTECOMP_UP = {"ctrl", "l"},
+		NOTECOMP_DOWN = {"shift", "ctrl", "l"},
 
 		INSERT_NOTE = {"return"},
 		DELETE_NOTE = {"delete"},

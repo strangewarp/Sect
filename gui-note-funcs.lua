@@ -67,10 +67,22 @@ return {
 			love.graphics.setColor(notecolor)
 			love.graphics.rectangle("fill", nleft, ntop, nx, ny)
 
-			-- If a linecolor was given, draw a border around the note
+			-- If a linecolor was given...
 			if kind ~= 'shadow' then
+
+				-- Draw a border around the note
 				love.graphics.setColor(linecolor)
 				love.graphics.rectangle("line", nleft, ntop, nx, ny)
+
+				-- If chanview mode is enabled, draw channel numbers onto notes
+				if data.chanview and (n.note[1] == 'note') then
+					love.graphics.print(
+						tostring(n.note[4]),
+						(nleft + (nx / 2)) - (fontsmall:getWidth(tostring(n.note[4])) / 2),
+						(ntop + (ny / 2)) - (fontsmall:getHeight() / 2)
+					)
+				end
+
 			end
 
 		end
