@@ -60,6 +60,11 @@ D.selindex = {} -- Selected notes, indexed by [tick][note]
 -- SCALE VARS --
 D.scales = {} -- All possible scales (built in wheel-funcs)
 D.wheels = {} -- All possible wheels (built in wheel-funcs)
+
+D.thresholds = {} -- Holds note-consonance display thresholds
+D.scalenotes = {} -- Holds currently-used notes for scale comparison
+D.threshbig = 0 -- Biggest note-consonance threshold
+
 D.notecompare = 6 -- Number of previous notes to analyze in Scale Mode
 D.kspecies = 7 -- Scale-size to compare to seq notes in Scale Mode
 
