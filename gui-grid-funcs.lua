@@ -258,21 +258,17 @@ return {
 
 			local render = false
 
-			-- Get all on-screen notes
-			if data.drawnotes
-			and (snum == data.active)
-			then
-				render = 'normal'
-			end
-
-			-- Get all shadow notes
-			if s.overlay
-			and (
-				(data.drawnotes and (snum ~= data.active))
-				or ((not data.drawnotes) and (snum == data.active))
-			)
-			then
-				render = 'shadow'
+			-- Assign render type based on notedraw and shadow activity
+			if data.drawnotes then
+				if snum == data.active then
+					render = 'normal'
+				elseif s.overlay then
+					render = 'shadow'
+				end
+			else
+				if s.overlay then
+					render = 'shadow'
+				end
 			end
 
 			-- Add visible notes to the drawnotes tab
