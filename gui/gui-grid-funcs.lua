@@ -307,12 +307,6 @@ return {
 		-- Draw all tinted beat-columns
 		drawBeatColumns(tintcolumns)
 
-		-- Draw all overlay-notes on top of the sequence grid
-		drawNoteTable(drawnotes)
-
-		-- Draw all wrapped selection blocks
-		drawSelectionTable(drawsels)
-
 		-- If scale-mode is active, draw the scale-suggestion panel
 		if data.scalemode then
 			drawScalePanel(
@@ -321,6 +315,12 @@ return {
 				cellwidth, cellheight
 			)
 		end
+
+		-- Draw all overlay-notes on top of the sequence grid
+		drawNoteTable(drawnotes)
+
+		-- Draw all wrapped selection blocks
+		drawSelectionTable(drawsels)
 
 		-- Draw all beat-triangles along the bottom of the sequence frame
 		drawBeatTriangles(triangles, beatsize, yfull, tritop, trifonttop)
