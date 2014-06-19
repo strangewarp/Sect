@@ -246,7 +246,14 @@ return {
 	end,
 
 	-- Modify a given set of notes
-	modNotes = function(cmd, notes, dist, undo)
+	modNotes = function(cmd, dist, undo)
+
+		local notes = {}
+		if #data.seldat == 0 then
+			notes = getNotes(data.active, data.tp, data.tp, data.np, data.np)
+		else
+			notes = deepCopy(data.seldat)
+		end
 
 		-- If no notes were received, abort function
 		if #notes == 0 then
@@ -255,59 +262,66 @@ return {
 		end
 
 		local modtypes = {
+			tp = 2,
 			dur = 3,
 			chan = 4,
+			np = 5,
 			velo = 6,
 		}
 
 		-- If the command type is unknown, abort function
-		if modtypes[name] == nil then
+		if modtypes[cmd] == nil then
+			print(cmd)
 			print("modNotes: warning: received unknown command type!")
 			return nil
 		end
 
 		local oldnotes = {}
 		local newnotes = {}
-		local index = modtypes[name]
+		local index = modtypes[cmd]
 
 		-- For all incoming notes...
 		for k, v in pairs(notes) do
 
-			-- If the note exists, modify it in the specified way
-			for num, comp in pairs(data.seq[data.active].tick[v.tick]) do
+			-- Only move note-commands
+			if v.note[1] == 'note' then
 
-				if orderedCompare(v.note, comp.note) then
+				local temp = deepCopy(v)
 
-					local temp = data.seq[data.active].tick[v.tick][num]
-					local pos = modtypes[name]
-					local r = data.bounds[name]
+				-- Shift the temp-values
+				if data.bounds[cmd] then
+					temp.note[index] = wrapNum(temp.note[index] + dist, data.bounds[cmd])
+				elseif index == 2 then
+					temp.tick = wrapNum(
+						temp.tick + (dist * data.spacing),
+						1,
+						#data.seq[data.active].tick
+					)
+					temp.note[2] = temp.tick - 1
+				elseif index == 3 then
+					temp.note[3] = clampNum(temp.note[3] + dist, 1, #data.seq[data.active].tick)
+				end
 
-					-- For a given attribute, change its data
-					temp.note[index] = temp.note[index] + dist
-					temp.note[index] = r[1] and math.max(r[1], temp.note[index])
-					temp.note[index] = r[2] and math.min(r[2], temp.note[index])
-
-					-- If the modification resulted in a change,
-					-- add the notes to the update-tables
-					if not orderedCompare(temp.note, comp.note) then
-						table.insert(oldnotes, comp)
-						table.insert(newnotes, temp)
-					end
-
-					break
-
+				-- If the modification resulted in a change,
+				-- add the notes to the update-tables
+				if not orderedCompare(temp.note, v.note) then
+					table.insert(oldnotes, v)
+					table.insert(newnotes, temp)
 				end
 
 			end
 
 		end
 
-		-- Remove the old notes
-		removeNotes(data.active, oldnotes, undo)
+		-- Turn the old notes into removal-commands
+		oldnotes = notesToRemove(oldnotes)
 
-		-- Add the modified notes, and collapse into the same undo command
-		undo[2] = true
+		-- Remove the old notes, and add the modified notes
+		setNotes(data.active, oldnotes, undo)
 		setNotes(data.active, newnotes, undo)
+
+		-- Replace the selection-table with the newly-positioned notes
+		data.seldat = newnotes
 
 	end,
 

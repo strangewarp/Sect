@@ -85,13 +85,13 @@ D.baseseq = {
 
 -- Boundaries for user-shiftable control variables
 D.bounds = {
-	bpm = {1, false, false}, -- Beats per minute
+	bpm = {1, math.huge, false}, -- Beats per minute
 	tpq = {1, 1000, false}, -- Ticks per quarter-note
 	np = {0, 127, true}, -- Note-pointer (active pitch)
 	chan = {0, 15, true}, -- Channel
 	velo = {0, 127, true}, -- Velocity
-	dur = {1, false, false}, -- Duration
-	spacing = {0, false, false}, -- Spacing
+	dur = {1, math.huge, false}, -- Duration
+	spacing = {0, math.huge, false}, -- Spacing
 	zoomx = {1, 16, false}, -- X-axis zoom (tick axis)
 	zoomy = {1, 16, false}, -- Y-axis zoom (note axis)
 	notecompare = {1, 12, true}, -- Scale Mode: seq notes to compare
@@ -222,10 +222,10 @@ D.cmdfuncs = {
 	MOD_VELOCITY_UP_10 = {"modActiveNoteVelocity", 10, false},
 	MOD_VELOCITY_DOWN_10 = {"modActiveNoteVelocity", -10, false},
 
-	MOD_NOTE_UP = {"moveActiveNote", 0, 1, false},
-	MOD_NOTE_DOWN = {"moveActiveNote", 0, -1, false},
-	MOD_NOTE_LEFT = {"moveActiveNote", -1, 0, false},
-	MOD_NOTE_RIGHT = {"moveActiveNote", 1, 0, false},
+	MOD_NOTE_UP = {"modNotes", "np", 1, false},
+	MOD_NOTE_DOWN = {"modNotes", "np", -1, false},
+	MOD_NOTE_LEFT = {"modNotes", "tp", -1, false},
+	MOD_NOTE_RIGHT = {"modNotes", "tp", 1, false},
 
 	MOD_SEQ_UP = {"moveActiveSeq", -1, false},
 	MOD_SEQ_DOWN = {"moveActiveSeq", 1, false},
