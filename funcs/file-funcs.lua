@@ -104,6 +104,7 @@ return {
 				elseif v[1] == "set_tempo" then
 					bpm = 60000000 / v[3]
 				elseif data.acceptmidi[v[1]] then
+					print("dur " .. v[3]) -- DEBUGGING
 					endpoint = math.max(endpoint, v[2])
 					table.insert(newnotes, {tick = v[2] + 1, note = v})
 				else
@@ -159,8 +160,8 @@ return {
 		-- and the TPQ value in the first score-table entry, as per MIDI.lua spec.
 		local outbpm = 60000000 / data.bpm
 		table.insert(score, 1, data.tpq)
-		table.insert(score[2], 1, {'set_tempo', 0, outbpm})
 		table.insert(score[2], 1, {'time_signature', 0, 4, 4, data.tpq, 8})
+		table.insert(score[2], 2, {'set_tempo', 0, outbpm})
 		print("saveFile: BPM " .. data.bpm .. " :: TPQ " .. data.tpq .. " :: uSPQ " .. outbpm)
 
 		-- Save the score into a MIDI file within the savefolder
