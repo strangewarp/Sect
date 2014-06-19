@@ -129,6 +129,8 @@ return {
 		local lhalf = lheight / 2
 		local poly = {0, 0, 0, 0, 0, 0}
 
+		local fontheight = fontsmall:getHeight()
+
 		-- For every sequence...
 		for i = 1, #data.seq do
 
@@ -157,6 +159,19 @@ return {
 			-- Draw the summary rectangle
 			love.graphics.setColor(scolor)
 			love.graphics.rectangle("fill", left, top + loffset, width, lheight)
+
+			local itext = tostring(i)
+			local fontwidth = fontsmall:getWidth(itext)
+			local textx = (width - fontwidth) / 2
+			local texty = loffset + ((lheight - fontheight) / 2)
+
+			-- Print a number on the sequence-bar, if space allows
+			if (fontheight <= lheight) or ((i % 5) == 0) then
+				love.graphics.setColor(data.color.summary.text_shadow)
+				love.graphics.print(itext, left + textx + 1, top + texty + 1)
+				love.graphics.setColor(data.color.summary.text)
+				love.graphics.print(itext, left + textx, top + texty)
+			end
 
 			-- Store coordinates of the active-sequence reticule
 			if i == data.active then
