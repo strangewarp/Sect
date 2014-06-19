@@ -50,7 +50,9 @@ return {
 		-- If there are any ticks to the right of the old top-tick, adjust their notes' positions
 		if top < oldsize then
 			local sidenotes = getNotes(seq, top + 1, #data.seq[seq].tick, _, _)
-			moveNotes(seq, sidenotes, addticks, _, undo)
+			if #sidenotes > 0 then
+				moveNotes(seq, sidenotes, addticks, _, undo)
+			end
 		end
 
 	end,
@@ -62,12 +64,16 @@ return {
 
 		-- Get notes from the removal area, and remove them, into undo
 		local notes = getNotes(seq, tick, top, _, _)
-		removeNotes(seq, notes, undo)
+		if #notes > 0 then
+			removeNotes(seq, notes, undo)
+		end
 
 		-- If there are any ticks to the right, adjust their notes' positions
 		if top < #data.seq[seq].tick then
 			local sidenotes = getNotes(seq, top + 1, #data.seq[seq].tick, _, _)
-			moveNotes(seq, sidenotes, remticks * -1, _, undo)
+			if #sidenotes > 0 then
+				moveNotes(seq, sidenotes, remticks * -1, _, undo)
+			end
 		end
 
 		-- Remove ticks from the now-empty top of the sequence
