@@ -84,7 +84,6 @@ function love.load()
 				{{"purgeEmptyScales"}, "Purging empty scales..."},
 				{{"buildConsonanceRatings"}, "Building consonance ratings..."},
 				{{"buildWheels"}, "Building wheels..."},
-				--{{"indexScalesByBin"}, "Re-indexing scales by binary identity..."},
 				{{"saveScalesAndWheels"}, "Saving scale and wheel data..."},
 			}
 		)

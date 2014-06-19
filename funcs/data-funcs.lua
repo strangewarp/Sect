@@ -39,64 +39,55 @@ return {
 	end,
 
 	-- Insert a given chunk of ticks and notes, in a given sequence, at a given point
-	addTicksAndNotes = function(seq, t, num, undo)
+	insertTicks = function(seq, tick, addticks, undo)
 
-		-- Prevent modifications to the undo table's original referent
-		undo = deepCopy(undo)
-
-		local top = t + (num - 1)
+		local top = tick + (addticks - 1)
 		local oldsize = #data.seq[seq].tick
 
 		-- Add ticks to the top of the sequence
-		growSeq(seq, num, undo)
-		undo[2] = true
+		growSeq(seq, addticks, undo)
 
 		-- If there are any ticks to the right of the old top-tick, adjust their notes' positions
 		if top < oldsize then
 			local sidenotes = getNotes(seq, top + 1, #data.seq[seq].tick, _, _)
-			moveNotes(seq, sidenotes, num, _, undo)
+			moveNotes(seq, sidenotes, addticks, _, undo)
 		end
 
 	end,
 
 	-- Remove a given chunk of ticks and notes, in a given sequence, at a given point
-	removeTicksAndNotes = function(seq, t, num, undo)
+	removeTicks = function(seq, tick, remticks, undo)
 
-		-- Prevent modifications to the undo table's original referent
-		undo = deepCopy(undo)
+		local top = tick + (remticks - 1)
 
-		local top = t + (num - 1)
-
-		-- Get notes from the removal area, to put into the undo table
-		local notes = getNotes(seq, t, top, _, _)
+		-- Get notes from the removal area, and remove them, into undo
+		local notes = getNotes(seq, tick, top, _, _)
 		removeNotes(seq, notes, undo)
-		undo[2] = true
 
 		-- If there are any ticks to the right, adjust their notes' positions
 		if top < #data.seq[seq].tick then
 			local sidenotes = getNotes(seq, top + 1, #data.seq[seq].tick, _, _)
-			moveNotes(seq, sidenotes, num * -1, _, undo)
+			moveNotes(seq, sidenotes, remticks * -1, _, undo)
 		end
 
-		-- Remove ticks from the top of the sequence
-		shrinkSeq(seq, num, undo)
+		-- Remove ticks from the now-empty top of the sequence
+		shrinkSeq(seq, remticks, undo)
 
 	end,
 
 	-- Insert a number of ticks based on data.spacing, at the current position
 	insertSpacingTicks = function(undo)
 
-		addTicksAndNotes(data.active, data.tp, data.spacing, undo)
+		insertTicks(data.active, data.tp, data.spacing, undo)
 
 	end,
 
 	-- Remove a number of ticks based on data.spacing, at the current position
 	removeSpacingTicks = function(undo)
 
-		local limit = #data.seq[data.active].tick - data.tp
-		local num = clampNum(data.spacing, 0, limit)
+		local num = clampNum(data.spacing, 0, #data.seq[data.active].tick - data.tp)
 
-		removeTicksAndNotes(data.active, data.tp, num, undo)
+		removeTicks(data.active, data.tp, num, undo)
 
 	end,
 
