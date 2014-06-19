@@ -17,8 +17,7 @@ return {
 	
 		for k, v in ipairs(tris) do
 
-			local tick, xpos = unpack(v)
-			local beat = ((tick - 1) / beatsize) + 1
+			local beat, xpos = unpack(v)
 
 			love.graphics.setColor(data.color.triangle.fill)
 			love.graphics.polygon("fill", xpos - 19, yfull, xpos + 19, yfull, xpos, tritop)
@@ -245,9 +244,9 @@ return {
 			end
 
 			-- If this column is on a beat, add a triangle to the beat-triangle-table
-			if (tick % beatsize) == 0 then
-				local beat = tick / beatsize
-				local trileft = left + gridleft + xcellhalf + ((x + 1) * cellwidth)
+			if ((tick - 1) % beatsize) == 0 then
+				local beat = ((tick - 1) / beatsize) + 1
+				local trileft = left + gridleft + xcellhalf + (x * cellwidth)
 				table.insert(triangles, {beat, trileft})
 			end
 
