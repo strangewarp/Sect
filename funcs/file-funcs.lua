@@ -97,29 +97,34 @@ return {
 			for k, v in pairs(track) do
 
 				-- Receive known commands, and change endpoint in incoming-notes accordingly
-				if v[1] == "end_track" then
-					endpoint = v[2]
-				elseif v[1] == "track_name" then
+				if v[1] == 'end_track' then
+					print("loadFile: End track: " .. v[2]) -- DEBUGGING
+				elseif v[1] == 'track_name' then
 					print("loadFile: Track name: " .. v[3])
-				elseif v[1] == "set_tempo" then
+				elseif v[1] == 'text_event' then
+					print("loadFile: Text-event: " .. v[3])
+				elseif v[1] == 'set_tempo' then
 					bpm = 60000000 / v[3]
 				elseif data.acceptmidi[v[1]] then
-					print("dur " .. v[3]) -- DEBUGGING
 					endpoint = math.max(endpoint, v[2])
 					table.insert(newnotes, {tick = v[2] + 1, note = v})
 				else
 					print("loadFile: Discarded unsupported command: " .. v[1])
 				end
 
-			end
+				-- Get the position of the last tick in the sequence,
+				-- which ought to be represented by a text_event,
+				-- which itself is an automatic replacement for end_track.
+				endpoint = math.max(endpoint, v[2])
 
-			-- Shift endpoint from 0-indexing to 1-indexing
-			endpoint = endpoint + 1
+			end
 
 			-- If default seq length is less than endpoint, insert ticks
 			if newseqlen < endpoint then
 				insertTicks(inseq, newseqlen, endpoint - newseqlen, undo)
 			end
+
+			--print(endpoint) -- DEBUGGING
 
 			-- Insert all known commands into the new sequence
 			setNotes(inseq, newnotes, undo)
@@ -147,12 +152,13 @@ return {
 
 		-- For every sequence, translate it to a valid score track
 		for tracknum, track in ipairs(data.seq) do
-			score[tracknum] = { {'end_track', #track.tick - 1}, } -- For a given track, insert an accurate end_track command
+			score[tracknum] = {}
 			for tick, notes in pairs(track.tick) do -- Copy over all notes to the score-track-table
 				for k, v in pairs(notes) do
 					table.insert(score[tracknum], v.note)
 				end
 			end
+			table.insert(score[tracknum], {'end_track', #track.tick})
 			print("saveFile: copied sequence " .. tracknum .. " to save-table!")
 		end
 
