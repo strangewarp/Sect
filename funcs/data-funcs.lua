@@ -178,4 +178,37 @@ return {
 		removeSequence(data.active, undo)
 	end,
 
+	-- Switch the positions of two sequences
+	switchSequences = function(k, k2, undo)
+
+		data.seq[k], data.seq[k2] = data.seq[k2], data.seq[k]
+
+		-- Build undo tables
+		addUndoStep(
+			((undo == nil) and true) or undo, -- Suppress flag
+			{"switchSequences", k2, k}, -- Undo command
+			{"switchSequences", k, k2} -- Redo command
+		)
+
+	end,
+
+	-- Move the active sequence in a given direction
+	moveActiveSequence = function(dir, undo)
+
+		-- If fewer than two sequences exist, abort function
+		if #data.seq < 2 then
+			return nil
+		end
+
+		-- Get the sequence in the intended direction, and insert it at current position
+		local dupkey = wrapNum(data.active + dir, 1, #data.seq)
+
+		-- Switch the active sequence with the directional sequence
+		switchSequences(data.active, dupkey, undo)
+
+		-- Move the pointer to the previously active sequence's new position
+		data.active = dupkey
+
+	end,
+
 }

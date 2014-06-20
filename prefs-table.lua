@@ -280,8 +280,6 @@ return {
 		SEQ_TAB_UP = {"pageup"},
 		SEQ_TAB_DOWN = {"pagedown"},
 
-		MIDI_PANIC = {"shift", "ctrl", " "},
-
 		EXTROVERT_PLAY_NOTE = {"ctrl", " "},
 		EXTROVERT_LOAD_FILE = {"shift", "ctrl", "e"},
 

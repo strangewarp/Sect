@@ -227,8 +227,8 @@ D.cmdfuncs = {
 	MOD_NOTE_LEFT = {"modNotes", "tp", -1, false},
 	MOD_NOTE_RIGHT = {"modNotes", "tp", 1, false},
 
-	MOD_SEQ_UP = {"moveActiveSeq", -1, false},
-	MOD_SEQ_DOWN = {"moveActiveSeq", 1, false},
+	MOD_SEQ_UP = {"moveActiveSequence", -1, false},
+	MOD_SEQ_DOWN = {"moveActiveSequence", 1, false},
 
 	POINTER_UP = {"shiftInternalValue", "np", false, 1},
 	POINTER_DOWN = {"shiftInternalValue", "np", false, -1},
@@ -246,8 +246,6 @@ D.cmdfuncs = {
 
 	SEQ_TAB_UP = {"tabActiveSeq", -1},
 	SEQ_TAB_DOWN = {"tabActiveSeq", 1},
-
-	MIDI_PANIC = {"haltAllSustains"},
 
 	EXTROVERT_PLAY_NOTE = {"sendExtrovertTestNote", "testnote"},
 	EXTROVERT_LOAD_FILE = {"sendExtrovertCommand", "loadmidi"},
