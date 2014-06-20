@@ -214,13 +214,13 @@ D.cmdfuncs = {
 	TPQ_UP_MULTI = {"shiftInternalValue", "tpq", false, 10},
 	TPQ_DOWN_MULTI = {"shiftInternalValue", "tpq", false, -10},
 
-	MOD_CHANNEL_UP = {"modActiveNoteChannel", 1, false},
-	MOD_CHANNEL_DOWN = {"modActiveNoteChannel", -1, false},
+	MOD_CHANNEL_UP = {"modNotes", "chan", 1, false},
+	MOD_CHANNEL_DOWN = {"modNotes", "chan", -1, false},
 
-	MOD_VELOCITY_UP = {"modActiveNoteVelocity", 1, false},
-	MOD_VELOCITY_DOWN = {"modActiveNoteVelocity", -1, false},
-	MOD_VELOCITY_UP_10 = {"modActiveNoteVelocity", 10, false},
-	MOD_VELOCITY_DOWN_10 = {"modActiveNoteVelocity", -10, false},
+	MOD_VELOCITY_UP = {"modNotes", "velo", 1, false},
+	MOD_VELOCITY_DOWN = {"modNotes", "velo", -1, false},
+	MOD_VELOCITY_UP_10 = {"modNotes", "velo", 10, false},
+	MOD_VELOCITY_DOWN_10 = {"modNotes", "velo", -10, false},
 
 	MOD_NOTE_UP = {"modNotes", "np", 1, false},
 	MOD_NOTE_DOWN = {"modNotes", "np", -1, false},

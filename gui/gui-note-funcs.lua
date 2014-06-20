@@ -44,6 +44,8 @@ return {
 
 			-- Unpack the note-vars and render-vars
 			local kind, seq, n, nleft, ntop, nx, ny = unpack(v)
+			local nxhalf = nx / 2
+			local nyhalf = ny / 2
 
 			-- Set quiet/loud colors differently, for shadow/select/active notes
 			if kind == 'shadow' then
@@ -74,13 +76,30 @@ return {
 				love.graphics.setColor(linecolor)
 				love.graphics.rectangle("line", nleft, ntop, nx, ny)
 
-				-- If chanview mode is enabled, draw channel numbers onto notes
+				-- If chanview mode is enabled,
+				-- draw channel numbers and velocity-bars onto notes.
 				if data.chanview and (n.note[1] == 'note') then
+
 					love.graphics.print(
 						tostring(n.note[4]),
 						(nleft + (nx / 2)) - (fontsmall:getWidth(tostring(n.note[4])) / 2),
 						(ntop + (ny / 2)) - (fontsmall:getHeight() / 2)
 					)
+
+					local barcomp = getVelocityColor(
+						n,
+						data.color.note.bar_quiet,
+						data.color.note.bar_loud
+					)
+
+					local bartop = ny - (ny * (n.note[data.acceptmidi[n.note[1]][2]] / data.bounds.velo[2]))
+
+					love.graphics.setColor(barcomp)
+					love.graphics.line(
+						nleft, ntop + bartop,
+						nleft + nx, ntop + bartop
+					)
+
 				end
 
 			end

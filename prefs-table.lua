@@ -88,6 +88,8 @@ return {
 			select_loud = {225, 20, 225, 255},
 			overlay_quiet = {6, 180, 200, 180},
 			overlay_loud = {210, 5, 100, 180},
+			bar_quiet = {255, 255, 255, 180},
+			bar_loud = {130, 255, 130, 180},
 			border = {5, 4, 8, 255},
 			adjborder = {210, 210, 220, 255},
 			lightborder = {255, 255, 255, 255},

@@ -245,7 +245,7 @@ return {
 
 	end,
 
-	-- Modify a given set of notes
+	-- Modify the selected notes
 	modNotes = function(cmd, dist, undo)
 
 		local notes = {}
