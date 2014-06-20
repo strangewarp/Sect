@@ -9,6 +9,12 @@ function love.load()
 
 	MIDI = require('midi/MIDI')
 
+	socket = require('socket')
+
+	vstruct = require('vstruct')
+	pack = vstruct.pack
+	upack = vstruct.unpack
+
 	datafuncs = require('funcs/data-funcs')
 	filefuncs = require('funcs/file-funcs')
 	guigridfuncs = require('gui/gui-grid-funcs')
@@ -20,6 +26,7 @@ function love.load()
 	keyfuncs = require('funcs/key-funcs')
 	modefuncs = require('funcs/mode-funcs')
 	notefuncs = require('funcs/note-funcs')
+	oscfuncs = require('funcs/osc-funcs')
 	pointerfuncs = require('funcs/pointer-funcs')
 	selectfuncs = require('funcs/select-funcs')
 	undofuncs = require('funcs/undo-funcs')
@@ -41,6 +48,7 @@ function love.load()
 		keyfuncs,
 		modefuncs,
 		notefuncs,
+		oscfuncs,
 		pointerfuncs,
 		selectfuncs,
 		undofuncs,
@@ -112,13 +120,14 @@ function love.load()
 	sortKeyComboTables()
 
 	-- Enable keyboard commands after completing all other load-funcs
-		tableCombine(
-			data.loadcmds,
-			{
-				{{"buttonsToPianoKeys", data.pianokeys}, "Assigning computer-piano keys..."},
-				{{"sortKeyComboTables"}, "Sorting key-command tables..."},
-			}
-		)
+	tableCombine(
+		data.loadcmds,
+		{
+			{{"setupUDP"}, "Setting up UDP apparatus..."},
+			{{"buttonsToPianoKeys", data.pianokeys}, "Assigning computer-piano keys..."},
+			{{"sortKeyComboTables"}, "Sorting key-command tables..."},
+		}
+	)
 
 end
 

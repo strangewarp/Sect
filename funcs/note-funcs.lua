@@ -205,15 +205,6 @@ return {
 	-- Insert a note, with the current note-var settings
 	insertNote = function(dist, undo)
 
-		-- If no sequences are loaded, abort function
-		if data.active == false then
-			print("insertNote: warning: no active sequence!")
-			return nil
-		elseif not data.recording then -- If recording is off, abort function
-			print("insertNote: note insertion disabled!")
-			return nil
-		end
-
 		-- If a distance-from-C isn't given, set it to the note-pointer position
 		dist = dist or (data.np % 12)
 
@@ -231,6 +222,18 @@ return {
 				data.velo, -- Velocity
 			},
 		}
+
+		-- Send the note to Extrovert, on the user-defined port
+		sendExtrovertNote(n.note)
+
+		-- If no sequences are loaded, abort function
+		if data.active == false then
+			print("insertNote: warning: no active sequence!")
+			return nil
+		elseif not data.recording then -- If recording is off, abort function
+			print("insertNote: note insertion disabled!")
+			return nil
+		end
 
 		setNotes(data.active, {n}, undo)
 

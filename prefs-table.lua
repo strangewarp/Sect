@@ -1,8 +1,8 @@
 
 return {
 	
-	-- Port for communication with Extrovert
-	oscport = 8500,
+	-- Port for sending commands to Extrovert
+	oscsend = 8500,
 
 	-- Path where savefiles are stored
 	savepath = "C:/Users/Christian/Documents/MUSIC_STAGING/",
@@ -280,8 +280,7 @@ return {
 		SEQ_TAB_UP = {"pageup"},
 		SEQ_TAB_DOWN = {"pagedown"},
 
-		EXTROVERT_PLAY_NOTE = {"ctrl", " "},
-		EXTROVERT_LOAD_FILE = {"shift", "ctrl", "e"},
+		EXTROVERT_LOAD_FILE = {"ctrl", "e"},
 
 	},
 

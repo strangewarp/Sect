@@ -29,6 +29,9 @@ D.velo = 127 -- Velocity
 D.dur = 8 -- Duration
 D.spacing = 8 -- Spacing
 
+-- SOCKET VARS --
+D.udp = false -- Var that will hold the UDP socket
+
 -- ZOOM VARS --
 D.zoomx = 4 -- Multiplier for X-axis zoom
 D.zoomy = 4 -- Multiplier for Y-axis zoom
@@ -247,7 +250,6 @@ D.cmdfuncs = {
 	SEQ_TAB_UP = {"tabActiveSeq", -1},
 	SEQ_TAB_DOWN = {"tabActiveSeq", 1},
 
-	EXTROVERT_PLAY_NOTE = {"sendExtrovertTestNote", "testnote"},
 	EXTROVERT_LOAD_FILE = {"sendExtrovertCommand", "loadmidi"},
 
 }
