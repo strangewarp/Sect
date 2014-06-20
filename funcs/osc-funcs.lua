@@ -138,12 +138,17 @@ return {
 	-- Send a command over OSC to the Extrovert listener apparatus
 	sendExtrovertHotseat = function()
 
-		local message = string.format(
-			"%s %s %s",
-			"extrovert",
-			"loadfile",
-			data.hotseats[data.activeseat]
-		)
+		local bundle = {
+			"#bundle",
+			os.time(),
+			{
+				"/extrovert",
+				"s", "loadfile",
+				"s", data.hotseats[data.activeseat],
+			}
+		}
+
+		local message = encodeOSC(bundle)
 
 		data.udp:send(message)
 
