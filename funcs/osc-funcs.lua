@@ -121,6 +121,8 @@ return {
 			{
 				"/extrovert",
 				"s", note[1],
+				"i", data.bpm,
+				"i", data.tpq,
 			},
 		}
 
