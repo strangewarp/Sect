@@ -145,7 +145,7 @@ return {
 			os.time(),
 			{
 				"/extrovert",
-				"s", "loadfile",
+				"s", "loadmidi",
 				"s", data.hotseats[data.activeseat],
 			}
 		}
