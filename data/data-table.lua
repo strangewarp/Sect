@@ -142,9 +142,6 @@ D.cmdfuncs = {
 	LOAD_FILE = {"loadFile", false},
 	SAVE_FILE = {"saveFile"},
 
-	HOTSEAT_UP = {"moveHotseatPointer", -1},
-	HOTSEAT_DOWN = {"moveHotseatPointer", 1},
-
 	TOGGLE_SEQ_OVERLAY = {"toggleSeqOverlay"},
 	TOGGLE_NOTE_DRAW = {"toggleNoteDraw"},
 

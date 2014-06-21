@@ -89,6 +89,38 @@ return {
 
 	end,
 
+	-- Build the keychord-commands for tabbing between hotseat names
+	buildHotseatCommands = function()
+
+		-- For every item in the user-defined hotseats table...
+		for i = 1, math.min(30, #data.hotseats) do
+
+			local buttons = {}
+			local cmdname = "HOTSEAT_" .. i
+
+			-- Change the chording key based on hotseat number
+			if i <= 10 then
+				table.insert(buttons, "ctrl")
+			elseif i <= 20 then
+				table.insert(buttons, "shift")
+			else
+				table.insert(buttons, "tab")
+			end
+
+			-- Get the seat's corresponding number-key
+			local seat = tostring(i % 10)
+
+			-- Put the number into the keychord-table
+			table.insert(buttons, seat)
+
+			-- Insert the keycommands into the command-tables
+			data.cmds[cmdname] = buttons
+			data.cmdfuncs[cmdname]= {"tabToHotseat", i}
+
+		end
+
+	end,
+
 	-- Sort all key-command tables, to allow simple comparison
 	sortKeyComboTables = function()
 		for i = 1, #data.cmds do

@@ -5,7 +5,6 @@ function love.conf(t)
 
     -- TODO: Set this to false before final release!!!
     t.console = true -- Attach a console (boolean, Windows only)
-
     -- TODO: Remove this before final release!!
     io.stdout:setvbuf("no")
 

@@ -172,9 +172,6 @@ return {
 		LOAD_FILE = {"ctrl", "o"},
 		SAVE_FILE = {"ctrl", "s"},
 
-		HOTSEAT_UP = {"ctrl", "pageup"},
-		HOTSEAT_DOWN = {"ctrl", "pagedown"},
-
 		TOGGLE_SEQ_OVERLAY = {"backspace"},
 		TOGGLE_NOTE_DRAW = {"shift", "backspace"},
 

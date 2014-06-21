@@ -87,9 +87,8 @@ return {
 		outtab = {"hotseats"}
 		local acheck = 1
 		while acheck ~= data.activeseat do
-			local text = acheck .. string.rep(".", 1 + string.len(#data.hotseats - (string.len(acheck) - 1))) .. data.hotseats[acheck]
+			local text = acheck .. string.rep(".", 1 + string.len(#data.hotseats) - (string.len(acheck) - 1)) .. data.hotseats[acheck]
 			table.insert(outtab, text)
-			--table.insert(outtab, acheck .. ". " .. data.hotseats[acheck])
 			acheck = acheck + 1
 		end
 		love.graphics.setColor(data.color.font.mid)
@@ -103,9 +102,8 @@ return {
 
 		outtab = {}
 		while acheck <= #data.hotseats do
-				local text = acheck .. string.rep(".",  1 + string.len(#data.hotseats) - (string.len(acheck) - 1)) .. data.hotseats[acheck]
-				table.insert(outtab, text)
-				--table.insert(outtab, acheck .. ". " .. data.hotseats[acheck])
+			local text = acheck .. string.rep(".",  1 + string.len(#data.hotseats) - (string.len(acheck) - 1)) .. data.hotseats[acheck]
+			table.insert(outtab, text)
 			acheck = acheck + 1
 		end
 		table.insert(outtab, "")

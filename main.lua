@@ -115,16 +115,13 @@ function love.load()
 	love.graphics.setLineWidth(1)
 	love.keyboard.setKeyRepeat(true)
 	
-	-- Attach user-defined keyboard-buttons to commands
-	buttonsToPianoKeys(data.pianokeys)
-	sortKeyComboTables()
-
 	-- Enable keyboard commands after completing all other load-funcs
 	tableCombine(
 		data.loadcmds,
 		{
 			{{"setupUDP"}, "Setting up UDP apparatus..."},
 			{{"buttonsToPianoKeys", data.pianokeys}, "Assigning computer-piano keys..."},
+			{{"buildHotseatCommands"}, "Building hotseat commands..."},
 			{{"sortKeyComboTables"}, "Sorting key-command tables..."},
 		}
 	)

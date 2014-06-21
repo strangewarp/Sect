@@ -89,4 +89,9 @@ return {
 
 	end,
 
+	-- Tab the hotseat-pointer to a given hotseat
+	tabToHotseat = function(seat)
+		data.activeseat = seat
+	end,
+
 }
