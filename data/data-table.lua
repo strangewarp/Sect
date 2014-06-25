@@ -99,8 +99,9 @@ D.baseseq = {
 	tick = {}, -- Table that holds all ticks (each holds its own notes)
 }
 
--- Boundaries for user-shiftable control variables
-D.bounds = {
+D.bounds = { -- Boundaries for user-shiftable control vars
+
+	-- Misc bounds --
 	bpm = {1, math.huge, false}, -- Beats per minute
 	tpq = {1, 1000, false}, -- Ticks per quarter-note
 	np = {0, 127, true}, -- Note-pointer (active pitch)
@@ -110,19 +111,22 @@ D.bounds = {
 	spacing = {0, math.huge, false}, -- Spacing
 	zoomx = {1, 16, false}, -- X-axis zoom (tick axis)
 	zoomy = {1, 16, false}, -- Y-axis zoom (note axis)
+
+	-- Generator bounds --
 	kspecies = {1, 12, true}, -- Filled scale notes
 	scalenum = {1, math.huge, false}, -- Number of scales in generator
-	consonance = {0, 1, true}, -- Target consonance for generator
-	scaleswitch = {0, 1, true}, -- Likelihood to switch between scales
-	wheelswitch = {0, 1, true},
-	density = {0, 1, true},
-	beatstick = {0, 1, true},
-	beatgrain = {1, math.huge, false},
-	beatlength = {1, math.huge, false},
-	beatbound = {1, math.huge, false},
-	notegrain = {1, math.huge, false},
-	lownote = {0, 127, true},
-	highnote = {0, 127, true},
+	consonance = {0, 0, true}, -- Target consonance for generator
+	scaleswitch = {0, 0, true}, -- Likelihood to switch between scales
+	wheelswitch = {0, 0, true}, -- Likelihood to switch between wheels
+	density = {0, 0, true}, -- Density of note coverage
+	beatstick = {0, 0, true}, -- Likelihood to stick to major beats
+	beatgrain = {1, math.huge, false}, -- Smallest sticky beat
+	beatlength = {1, math.huge, false}, -- Secondary beat length
+	beatbound = {1, math.huge, false}, -- Number of TPQ-beats to fill
+	notegrain = {1, math.huge, false}, -- Minimum note size
+	lownote = {0, 127, true}, -- Low note boundary (Meta-bound)
+	highnote = {0, 127, true}, -- High note boundary (Meta-bound)
+
 }
 
 -- Types of MIDI commands that are accepted in a sequence,

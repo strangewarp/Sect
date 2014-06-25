@@ -16,7 +16,7 @@ return {
 		love.graphics.draw(sectlogo, left, top + bot - sectlogo:getHeight())
 
 		-- Set the font-color
-		love.graphics.setColor(data.color.font.mid)
+		love.graphics.setColor(data.color.font.light)
 
 		-- If no sequences are loaded, write a simple guidance statement,
 		-- and skip displaying the sequence/pointer information.
@@ -62,12 +62,12 @@ return {
 					"k-species: " .. data.kspecies,
 					"scales: " .. #data.scales[data.kspecies],
 					"grabscales: " .. data.scalenum,
-					"consonance: " .. (data.consonance * 100) .. "%",
-					"s-switch: " .. (data.scaleswitch * 100) .. "%",
-					"w-switch: " .. (data.wheelswitch * 100) .. "%",
+					"consonance: " .. ((data.consonance + 0.01) * 100) .. "%",
+					"s-switch: " .. ((data.scaleswitch + 0.01) * 100) .. "%",
+					"w-switch: " .. ((data.wheelswitch + 0.01) * 100) .. "%",
 					"",
-					"density: " .. (data.density * 100) .. "%",
-					"stick: " .. (data.beatstick * 100) .. "%",
+					"density: " .. ((data.density + 0.01) * 100) .. "%",
+					"stick: " .. ((data.beatstick + 0.01) * 100) .. "%",
 					"alt-ticks: " .. data.beatlength,
 					"fill-beats: " .. data.beatbound,
 					"",
@@ -94,7 +94,10 @@ return {
 
 			outtab = tableCombine(outtab, addtab2)
 
-			printMultilineText(outtab, tleft, ttop, tright, "left")
+			love.graphics.setColor(data.color.font.shadow)
+			printMultilineText(outtab, tleft + 1, ttop + 1, tright, "left")
+			love.graphics.setColor(data.color.font.light)
+			printMultilineText(outtab, tleft, ttop, tright - 1, "left")
 			ttop = ttop + (#outtab * fontheight) + roundNum(fontheight / 2, 0)
 
 		end
