@@ -26,7 +26,7 @@ return {
 		end
 
 		-- Piano-roll width (based on window size)
-		local kwidth = roundNum(width / 10, 0)
+		local kwidth = 55 + (width / 50)
 
 		-- Piano-key height (based on zoom)
 		local cellheight = (height / 12) / data.zoomy
