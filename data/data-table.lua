@@ -69,11 +69,11 @@ D.threshbig = 0 -- Biggest note-consonance threshold
 -- GENERATOR VARS --
 D.kspecies = 7 -- Scale-size per 12 chromatic notes for melody generation
 D.scalenum = 5 -- Number of scales to grab from the desired consonance-point
-D.consonance = 0.90 -- Melody scale consonance
-D.scaleswitch = 0.20 -- Chance to switch scales, per note
-D.wheelswitch = 0.20 -- Chance to switch wheels, per note
-D.density = 0.66 -- Melody note-density
-D.beatstick = 0.66 -- Likelihood for notes to favor major beats
+D.consonance = 90 -- Melody scale consonance
+D.scaleswitch = 20 -- Chance to switch scales, per note
+D.wheelswitch = 20 -- Chance to switch wheels, per note
+D.density = 66 -- Melody note-density
+D.beatstick = 66 -- Likelihood for notes to favor major beats
 D.beatlength = 32 -- Secondary beat length, decoupled from TPQ
 D.beatbound = 2 -- Number of TPQ-based beats to fill with generated notes
 D.beatgrain = 8 -- Smallest beatlength factor to which notes will stick
@@ -115,11 +115,11 @@ D.bounds = { -- Boundaries for user-shiftable control vars
 	-- Generator bounds --
 	kspecies = {1, 12, true}, -- Filled scale notes
 	scalenum = {1, math.huge, false}, -- Number of scales in generator
-	consonance = {0, 0, true}, -- Target consonance for generator
-	scaleswitch = {0, 0, true}, -- Likelihood to switch between scales
-	wheelswitch = {0, 0, true}, -- Likelihood to switch between wheels
-	density = {0, 0, true}, -- Density of note coverage
-	beatstick = {0, 0, true}, -- Likelihood to stick to major beats
+	consonance = {0, 100, true}, -- Target consonance for generator
+	scaleswitch = {0, 100, true}, -- Likelihood to switch between scales
+	wheelswitch = {0, 100, true}, -- Likelihood to switch between wheels
+	density = {0, 100, true}, -- Density of note coverage
+	beatstick = {0, 100, true}, -- Likelihood to stick to major beats
 	beatgrain = {1, math.huge, false}, -- Smallest sticky beat
 	beatlength = {1, math.huge, false}, -- Secondary beat length
 	beatbound = {1, math.huge, false}, -- Number of TPQ-beats to fill
@@ -247,30 +247,30 @@ D.cmdfuncs = {
 	SCALENUM_UP = {"shiftInternalValue", "scalenum", false, 1},
 	SCALENUM_DOWN = {"shiftInternalValue", "scalenum", false, -1},
 
-	CONSONANCE_UP = {"shiftInternalValue", "consonance", false, 0.01},
-	CONSONANCE_DOWN = {"shiftInternalValue", "consonance", false, -0.01},
-	CONSONANCE_UP_10 = {"shiftInternalValue", "consonance", false, 0.1},
-	CONSONANCE_DOWN_10 = {"shiftInternalValue", "consonance", false, -0.1},
+	CONSONANCE_UP = {"shiftInternalValue", "consonance", false, 1},
+	CONSONANCE_DOWN = {"shiftInternalValue", "consonance", false, -1},
+	CONSONANCE_UP_10 = {"shiftInternalValue", "consonance", false, 10},
+	CONSONANCE_DOWN_10 = {"shiftInternalValue", "consonance", false, -10},
 
-	SCALE_SWITCH_UP = {"shiftInternalValue", "scaleswitch", false, 0.01},
-	SCALE_SWITCH_DOWN = {"shiftInternalValue", "scaleswitch", false, -0.01},
-	SCALE_SWITCH_UP_10 = {"shiftInternalValue", "scaleswitch", false, 0.1},
-	SCALE_SWITCH_DOWN_10 = {"shiftInternalValue", "scaleswitch", false, -0.1},
+	SCALE_SWITCH_UP = {"shiftInternalValue", "scaleswitch", false, 1},
+	SCALE_SWITCH_DOWN = {"shiftInternalValue", "scaleswitch", false, 1},
+	SCALE_SWITCH_UP_10 = {"shiftInternalValue", "scaleswitch", false, 10},
+	SCALE_SWITCH_DOWN_10 = {"shiftInternalValue", "scaleswitch", false, 10},
 
-	WHEEL_SWITCH_UP = {"shiftInternalValue", "wheelswitch", false, 0.01},
-	WHEEL_SWITCH_DOWN = {"shiftInternalValue", "wheelswitch", false, -0.01},
-	WHEEL_SWITCH_UP_10 = {"shiftInternalValue", "wheelswitch", false, 0.1},
-	WHEEL_SWITCH_DOWN_10 = {"shiftInternalValue", "wheelswitch", false, -0.1},
+	WHEEL_SWITCH_UP = {"shiftInternalValue", "wheelswitch", false, 1},
+	WHEEL_SWITCH_DOWN = {"shiftInternalValue", "wheelswitch", false, -1},
+	WHEEL_SWITCH_UP_10 = {"shiftInternalValue", "wheelswitch", false, 10},
+	WHEEL_SWITCH_DOWN_10 = {"shiftInternalValue", "wheelswitch", false, -10},
 
-	DENSITY_UP = {"shiftInternalValue", "density", false, 0.01},
-	DENSITY_DOWN = {"shiftInternalValue", "density", false, -0.01},
-	DENSITY_UP_10 = {"shiftInternalValue", "density", false, 0.1},
-	DENSITY_DOWN_10 = {"shiftInternalValue", "density", false, -0.1},
+	DENSITY_UP = {"shiftInternalValue", "density", false, 1},
+	DENSITY_DOWN = {"shiftInternalValue", "density", false, -1},
+	DENSITY_UP_10 = {"shiftInternalValue", "density", false, 10},
+	DENSITY_DOWN_10 = {"shiftInternalValue", "density", false, -10},
 
-	BEAT_STICK_UP = {"shiftInternalValue", "beatstick", false, 0.01},
-	BEAT_STICK_DOWN = {"shiftInternalValue", "beatstick", false, -0.01},
-	BEAT_STICK_UP_10 = {"shiftInternalValue", "beatstick", false, 0.1},
-	BEAT_STICK_DOWN_10 = {"shiftInternalValue", "beatstick", false, -0.1},
+	BEAT_STICK_UP = {"shiftInternalValue", "beatstick", false, 1},
+	BEAT_STICK_DOWN = {"shiftInternalValue", "beatstick", false, -1},
+	BEAT_STICK_UP_10 = {"shiftInternalValue", "beatstick", false, 10},
+	BEAT_STICK_DOWN_10 = {"shiftInternalValue", "beatstick", false, -10},
 
 	BEAT_LENGTH_UP = {"shiftInternalValue", "beatlength", false, 1},
 	BEAT_LENGTH_DOWN = {"shiftInternalValue", "beatlength", false, -1},
