@@ -12,8 +12,8 @@ return {
 
 		buildBackground(width, height)
 		buildSidebar(0, 5, 100, height - 10, width, height)
-		buildTrackBar(100, 3, 60, height - 6)
-		buildSeqFrame(160, 0, width, height)
+		buildSeqFrame(100, 0, width, height - 60)
+		buildTrackBar(100, height - 60, width - 100, 60)
 
 	end,
 

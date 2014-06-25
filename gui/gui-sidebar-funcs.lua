@@ -39,7 +39,7 @@ return {
 
 			-- Gather and draw the metadata info
 			local oticks = #data.seq[data.active].tick
-			local obeats = tostring(roundNum(oticks / data.tpq, 2))
+			local obeats = tostring(roundNum(oticks / (data.tpq * 4), 2))
 			local notelet = data.pianometa[wrapNum(data.np + 1, 1, 12)][2]
 			local octave = math.floor(data.np / 12)
 			obeats = ((obeats:sub(-3, -3) == ".") and ("~" .. obeats)) or obeats
@@ -139,12 +139,15 @@ return {
 
 		local seqs = #data.seq
 
-		local boxwidth = (width / 3) - 1
-		local boxheight = math.min(boxwidth, (height / math.ceil(seqs / 3)) - 1)
+		local boxwidth = (height / 3) - 1
+		local coltotal = math.floor(width / (boxwidth + 1))
+		local rowtotal = 0
+		for i = 1, seqs, coltotal do
+			rowtotal = rowtotal + 1
+		end
+		local boxheight = math.min(boxwidth, (height / rowtotal) - 1)
 
 		local fontheight = fontsmall:getHeight()
-
-		local coltotal = math.floor(width / boxwidth)
 
 		local row = 1
 		local col = 1
