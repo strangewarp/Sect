@@ -15,12 +15,17 @@ return {
 		-- Add the key to the keypress table
 		table.insert(data.keys, key)
 
-		-- Seek out the command that matches currently-pressed keys
+		-- Seek out the command that matches currently-pressed keys and modes
 		local match = false
-		for k, v in pairs(data.cmds) do
-			if crossCompare(data.keys, v) then
-				match = k
-				break
+		for kind, accept in pairs(data.cmdmodes) do
+			if accept then
+				for k, v in pairs(data.cmds[kind]) do
+					if crossCompare(data.keys, v) then
+						match = k
+						break
+					end
+				end
+				if match then do break end end
 			end
 		end
 
@@ -78,7 +83,7 @@ return {
 				local cmdname = "PIANO_KEY_" .. iter
 
 				-- Insert the keycommands into the command-tables
-				data.cmds[cmdname] = {button}
+				data.cmds.base[cmdname] = {button}
 				data.cmdfuncs[cmdname] = {"insertNote", k - 1, false}
 
 				iter = iter + 1
@@ -114,7 +119,7 @@ return {
 			table.insert(buttons, seat)
 
 			-- Insert the keycommands into the command-tables
-			data.cmds[cmdname] = buttons
+			data.cmds.base[cmdname] = buttons
 			data.cmdfuncs[cmdname]= {"tabToHotseat", i}
 
 		end

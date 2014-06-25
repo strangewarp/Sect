@@ -181,7 +181,7 @@ return {
 		-- For every k-species of scales...
 		for k, _ in pairs(data.scales) do
 
-			-- Limit wheel size to 8 notes, to quash exponential data requirements
+			-- Limit wheel size to 7 notes, to quash exponential data requirements
 			if k > 7 then
 				do break end
 			end
@@ -192,6 +192,7 @@ return {
 				pointers[p] = p
 			end
 
+			-- Build a sub-table that corresponds to each k-species
 			wheels[k] = {}
 
 			-- Get the notes' number of possible permuations
@@ -199,48 +200,8 @@ return {
 
 			for i = 1, factorial do
 
-				-- Build a new wheel table
-				local wheel = {
-					io = {},
-					dec = "",
-				}
-
-				-- Get the wheel's decimal name
-				for _, pv in ipairs(pointers) do
-					wheel.dec = wheel.dec .. pv
-				end
-
-				-- Build a new wheel out of the rotated pointers
-				for p = 1, #pointers do
-
-					local p2 = wrapNum(p + 1, 1, #pointers)
-
-					-- Populate the current wheel
-					if wheel.io[p] == nil then
-						wheel.io[p] = {
-							n = pointers[p],
-							i = 0,
-							o = pointers[p2],
-						}
-					else
-						wheel.io[p].o = pointers[p2]
-					end
-
-					-- Populate the current adjacent wheel
-					if wheel.io[p2] == nil then
-						wheel.io[p2] = {
-							n = pointers[p2],
-							i = pointers[p],
-							o = 0,
-						}
-					else
-						wheel.io[p2].i = pointers[p]
-					end
-
-				end
-
 				-- Put the new wheel into the wheels table
-				table.insert(wheels[k], wheel)
+				table.insert(wheels[k], deepCopy(pointers))
 
 				-- Rotate pointers until arriving at a position with no duplicates
 				repeat
@@ -382,114 +343,6 @@ return {
 				count = count + 1
 			end
 
-		end
-
-	end,
-
-	-- Update the consonance-table used by Scale Mode
-	updateConsonanceTable = function()
-
-		-- If no sequence is loaded, or if Scale Mode is disabled, abort function
-		if (not data.active)
-		or (not data.scalemode)
-		then
-			return nil
-		end
-
-		local found = {}
-		local similar = {}
-		local scale = {
-			["notes"] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-			["bin"] = "",
-		}
-
-		local filled = 0
-		local smallest = math.huge
-
-		local notes = getNotes(data.active)
-		local ticks = #data.seq[data.active].tick
-
-		-- Reset the currently-used-scale-notes table
-		data.scalenotes = {}
-
-		-- Populate the thresholds table with default values
-		for i = 1, 12 do
-			data.thresholds[i] = 0
-			similar[i] = {}
-		end
-
-		-- For all notes in the active sequence...
-		for k, v in pairs(notes) do
-
-			-- Wrap the testtick to the tick-pointer position
-			local testtick = ((v.tick > data.tp) and (v.tick - ticks)) or v.tick
-
-			-- If the note is a NOTE command, add the note and testtick to found-tab
-			if v.note[1] == 'note' then
-				table.insert(found, {testtick, deepCopy(v)})
-			end
-
-		end
-
-		table.sort(found, function(a, b) return a[1] < b[1] end)
-
-		-- Translate the nearest found-notes into a found-scale,
-		-- until the notecompare limit is reached.
-		for i = #found, 1, -1 do
-
-			-- Wrap the pitch-value to a generic pitch-within-an-octave
-			local n = wrapNum(found[i][2].note[5] + 1, 1, 12)
-
-			-- If the found-scale-note is unfilled, fill it;
-			-- if the filled notes equal the notecompare-limit, break from loop.
-			if scale.notes[n] == 0 then
-				data.scalenotes[n] = true
-				scale.notes[n] = 1
-				filled = filled + 1
-				if filled == data.notecompare then
-					do break end
-				end
-			end
-
-		end
-
-		-- Get the found-scale's binary identity
-		scale.bin = table.concat(scale.notes)
-
-		-- For all scales of the current comparison-k-species...
-		for _, v in pairs(data.scales[data.kspecies].s) do
-
-			for i = 1, 12 do
-
-				local rot = rotateScale(v, i - 1)
-				local diff = getScaleDifference(scale.notes, rot.notes)
-
-				diff = diff + 1
-
-				similar[diff] = similar[diff] or {}
-				table.insert(similar[diff], rot)
-
-			end
-
-		end
-
-		-- Combine diff values into thresholds
-		for diff, difftab in pairs(similar) do
-			for sk, s in pairs(difftab) do
-				local consodist = s.conso - data.scales[data.kspecies].con
-				for nk, n in pairs(s.notes) do
-					if n == 1 then
-						data.thresholds[nk] = data.thresholds[nk] + (consodist / diff)
-					end
-				end
-			end
-		end
-
-		for i = 1, 12 do
-			smallest = math.min(smallest, data.thresholds[i])
-		end
-		for i = 1, 12 do
-			data.thresholds[i] = data.thresholds[i] - smallest
 		end
 
 	end,

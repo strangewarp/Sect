@@ -63,20 +63,33 @@ D.selindex = {} -- Selected notes, indexed by [tick][note]
 -- SCALE VARS --
 D.scales = {} -- All possible scales (built in wheel-funcs)
 D.wheels = {} -- All possible wheels (built in wheel-funcs)
-
-D.thresholds = {} -- Holds note-consonance display thresholds
 D.scalenotes = {} -- Holds currently-used notes for scale comparison
 D.threshbig = 0 -- Biggest note-consonance threshold
 
-D.notecompare = 6 -- Number of previous notes to analyze in Scale Mode
-D.kspecies = 7 -- Scale-size to compare to seq notes in Scale Mode
+-- GENERATOR VARS --
+D.kspecies = 7 -- Scale-size per 12 chromatic notes for melody generation
+D.scalenum = 5 -- Number of scales to grab from the desired consonance-point
+D.consonance = 0.90 -- Melody scale consonance
+D.scaleswitch = 0.20 -- Chance to switch scales, per note
+D.wheelswitch = 0.20 -- Chance to switch wheels, per note
+D.density = 0.66 -- Melody note-density
+D.beatstick = 0.66 -- Likelihood for notes to favor major beats
+D.beatlength = 32 -- Secondary beat length, decoupled from TPQ
+D.beatbound = 2 -- Number of TPQ-based beats to fill with generated notes
+D.beatgrain = 8 -- Smallest beatlength factor to which notes will stick
+D.notegrain = 2 -- Minimum note size, in ticks
+D.lownote = 28 -- Low note boundary
+D.highnote = 52 -- High note boundary
 
 -- MODE VARS --
+D.cmdmodes = { -- Mode flags for accepting certain command types
+	base = true, -- Accept base-commands
+	entry = true, -- Accept Entry Mode commands
+	gen = false, -- Accept Generator Mode commands
+}
 D.loading = true -- True while loading; false after loading is done
 D.recording = true -- Toggles whether note-recording is enabled
 D.drawnotes = true -- Toggles whether to draw notes
-D.scalemode = false -- Toggles scale-mode
-D.chordmode = false -- Toggles chord-mode
 D.chanview = true -- Toggles rendering chan-nums on notes
 
 -- Baseline contents for new sequences
@@ -97,8 +110,19 @@ D.bounds = {
 	spacing = {0, math.huge, false}, -- Spacing
 	zoomx = {1, 16, false}, -- X-axis zoom (tick axis)
 	zoomy = {1, 16, false}, -- Y-axis zoom (note axis)
-	notecompare = {1, 12, true}, -- Scale Mode: seq notes to compare
-	kspecies = {1, 12, true}, -- Scale Mode: scale size to search
+	kspecies = {1, 12, true}, -- Filled scale notes
+	scalenum = {1, math.huge, false}, -- Number of scales in generator
+	consonance = {0, 1, true}, -- Target consonance for generator
+	scaleswitch = {0, 1, true}, -- Likelihood to switch between scales
+	wheelswitch = {0, 1, true},
+	density = {0, 1, true},
+	beatstick = {0, 1, true},
+	beatgrain = {1, math.huge, false},
+	beatlength = {1, math.huge, false},
+	beatbound = {1, math.huge, false},
+	notegrain = {1, math.huge, false},
+	lownote = {0, 127, true},
+	highnote = {0, 127, true},
 }
 
 -- Types of MIDI commands that are accepted in a sequence,
@@ -147,8 +171,7 @@ D.cmdfuncs = {
 
 	TOGGLE_RECORDING = {"toggleRecording"},
 
-	TOGGLE_SCALE_MODE = {"toggleScaleMode"},
-	TOGGLE_CHORD_MODE = {"toggleChordMode"},
+	TOGGLE_GENERATOR_MODE = {"toggleGeneratorMode"},
 
 	TOGGLE_CHAN_NUM_VIEW = {"toggleChanNumView"},
 
@@ -213,6 +236,65 @@ D.cmdfuncs = {
 	TPQ_DOWN = {"shiftInternalValue", "tpq", false, -1},
 	TPQ_UP_MULTI = {"shiftInternalValue", "tpq", false, 10},
 	TPQ_DOWN_MULTI = {"shiftInternalValue", "tpq", false, -10},
+
+	KSPECIES_UP = {"shiftInternalValue", "kspecies", false, 1},
+	KSPECIES_DOWN = {"shiftInternalValue", "kspecies", false, -1},
+
+	SCALENUM_UP = {"shiftInternalValue", "scalenum", false, 1},
+	SCALENUM_DOWN = {"shiftInternalValue", "scalenum", false, -1},
+
+	CONSONANCE_UP = {"shiftInternalValue", "consonance", false, 0.01},
+	CONSONANCE_DOWN = {"shiftInternalValue", "consonance", false, -0.01},
+	CONSONANCE_UP_10 = {"shiftInternalValue", "consonance", false, 0.1},
+	CONSONANCE_DOWN_10 = {"shiftInternalValue", "consonance", false, -0.1},
+
+	SCALE_SWITCH_UP = {"shiftInternalValue", "scaleswitch", false, 0.01},
+	SCALE_SWITCH_DOWN = {"shiftInternalValue", "scaleswitch", false, -0.01},
+	SCALE_SWITCH_UP_10 = {"shiftInternalValue", "scaleswitch", false, 0.1},
+	SCALE_SWITCH_DOWN_10 = {"shiftInternalValue", "scaleswitch", false, -0.1},
+
+	WHEEL_SWITCH_UP = {"shiftInternalValue", "wheelswitch", false, 0.01},
+	WHEEL_SWITCH_DOWN = {"shiftInternalValue", "wheelswitch", false, -0.01},
+	WHEEL_SWITCH_UP_10 = {"shiftInternalValue", "wheelswitch", false, 0.1},
+	WHEEL_SWITCH_DOWN_10 = {"shiftInternalValue", "wheelswitch", false, -0.1},
+
+	DENSITY_UP = {"shiftInternalValue", "density", false, 0.01},
+	DENSITY_DOWN = {"shiftInternalValue", "density", false, -0.01},
+	DENSITY_UP_10 = {"shiftInternalValue", "density", false, 0.1},
+	DENSITY_DOWN_10 = {"shiftInternalValue", "density", false, -0.1},
+
+	BEAT_STICK_UP = {"shiftInternalValue", "beatstick", false, 0.01},
+	BEAT_STICK_DOWN = {"shiftInternalValue", "beatstick", false, -0.01},
+	BEAT_STICK_UP_10 = {"shiftInternalValue", "beatstick", false, 0.1},
+	BEAT_STICK_DOWN_10 = {"shiftInternalValue", "beatstick", false, -0.1},
+
+	BEAT_LENGTH_UP = {"shiftInternalValue", "beatlength", false, 1},
+	BEAT_LENGTH_DOWN = {"shiftInternalValue", "beatlength", false, -1},
+	BEAT_LENGTH_UP_MULTI = {"shiftInternalValue", "beatlength", true, 2},
+	BEAT_LENGTH_DOWN_MULTI = {"shiftInternalValue", "beatlength", true, 0.5},
+
+	BEAT_BOUND_UP = {"shiftInternalValue", "beatbound", false, 1},
+	BEAT_BOUND_DOWN = {"shiftInternalValue", "beatbound", false, -1},
+
+	BEAT_GRAIN_UP = {"shiftInternalValue", "beatgrain", false, 1},
+	BEAT_GRAIN_DOWN = {"shiftInternalValue", "beatgrain", false, -1},
+	BEAT_GRAIN_UP_MULTI = {"shiftInternalValue", "beatgrain", true, 2},
+	BEAT_GRAIN_DOWN_MULTI = {"shiftInternalValue", "beatgrain", true, 0.5},
+
+	NOTE_GRAIN_UP = {"shiftInternalValue", "notegrain", false, 1},
+	NOTE_GRAIN_DOWN = {"shiftInternalValue", "notegrain", false, -1},
+	NOTE_GRAIN_UP_MULTI = {"shiftInternalValue", "notegrain", true, 2},
+	NOTE_GRAIN_DOWN_MULTI = {"shiftInternalValue", "notegrain", true, 0.5},
+
+	LOWNOTE_UP = {"shiftInternalValue", "lownote", false, 1},
+	LOWNOTE_DOWN = {"shiftInternalValue", "lownote", false, -1},
+	LOWNOTE_UP_12 = {"shiftInternalValue", "lownote", false, 12},
+	LOWNOTE_DOWN_12 = {"shiftInternalValue", "lownote", false, -12},
+
+	HIGHNOTE_UP = {"shiftInternalValue", "highnote", false, 1},
+	HIGHNOTE_DOWN = {"shiftInternalValue", "highnote", false, -1},
+	HIGHNOTE_UP_12 = {"shiftInternalValue", "highnote", false, 12},
+	HIGHNOTE_DOWN_12 = {"shiftInternalValue", "highnote", false, -12},
 
 	MOD_CHANNEL_UP = {"modNotes", "chan", 1, false},
 	MOD_CHANNEL_DOWN = {"modNotes", "chan", -1, false},

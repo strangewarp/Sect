@@ -210,6 +210,7 @@ return {
 
 		-- Get the note-pointer position, modulated by dist-offset
 		local npoffset = dist + (data.np - (data.np % 12))
+		local adjnote = clampNum(npoffset, data.bounds.np)
 
 		local n = {
 			tick = data.tp, -- 1-indexed tick start-time
@@ -218,7 +219,7 @@ return {
 				data.tp - 1, -- 0-indexed tick start-time
 				data.dur, -- Duration (ticks)
 				data.chan, -- Channel
-				clampNum(npoffset, data.bounds.np), -- Pitch + piano key dist
+				adjnote, -- Pitch + piano key dist
 				data.velo, -- Velocity
 			},
 		}
@@ -226,18 +227,17 @@ return {
 		-- Send the note to Extrovert, on the user-defined port
 		sendExtrovertNote(n.note)
 
-		-- If no sequences are loaded, abort function
-		if data.active == false then
-			print("insertNote: warning: no active sequence!")
-			return nil
-		elseif not data.recording then -- If recording is off, abort function
-			print("insertNote: note insertion disabled!")
+		-- If no sequences are loaded, or recording is off, abort function
+		if (not data.active) or (not data.recording) then
 			return nil
 		end
 
-		setNotes(data.active, {n}, undo)
-
-		moveTickPointer(1) -- Move ahead by one spacing unit
+		if data.cmdmodes.gen then -- If in Generator Mode, generate a note-sequence
+			generateSeqNotes(data.active, dist, undo)
+		elseif data.cmdmodes.entry then -- If in Entry Mode, enter a note
+			setNotes(data.active, {n}, undo)
+			moveTickPointer(1) -- Move ahead by one spacing unit
+		end
 
 	end,
 

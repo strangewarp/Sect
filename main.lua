@@ -17,12 +17,12 @@ function love.load()
 
 	datafuncs = require('funcs/data-funcs')
 	filefuncs = require('funcs/file-funcs')
+	generatorfuncs = require('funcs/generator-funcs')
 	guigridfuncs = require('gui/gui-grid-funcs')
 	guiloadingfuncs = require('gui/gui-loading-funcs')
 	guimiscfuncs = require('gui/gui-misc-funcs')
 	guinotefuncs = require('gui/gui-note-funcs')
 	guisidebarfuncs = require('gui/gui-sidebar-funcs')
-	guiwheelfuncs = require('gui/gui-wheel-funcs')
 	keyfuncs = require('funcs/key-funcs')
 	modefuncs = require('funcs/mode-funcs')
 	notefuncs = require('funcs/note-funcs')
@@ -39,12 +39,12 @@ function love.load()
 		_G,
 		datafuncs,
 		filefuncs,
+		generatorfuncs,
 		guigridfuncs,
 		guiloadingfuncs,
 		guimiscfuncs,
 		guinotefuncs,
 		guisidebarfuncs,
-		guiwheelfuncs,
 		keyfuncs,
 		modefuncs,
 		notefuncs,

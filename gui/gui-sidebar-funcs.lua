@@ -25,10 +25,10 @@ return {
 			outtab = {
 				"no seqs loaded!",
 				"",
-				table.concat(data.cmds.LOAD_FILE, "-"),
+				table.concat(data.cmds.base.LOAD_FILE, "-"),
 				"opens a hotseat",
 				"",
-				table.concat(data.cmds.INSERT_SEQ, "-"),
+				table.concat(data.cmds.base.INSERT_SEQ, "-"),
 				"creates a seq",
 				"",
 			}
@@ -45,6 +45,10 @@ return {
 			obeats = ((obeats:sub(-3, -3) == ".") and ("~" .. obeats)) or obeats
 
 			outtab = {
+				"mode: " .. ((data.cmdmodes.entry and "entry") or "generator"),
+				"recording: " .. ((data.recording and "on") or "off"),
+				"notes: " .. ((data.drawnotes and "visible") or "hidden"),
+				"",
 				"seq " .. data.active .. "/" .. #data.seq,
 				"beats " .. obeats,
 				"",
@@ -53,10 +57,25 @@ return {
 				"",
 			}
 
-			if data.scalemode then
+			if data.cmdmodes.gen then
 				local addtab = {
-					"pullnotes: " .. data.notecompare,
 					"k-species: " .. data.kspecies,
+					"scales: " .. #data.scales[data.kspecies],
+					"grabscales: " .. data.scalenum,
+					"consonance: " .. (data.consonance * 100) .. "%",
+					"s-switch: " .. (data.scaleswitch * 100) .. "%",
+					"w-switch: " .. (data.wheelswitch * 100) .. "%",
+					"",
+					"density: " .. (data.density * 100) .. "%",
+					"stick: " .. (data.beatstick * 100) .. "%",
+					"alt-ticks: " .. data.beatlength,
+					"fill-beats: " .. data.beatbound,
+					"",
+					"beat-grain: " .. data.beatgrain,
+					"note-grain: " .. data.notegrain,
+					"",
+					"low note: " .. data.lownote,
+					"high note: " .. data.highnote,
 					"",
 				}
 				outtab = tableCombine(outtab, addtab)
@@ -70,9 +89,6 @@ return {
 				"velo " .. data.velo,
 				"duration " .. data.dur,
 				"spacing " .. data.spacing,
-				"",
-				"recording: " .. ((data.recording and "on") or "off"),
-				"notes: " .. ((data.drawnotes and "visible") or "hidden"),
 				"",
 			}
 

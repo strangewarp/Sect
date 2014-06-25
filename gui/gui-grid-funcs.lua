@@ -54,7 +54,19 @@ return {
 		local nrb = yhalf + nrh
 
 		-- Draw the tick reticule
-		love.graphics.setColor(data.color.reticule.dark)
+		if data.recording then
+			if data.cmdmodes.gen then
+				love.graphics.setColor(data.color.reticule.generator)
+			else
+				love.graphics.setColor(data.color.reticule.recording)
+			end
+		else
+			if data.cmdmodes.gen then
+				love.graphics.setColor(data.color.reticule.generator_dark)
+			else
+				love.graphics.setColor(data.color.reticule.dark)
+			end
+		end
 		love.graphics.polygon(
 			"fill",
 			trl, trt,
@@ -69,7 +81,9 @@ return {
 		)
 
 		-- Draw the note-duration reticule
-		love.graphics.setColor(data.color.reticule.light)
+		if not data.recording then
+			love.graphics.setColor(data.color.reticule.light)
+		end
 		love.graphics.polygon(
 			"fill",
 			nrll, nrt,
@@ -305,15 +319,6 @@ return {
 
 		-- Draw all tinted beat-columns
 		drawBeatColumns(tintcolumns)
-
-		-- If scale-mode is active, draw the scale-suggestion panel
-		if data.scalemode then
-			drawScalePanel(
-				left, top, xfull, yfull,
-				xanchor, yanchor,
-				cellwidth, cellheight
-			)
-		end
 
 		-- Draw all overlay-notes on top of the sequence grid
 		drawNoteTable(drawnotes)

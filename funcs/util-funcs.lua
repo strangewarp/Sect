@@ -194,7 +194,6 @@ return {
 		normalizePointers()
 		removeOldSelectItems()
 		selectionDataToIndexes()
-		updateConsonanceTable()
 
 	end,
 
