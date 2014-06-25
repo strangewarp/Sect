@@ -53,11 +53,11 @@ return {
 			highlight = {60, 255, 50, 255},
 		},
 
-		summary = { -- Summary-line colors
+		summary = { -- Summary-grid colors
 			empty = {100, 100, 220, 255},
-			full = {220, 100, 100, 255},
-			pointer = {5, 5, 255, 255},
-			pointer_border = {255, 255, 255, 255},
+			full = {255, 100, 100, 255},
+			pointer = {0, 225, 225, 95},
+			pointer_border = {0, 225, 225, 255},
 			text = {235, 235, 235, 255},
 			text_shadow = {5, 5, 255, 255},
 		},

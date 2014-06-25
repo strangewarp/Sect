@@ -91,7 +91,6 @@ return {
 				"spacing " .. data.spacing,
 				"",
 			}
-
 			outtab = tableCombine(outtab, addtab2)
 
 			love.graphics.setColor(data.color.font.shadow)
@@ -130,28 +129,31 @@ return {
 		printMultilineText(outtab, tleft, ttop, tright, "left")
 		ttop = ttop + (#outtab * fontheight) + roundNum(fontheight / 2, 0)
 
-		-- Draw the sequence-summary panel
-		buildSummaryLines(left, ttop, right - left, bot - ttop, 15)
-
 	end,
 
 	-- Build a series of flat lines that summarize all currently-loaded sequences
-	buildSummaryLines = function(left, top, width, height, lheight)
+	buildTrackBar = function(left, top, width, height)
 
-		-- If all lheights and margins are greater than height, reduce lheight
-		if (((lheight + 1) * #data.seq) - 1) > height then
-			lheight = (height - (#data.seq - 1)) / #data.seq
-		end
+		love.graphics.setColor(data.color.window.dark)
+		love.graphics.rectangle("fill", left, top, width, height)
 
-		local lhalf = lheight / 2
-		local poly = {0, 0, 0, 0, 0, 0}
+		local seqs = #data.seq
+
+		local boxwidth = (width / 3) - 1
+		local boxheight = math.min(boxwidth, (height / math.ceil(seqs / 3)) - 1)
 
 		local fontheight = fontsmall:getHeight()
 
-		-- For every sequence...
-		for i = 1, #data.seq do
+		local coltotal = math.floor(width / boxwidth)
 
-			local loffset = (lheight * (i - 1)) + (i - 1)
+		local row = 1
+		local col = 1
+
+		-- For every sequence...
+		for i = 1, seqs do
+
+			local boxleft = (boxwidth * (col - 1)) + (col - 1)
+			local boxtop = (boxheight * (row - 1)) + (row - 1)
 
 			local strength = 0
 			local ticks = #data.seq[i].tick
@@ -175,45 +177,58 @@ return {
 
 			-- Draw the summary rectangle
 			love.graphics.setColor(scolor)
-			love.graphics.rectangle("fill", left, top + loffset, width, lheight)
+			love.graphics.rectangle("fill", left + boxleft, top + boxtop, boxwidth, boxheight)
 
 			local itext = tostring(i)
 			local fontwidth = fontsmall:getWidth(itext)
-			local textx = (width - fontwidth) / 2
-			local texty = loffset + ((lheight - fontheight) / 2)
+			local textleft = left + boxleft + ((boxwidth - fontwidth) / 2)
+			local texttop = top + boxtop + ((boxheight - fontheight) / 2)
 
-			-- Print a number on the sequence-bar, if space allows
-			if (fontheight <= lheight) or ((i % 5) == 0) then
-				love.graphics.setColor(data.color.summary.text_shadow)
-				love.graphics.print(itext, left + textx + 1, top + texty + 1)
-				love.graphics.setColor(data.color.summary.text)
-				love.graphics.print(itext, left + textx, top + texty)
-			end
-
-			-- Store coordinates of the active-sequence reticule
+			-- Build coordinates of the active-sequence reticule
 			if i == data.active then
 
-				local rlx = left + width - 19
-				local rly = top + loffset + lhalf
-				local rrx = left + width
-				local rty = top + loffset + lhalf - 19
-				local rby = top + loffset + lhalf + 19
+				local boxhalfx = boxwidth / 2
+				local boxhalfy = boxheight / 2
 
-				poly = {
-					rlx, rly,
-					rrx, rty,
-					rrx, rby,
+				local rlx =	left + boxleft
+				local rcx = left + boxleft + boxhalfx
+				local rrx = left + boxleft + boxwidth
+				local rty = top + boxtop
+				local rcy = top + boxtop + boxhalfy
+				local rby = top + boxtop + boxheight
+
+				local poly = {
+					rlx, rcy,
+					rcx, rty,
+					rrx, rcy,
+					rcx, rby,
 				}
 
+				-- Draw the active-sequence reticule
+				love.graphics.setColor(data.color.summary.pointer)
+				love.graphics.polygon("fill", poly)
+				love.graphics.setColor(data.color.summary.pointer_border)
+				love.graphics.polygon("line", poly)
+
+			end
+
+			-- Print a number on the sequence-bar, if space allows
+			if (fontheight <= boxheight) or ((i % 5) == 0) then
+				love.graphics.setColor(data.color.summary.text_shadow)
+				love.graphics.print(itext, textleft + 1, texttop + 1)
+				love.graphics.setColor(data.color.summary.text)
+				love.graphics.print(itext, textleft, texttop)
+			end
+
+			-- Iterate through row and column positions
+			if col == coltotal then
+				col = 1
+				row = row + 1
+			else
+				col = col + 1
 			end
 
 		end
-
-		-- Draw the active-sequence reticule
-		love.graphics.setColor(data.color.summary.pointer)
-		love.graphics.polygon("fill", poly)
-		love.graphics.setColor(data.color.summary.pointer_border)
-		love.graphics.polygon("line", poly)
 
 	end,
 

@@ -11,8 +11,9 @@ return {
 	buildGUI = function(width, height)
 
 		buildBackground(width, height)
-		buildSidebar(0, 2, 100, height - 4, width, height)
-		buildSeqFrame(100, 0, width, height)
+		buildSidebar(0, 5, 100, height - 10, width, height)
+		buildTrackBar(100, 3, 60, height - 6)
+		buildSeqFrame(160, 0, width, height)
 
 	end,
 
