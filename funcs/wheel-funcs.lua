@@ -16,9 +16,11 @@ return {
 			data.scales[k].dis = 0
 			data.scales[k].avg = 0
 			data.scales[k].median = 0
+			data.scales[k].ranks = 0
 
 			local medianlist = {}
 			local kavg = 0
+			local rank = 0
 
 			-- For every scale in a given k-species...
 			for sk, s in pairs(v.s) do
@@ -92,7 +94,20 @@ return {
 			-- Sort each k-species' scale-table by scale-consonance
 			table.sort(data.scales[k].s, function(a, b) return a.conso < b.conso end)
 
-		end
+			-- Assign consonance ranks to each scale
+			local prev = false
+			for i = 1, #data.scales[k].s do
+				if prev ~= data.scales[k].s[i].conso then
+					rank = rank + 1
+					prev = data.scales[k].s[i].conso
+				end
+				data.scales[k].s[i].rank = rank
+			end
+
+			-- Set the k-species' scale-rank total
+			data.scales[k].ranks = rank
+
+		end		
 
 	end,
 

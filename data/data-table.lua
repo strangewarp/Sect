@@ -69,6 +69,7 @@ D.threshbig = 0 -- Biggest note-consonance threshold
 -- GENERATOR VARS --
 D.kspecies = 7 -- Scale-size per 12 chromatic notes for melody generation
 D.scalenum = 5 -- Number of scales to grab from the desired consonance-point
+D.wheelnum = 2 -- Number of wheels to grab from the present wheel-species
 D.consonance = 90 -- Melody scale consonance
 D.scaleswitch = 20 -- Chance to switch scales, per note
 D.wheelswitch = 20 -- Chance to switch wheels, per note
@@ -113,8 +114,9 @@ D.bounds = { -- Boundaries for user-shiftable control vars
 	zoomy = {1, 16, false}, -- Y-axis zoom (note axis)
 
 	-- Generator bounds --
-	kspecies = {1, 12, true}, -- Filled scale notes
-	scalenum = {1, math.huge, false}, -- Number of scales in generator
+	kspecies = {1, 7, true}, -- Filled scale notes
+	scalenum = {1, math.huge, false}, -- Grab-scales in generator
+	wheelnum = {1, math.huge, false}, -- Grab-wheels in generator
 	consonance = {0, 100, true}, -- Target consonance for generator
 	scaleswitch = {0, 100, true}, -- Likelihood to switch between scales
 	wheelswitch = {0, 100, true}, -- Likelihood to switch between wheels
@@ -246,6 +248,9 @@ D.cmdfuncs = {
 
 	SCALENUM_UP = {"shiftInternalValue", "scalenum", false, 1},
 	SCALENUM_DOWN = {"shiftInternalValue", "scalenum", false, -1},
+
+	WHEELNUM_UP = {"shiftInternalValue", "wheelnum", false, 1},
+	WHEELNUM_DOWN = {"shiftInternalValue", "wheelnum", false, -1},
 
 	CONSONANCE_UP = {"shiftInternalValue", "consonance", false, 1},
 	CONSONANCE_DOWN = {"shiftInternalValue", "consonance", false, -1},

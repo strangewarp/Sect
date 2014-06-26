@@ -4,7 +4,7 @@
 
 return {
 
-	-- Pairwise iterator used by some encoding functions
+	-- Iterate through a table two items at a time
 	iterPairwise = function(atable, startvalue)
 		local index = startvalue - 2
 		return function()

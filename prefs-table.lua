@@ -287,59 +287,62 @@ return {
 
 			SCALENUM_UP = {"shift", "s"},
 			SCALENUM_DOWN = {"shift", "a"},
+			
+			WHEELNUM_UP = {"tab", "s"},
+			WHEELNUM_DOWN = {"tab", "a"},
 
 			CONSONANCE_UP = {"shift", "x"},
 			CONSONANCE_DOWN = {"shift", "z"},
-			CONSONANCE_UP_10 = {"shift", "tab", "x"},
-			CONSONANCE_DOWN_10 = {"shift", "tab", "z"},
+			CONSONANCE_UP_10 = {"tab", "x"},
+			CONSONANCE_DOWN_10 = {"tab", "z"},
 
 			SCALE_SWITCH_UP = {"shift", "r"},
 			SCALE_SWITCH_DOWN = {"shift", "e"},
-			SCALE_SWITCH_UP_10 = {"shift", "tab", "r"},
-			SCALE_SWITCH_DOWN_10 = {"shift", "tab", "e"},
+			SCALE_SWITCH_UP_10 = {"tab", "r"},
+			SCALE_SWITCH_DOWN_10 = {"tab", "e"},
 
 			WHEEL_SWITCH_UP = {"shift", "f"},
 			WHEEL_SWITCH_DOWN = {"shift", "d"},
-			WHEEL_SWITCH_UP_10 = {"shift", "tab", "f"},
-			WHEEL_SWITCH_DOWN_10 = {"shift", "tab", "d"},
+			WHEEL_SWITCH_UP_10 = {"tab", "f"},
+			WHEEL_SWITCH_DOWN_10 = {"tab", "d"},
 
 			DENSITY_UP = {"shift", "v"},
 			DENSITY_DOWN = {"shift", "c"},
-			DENSITY_UP_10 = {"shift", "tab", "v"},
-			DENSITY_DOWN_10 = {"shift", "tab", "c"},
+			DENSITY_UP_10 = {"tab", "v"},
+			DENSITY_DOWN_10 = {"tab", "c"},
 
 			BEAT_STICK_UP = {"shift", "y"},
 			BEAT_STICK_DOWN = {"shift", "t"},
-			BEAT_STICK_UP_10 = {"shift", "tab", "y"},
-			BEAT_STICK_DOWN_10 = {"shift", "tab", "t"},
+			BEAT_STICK_UP_10 = {"tab", "y"},
+			BEAT_STICK_DOWN_10 = {"tab", "t"},
 
 			BEAT_LENGTH_UP = {"shift", "h"},
 			BEAT_LENGTH_DOWN = {"shift", "g"},
-			BEAT_LENGTH_UP_MULTI = {"shift", "tab", "h"},
-			BEAT_LENGTH_DOWN_MULTI = {"shift", "tab", "g"},
+			BEAT_LENGTH_UP_MULTI = {"tab", "h"},
+			BEAT_LENGTH_DOWN_MULTI = {"tab", "g"},
 
 			BEAT_BOUND_UP = {"shift", "n"},
 			BEAT_BOUND_DOWN = {"shift", "b"},
 
 			BEAT_GRAIN_UP = {"shift", "i"},
 			BEAT_GRAIN_DOWN = {"shift", "u"},
-			BEAT_GRAIN_UP_MULTI = {"shift", "tab", "i"},
-			BEAT_GRAIN_DOWN_MULTI = {"shift", "tab", "u"},
+			BEAT_GRAIN_UP_MULTI = {"tab", "i"},
+			BEAT_GRAIN_DOWN_MULTI = {"tab", "u"},
 
 			NOTE_GRAIN_UP = {"shift", "k"},
 			NOTE_GRAIN_DOWN = {"shift", "j"},
-			NOTE_GRAIN_UP_MULTI = {"shift", "tab", "k"},
-			NOTE_GRAIN_DOWN_MULTI = {"shift", "tab", "j"},
+			NOTE_GRAIN_UP_MULTI = {"tab", "k"},
+			NOTE_GRAIN_DOWN_MULTI = {"tab", "j"},
 
 			LOWNOTE_UP = {"shift", ","},
 			LOWNOTE_DOWN = {"shift", "m"},
-			LOWNOTE_UP_12 = {"shift", "tab", ","},
-			LOWNOTE_DOWN_12 = {"shift", "tab", "m"},
+			LOWNOTE_UP_12 = {"tab", ","},
+			LOWNOTE_DOWN_12 = {"tab", "m"},
 
 			HIGHNOTE_UP = {"shift", "/"},
 			HIGHNOTE_DOWN = {"shift", "."},
-			HIGHNOTE_UP_12 = {"shift", "tab", "/"},
-			HIGHNOTE_DOWN_12 = {"shift", "tab", "."},
+			HIGHNOTE_UP_12 = {"tab", "/"},
+			HIGHNOTE_DOWN_12 = {"tab", "."},
 
 		},
 
