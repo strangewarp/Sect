@@ -76,6 +76,19 @@ return {
 				love.graphics.setColor(linecolor)
 				love.graphics.rectangle("line", nleft, ntop, nx, ny)
 
+				-- Draw the note's velocity-bar
+				local barcomp = getVelocityColor(
+					n,
+					data.color.note.bar_quiet,
+					data.color.note.bar_loud
+				)
+				local bartop = ny - (ny * (n.note[data.acceptmidi[n.note[1]][2]] / data.bounds.velo[2]))
+				love.graphics.setColor(barcomp)
+				love.graphics.line(
+					nleft, ntop + bartop,
+					nleft + nx, ntop + bartop
+				)
+
 				-- If chanview mode is enabled,
 				-- draw channel numbers and velocity-bars onto notes.
 				if data.chanview and (n.note[1] == 'note') then
@@ -84,20 +97,6 @@ return {
 						tostring(n.note[4]),
 						(nleft + (nx / 2)) - (fontsmall:getWidth(tostring(n.note[4])) / 2),
 						(ntop + (ny / 2)) - (fontsmall:getHeight() / 2)
-					)
-
-					local barcomp = getVelocityColor(
-						n,
-						data.color.note.bar_quiet,
-						data.color.note.bar_loud
-					)
-
-					local bartop = ny - (ny * (n.note[data.acceptmidi[n.note[1]][2]] / data.bounds.velo[2]))
-
-					love.graphics.setColor(barcomp)
-					love.graphics.line(
-						nleft, ntop + bartop,
-						nleft + nx, ntop + bartop
 					)
 
 				end

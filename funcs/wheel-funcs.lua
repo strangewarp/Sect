@@ -111,6 +111,22 @@ return {
 
 	end,
 
+	-- For each scale, build a table of keys pointing to each on-note
+	buildFilledKeys = function()
+
+		for k, v in pairs(data.scales) do
+			for skey, s in pairs(v.s) do
+				data.scales[k].s[skey].filled = {}
+				for nkey, n in ipairs(s.notes) do
+					if n == 1 then
+						table.insert(data.scales[k].s[skey].filled, nkey)
+					end
+				end
+			end
+		end
+
+	end,
+
 	-- Calculate each scale's interval spectrum, and add it to each scale-table
 	buildIntervalSpectrum = function()
 
@@ -197,7 +213,7 @@ return {
 		for k, _ in pairs(data.scales) do
 
 			-- Limit wheel size to 7 notes, to quash exponential data requirements
-			if k > 7 then
+			if k > 8 then
 				do break end
 			end
 

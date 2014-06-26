@@ -114,7 +114,7 @@ D.bounds = { -- Boundaries for user-shiftable control vars
 	zoomy = {1, 16, false}, -- Y-axis zoom (note axis)
 
 	-- Generator bounds --
-	kspecies = {1, 7, true}, -- Filled scale notes
+	kspecies = {1, 8, true}, -- Filled scale notes
 	scalenum = {1, math.huge, false}, -- Grab-scales in generator
 	wheelnum = {1, math.huge, false}, -- Grab-wheels in generator
 	consonance = {0, 100, true}, -- Target consonance for generator
