@@ -79,8 +79,6 @@ D.beatlength = 32 -- Secondary beat length, decoupled from TPQ
 D.beatbound = 2 -- Number of TPQ-based beats to fill with generated notes
 D.beatgrain = 8 -- Smallest beatlength factor to which notes will stick
 D.notegrain = 2 -- Minimum note size, in ticks
-D.lownote = 28 -- Low note boundary
-D.highnote = 52 -- High note boundary
 
 -- MODE VARS --
 D.cmdmodes = { -- Mode flags for accepting certain command types
@@ -126,8 +124,6 @@ D.bounds = { -- Boundaries for user-shiftable control vars
 	beatlength = {1, math.huge, false}, -- Secondary beat length
 	beatbound = {1, math.huge, false}, -- Number of TPQ-beats to fill
 	notegrain = {1, math.huge, false}, -- Minimum note size
-	lownote = {0, 127, true}, -- Low note boundary (Meta-bound)
-	highnote = {0, 127, true}, -- High note boundary (Meta-bound)
 
 }
 
@@ -258,9 +254,9 @@ D.cmdfuncs = {
 	CONSONANCE_DOWN_10 = {"shiftInternalValue", "consonance", false, -10},
 
 	SCALE_SWITCH_UP = {"shiftInternalValue", "scaleswitch", false, 1},
-	SCALE_SWITCH_DOWN = {"shiftInternalValue", "scaleswitch", false, 1},
+	SCALE_SWITCH_DOWN = {"shiftInternalValue", "scaleswitch", false, -1},
 	SCALE_SWITCH_UP_10 = {"shiftInternalValue", "scaleswitch", false, 10},
-	SCALE_SWITCH_DOWN_10 = {"shiftInternalValue", "scaleswitch", false, 10},
+	SCALE_SWITCH_DOWN_10 = {"shiftInternalValue", "scaleswitch", false, -10},
 
 	WHEEL_SWITCH_UP = {"shiftInternalValue", "wheelswitch", false, 1},
 	WHEEL_SWITCH_DOWN = {"shiftInternalValue", "wheelswitch", false, -1},
@@ -294,16 +290,6 @@ D.cmdfuncs = {
 	NOTE_GRAIN_DOWN = {"shiftInternalValue", "notegrain", false, -1},
 	NOTE_GRAIN_UP_MULTI = {"shiftInternalValue", "notegrain", true, 2},
 	NOTE_GRAIN_DOWN_MULTI = {"shiftInternalValue", "notegrain", true, 0.5},
-
-	LOWNOTE_UP = {"shiftInternalValue", "lownote", false, 1},
-	LOWNOTE_DOWN = {"shiftInternalValue", "lownote", false, -1},
-	LOWNOTE_UP_12 = {"shiftInternalValue", "lownote", false, 12},
-	LOWNOTE_DOWN_12 = {"shiftInternalValue", "lownote", false, -12},
-
-	HIGHNOTE_UP = {"shiftInternalValue", "highnote", false, 1},
-	HIGHNOTE_DOWN = {"shiftInternalValue", "highnote", false, -1},
-	HIGHNOTE_UP_12 = {"shiftInternalValue", "highnote", false, 12},
-	HIGHNOTE_DOWN_12 = {"shiftInternalValue", "highnote", false, -12},
 
 	MOD_CHANNEL_UP = {"modNotes", "chan", 1, false},
 	MOD_CHANNEL_DOWN = {"modNotes", "chan", -1, false},

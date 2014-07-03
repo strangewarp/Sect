@@ -334,16 +334,6 @@ return {
 			NOTE_GRAIN_UP_MULTI = {"tab", "k"},
 			NOTE_GRAIN_DOWN_MULTI = {"tab", "j"},
 
-			LOWNOTE_UP = {"shift", ","},
-			LOWNOTE_DOWN = {"shift", "m"},
-			LOWNOTE_UP_12 = {"tab", ","},
-			LOWNOTE_DOWN_12 = {"tab", "m"},
-
-			HIGHNOTE_UP = {"shift", "/"},
-			HIGHNOTE_DOWN = {"shift", "."},
-			HIGHNOTE_UP_12 = {"tab", "/"},
-			HIGHNOTE_DOWN_12 = {"tab", "."},
-
 		},
 
 	},

@@ -76,9 +76,6 @@ return {
 					"beat-grain: " .. data.beatgrain,
 					"note-grain: " .. data.notegrain,
 					"",
-					"low note: " .. data.lownote,
-					"high note: " .. data.highnote,
-					"",
 				}
 				outtab = tableCombine(outtab, addtab)
 			end

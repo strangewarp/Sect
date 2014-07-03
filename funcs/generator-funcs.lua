@@ -40,12 +40,13 @@ return {
 			return nil
 		end
 
-		math.randomseed(os.time())
+		--math.randomseed(os.time())
 
 		local outnotes = {}
-
 		local genscales = {}
 		local genwheels = {}
+
+		local ticks = #data.seq[data.active].tick
 
 		-- Convert percentage-based generator vars into floats
 		local consonance = data.consonance / 100
@@ -53,9 +54,6 @@ return {
 		local wheelswitch = data.wheelswitch / 100
 		local density = data.density / 100
 		local beatstick = data.beatstick / 100
-
-		local nlow = data.lownote
-		local nhigh = math.max(nlow, data.highnote)
 
 		-- Limit wheel-species to wheel lengths that have been generated
 		local wheelspecies = math.min(7, data.kspecies)
@@ -73,16 +71,17 @@ return {
 			-- Until genscales is filled with a "data.scalenum" number of scales...
 			repeat
 
-				local dist = math.huge
+				local consodist = 0
 				local closest = {}
 
 				-- Find all scales with consonance-ranks closest to the desired consonance
 				for k, v in pairs(tempscales) do
 					local target = v.rank / data.scales[data.kspecies].ranks
-					local thisdist = math.abs(target - consonance)
-					if thisdist < dist then
+					local thisconsodist = math.abs(target - consonance)
+					if thisconsodist > consodist then
 						closest = {k}
-					elseif thisdist == dist then
+						consodist = thisconsodist
+					elseif thisconsodist == consodist then
 						table.insert(closest, k)
 					end
 				end
@@ -99,6 +98,26 @@ return {
 				end
 
 			until #genscales == data.scalenum
+
+		end
+
+		-- Rotate each selected scale to a random position, with a leading on-note.
+		for k, v in pairs(genscales) do
+
+			local rots = {}
+
+			for r = 0, 11 do
+				local newpos = rotateScale(v, r)
+				if newpos.notes[1] == 1 then
+					table.insert(rots, newpos)
+				end
+			end
+
+			local rotkey = math.random(1, #rots)
+
+			genscales[k] = rots[rotkey]
+
+			print("SCALE " .. k .. ": " .. genscales[k].bin)
 
 		end
 
@@ -126,40 +145,40 @@ return {
 		local notegrains = getGrainFactors(data.notegrain, data.beatlength)
 
 		-- Get the size of the range into which to generate a sequence
-		local limit = math.min(data.beatbound * data.tpq * 4, #data.seq[data.active].tick)
+		local limit = math.min(data.beatbound * data.tpq * 4, ticks)
 
 		-- Get initial scale, wheel, scale-pointer, and wheel-pointer
 		local scale = genscales[math.random(#genscales)]
 		local wheel = genwheels[math.random(#genwheels)]
-		local sp = math.random(#scale.filled)
+		local sp = 1
 		local wp = math.random(#wheel)
 
-		local durtotal = 0
+		local notetotal = 0
 
 		-- For every tick within the limit-range...
 		for i = 1, limit do
 
 			-- Get the concrete tick value, as offset by tick-pointer
-			local tick = wrapNum(data.tp + i - 1, 1, #data.seq[data.active].tick)
+			local tick = wrapNum(data.tp + i, 1, ticks)
 
 			-- Get the within-beatlength tick value, shifted to 0-indexing
-			local subtick = wrapNum(tick, 1, data.beatlength) - 1
+			local subtick = wrapNum(tick, 1, data.beatlength)
 
 			-- Get the current note-density threshold
-			local threshold = math.max(0, density - (durtotal / i))
+			local threshold = math.max(0, density - (notetotal / i))
 			local stickthresh = threshold - beatstick
 			local modthresh = stickthresh
 			local chance = math.random()
 
-			local okbeats = {}
-
 			-- Find all values that fit the current beat, and index acceptable ones
-			local beatfits = {}
-			for val, thresh in pairs(beatgrains) do
-				if (tick % val) == 0 then
-					modthresh = stickthresh + (val / data.beatlength)
+			local okbeats = {}
+			for thresh, dists in pairs(beatgrains) do
+				if (tick % thresh) == 0 then
+					modthresh = stickthresh + (thresh / data.beatlength) -- TODO: this is almost right
 					if modthresh > chance then
-						okbeats[thresh] = true
+						for _, val in pairs(dists) do
+							okbeats[val] = true
+						end
 					end
 				end
 			end
@@ -168,27 +187,34 @@ return {
 			-- based on scale and wheel iterators.
 			if okbeats[subtick] ~= nil then
 
-				local dur = notegrains[math.random(#notegrains)]
+				local lengths = {}
+				for k, ngrains in pairs(notegrains) do
+					for _, n in pairs(ngrains) do
+						table.insert(lengths, n)
+					end
+				end
+				table.sort(lengths)
 
-				local pitches = getTileAxisBounds(dist + scale.filled[sp], 12, nlow, nhigh)
-				local pitch = pitches[math.random(#pitches)].a
+				local dur = lengths[math.random(#lengths)]
+
+				local pitch = wrapNum(data.np + dist + sp - 1, data.bounds.np)
 
 				local note = {
-					["tick"] = tick,
-					["note"] = {
+					tick = wrapNum(tick + 1, 1, ticks),
+					note = {
 						'note',
-						tick - 1,
+						tick,
 						dur,
 						data.chan,
 						pitch,
-						data.velocity,
+						data.velo,
 					}
 				}
 
 				table.insert(outnotes, note)
 
-				-- Add the duration to the durtotal, which modifies density elsewhere
-				durtotal = durtotal + dur
+				-- Increment notetotal, which modifies note likelihood elsewhere
+				notetotal = notetotal + 1
 
 				-- Shift activity to new scales and wheels, if random thresholds are met
 				if math.random() < scaleswitch then
@@ -209,7 +235,7 @@ return {
 				end
 
 				wp = wheel[wp]
-				sp = scale.notes[scale.filled[wp]]
+				sp = scale.filled[wp]
 
 			end
 
