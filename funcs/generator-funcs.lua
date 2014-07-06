@@ -45,8 +45,11 @@ return {
 		local outnotes = {}
 		local genscales = {}
 		local genwheels = {}
+		local lengths = {}
 
 		local ticks = #data.seq[data.active].tick
+
+		local npoffset = dist + (data.tp - (data.tp % 12))
 
 		-- Convert percentage-based generator vars into floats
 		local consonance = data.consonance / 100
@@ -144,6 +147,14 @@ return {
 		local beatgrains = getGrainFactors(data.beatgrain, data.beatlength)
 		local notegrains = getGrainFactors(data.notegrain, data.beatlength)
 
+		-- Get all acceptable note-sizes
+		for k, ngrains in pairs(notegrains) do
+			for _, n in pairs(ngrains) do
+				table.insert(lengths, n)
+			end
+		end
+		table.sort(lengths)
+
 		-- Get the size of the range into which to generate a sequence
 		local limit = math.min(data.beatbound * data.tpq * 4, ticks)
 
@@ -159,7 +170,7 @@ return {
 		for i = 1, limit do
 
 			-- Get the concrete tick value, as offset by tick-pointer
-			local tick = wrapNum(data.tp + i, 1, ticks)
+			local tick = wrapNum(data.tp + i - 1, 1, ticks)
 
 			-- Get the within-beatlength tick value, shifted to 0-indexing
 			local subtick = wrapNum(tick, 1, data.beatlength)
@@ -173,8 +184,8 @@ return {
 			-- Find all values that fit the current beat, and index acceptable ones
 			local okbeats = {}
 			for thresh, dists in pairs(beatgrains) do
-				if (tick % thresh) == 0 then
-					modthresh = stickthresh + (thresh / data.beatlength) -- TODO: this is almost right
+				if (subtick % thresh) == 0 then
+					modthresh = stickthresh + (thresh / data.beatlength)
 					if modthresh > chance then
 						for _, val in pairs(dists) do
 							okbeats[val] = true
@@ -187,17 +198,11 @@ return {
 			-- based on scale and wheel iterators.
 			if okbeats[subtick] ~= nil then
 
-				local lengths = {}
-				for k, ngrains in pairs(notegrains) do
-					for _, n in pairs(ngrains) do
-						table.insert(lengths, n)
-					end
-				end
-				table.sort(lengths)
+				print(sp) -- debugging
 
 				local dur = lengths[math.random(#lengths)]
 
-				local pitch = wrapNum(data.np + dist + sp - 1, data.bounds.np)
+				local pitch = wrapNum(npoffset + sp - 1, data.bounds.np)
 
 				local note = {
 					tick = wrapNum(tick + 1, 1, ticks),
@@ -234,6 +239,7 @@ return {
 					end
 				end
 
+				-- Go to next wheel-position, and grab the scale's corresponding note
 				wp = wheel[wp]
 				sp = scale.filled[wp]
 

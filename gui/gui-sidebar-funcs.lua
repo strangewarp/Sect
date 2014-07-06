@@ -25,80 +25,77 @@ return {
 			outtab = {
 				"no seqs loaded!",
 				"",
-				table.concat(data.cmds.base.LOAD_FILE, "-"),
+				string.upper(table.concat(data.cmds.base.LOAD_FILE, "-")),
 				"opens a hotseat",
 				"",
-				table.concat(data.cmds.base.INSERT_SEQ, "-"),
+				string.upper(table.concat(data.cmds.base.INSERT_SEQ, "-")),
 				"creates a seq",
 				"",
 			}
-			printMultilineText(outtab, tleft, ttop, tright, "left")
-			ttop = ttop + (#outtab * fontheight) + roundNum(fontheight / 2, 0)
 
-		else -- Display sequence/pointer information
+		end
 
-			-- Gather and draw the metadata info
-			local oticks = #data.seq[data.active].tick
-			local obeats = tostring(roundNum(oticks / (data.tpq * 4), 2))
-			local notelet = data.pianometa[wrapNum(data.np + 1, 1, 12)][2]
-			local octave = math.floor(data.np / 12)
-			obeats = ((obeats:sub(-3, -3) == ".") and ("~" .. obeats)) or obeats
+		-- Gather and draw the metadata info
+		local oticks = (data.active and #data.seq[data.active].tick) or 0
+		local obeats = tostring(roundNum(oticks / (data.tpq * 4), 2))
+		local notelet = data.pianometa[wrapNum(data.np + 1, 1, 12)][2]
+		local octave = math.floor(data.np / 12)
+		obeats = ((obeats:sub(-3, -3) == ".") and ("~" .. obeats)) or obeats
 
-			outtab = {
-				"mode: " .. ((data.cmdmodes.entry and "entry") or "generator"),
-				"recording: " .. ((data.recording and "on") or "off"),
-				"notes: " .. ((data.drawnotes and "visible") or "hidden"),
-				"chans: " .. ((data.chanview and "visible") or "hidden"),
-				"",
-				"seq " .. data.active .. "/" .. #data.seq,
-				"beats " .. obeats,
-				"",
-				"tick " .. data.tp .. "/" .. oticks,
-				"note " .. data.np .. " (" .. notelet .. "-" .. octave .. ")",
-				"",
-			}
+		local addtab = {
+			"mode: " .. ((data.cmdmodes.entry and "entry") or "generator"),
+			"recording: " .. ((data.recording and "on") or "off"),
+			"notes: " .. ((data.drawnotes and "visible") or "hidden"),
+			"chans: " .. ((data.chanview and "visible") or "hidden"),
+			"",
+			"seq " .. (data.active or 0) .. "/" .. #data.seq,
+			"beats " .. obeats,
+			"",
+			"tick " .. data.tp .. "/" .. oticks,
+			"note " .. data.np .. " (" .. notelet .. "-" .. octave .. ")",
+			"",
+		}
+		outtab = tableCombine(outtab, addtab)
 
-			if data.cmdmodes.gen then
-				local addtab = {
-					"k-species: " .. data.kspecies,
-					"maxscales: " .. #data.scales[data.kspecies].s,
-					"grabscales: " .. data.scalenum,
-					"grabwheels: " .. data.wheelnum,
-					"consonance: " .. data.consonance .. " %",
-					"s-switch: " .. data.scaleswitch .. " %",
-					"w-switch: " .. data.wheelswitch .. " %",
-					"",
-					"density: " .. data.density .. " %",
-					"stick: " .. data.beatstick .. " %",
-					"alt-ticks: " .. data.beatlength,
-					"fill-beats: " .. data.beatbound,
-					"",
-					"beat-grain: " .. data.beatgrain,
-					"note-grain: " .. data.notegrain,
-					"",
-				}
-				outtab = tableCombine(outtab, addtab)
-			end
-
+		if data.cmdmodes.gen then
 			local addtab2 = {
-				"bpm " .. data.bpm,
-				"tpq " .. data.tpq,
+				"k-species: " .. data.kspecies,
+				"maxscales: " .. #data.scales[data.kspecies].s,
+				"grabscales: " .. data.scalenum,
+				"grabwheels: " .. data.wheelnum,
+				"consonance: " .. data.consonance .. " %",
+				"s-switch: " .. data.scaleswitch .. " %",
+				"w-switch: " .. data.wheelswitch .. " %",
 				"",
-				"chan " .. data.chan,
-				"velo " .. data.velo,
-				"duration " .. data.dur,
-				"spacing " .. data.spacing,
+				"density: " .. data.density .. " %",
+				"stick: " .. data.beatstick .. " %",
+				"alt-ticks: " .. data.beatlength,
+				"fill-beats: " .. data.beatbound,
+				"",
+				"beat-grain: " .. data.beatgrain,
+				"note-grain: " .. data.notegrain,
 				"",
 			}
 			outtab = tableCombine(outtab, addtab2)
-
-			love.graphics.setColor(data.color.font.shadow)
-			printMultilineText(outtab, tleft + 1, ttop + 1, tright, "left")
-			love.graphics.setColor(data.color.font.light)
-			printMultilineText(outtab, tleft, ttop, tright - 1, "left")
-			ttop = ttop + (#outtab * fontheight) + roundNum(fontheight / 2, 0)
-
 		end
+
+		local addtab3 = {
+			"bpm " .. data.bpm,
+			"tpq " .. data.tpq,
+			"",
+			"chan " .. data.chan,
+			"velo " .. data.velo,
+			"duration " .. data.dur,
+			"spacing " .. data.spacing,
+			"",
+		}
+		outtab = tableCombine(outtab, addtab3)
+
+		love.graphics.setColor(data.color.font.shadow)
+		printMultilineText(outtab, tleft + 1, ttop + 1, tright, "left")
+		love.graphics.setColor(data.color.font.light)
+		printMultilineText(outtab, tleft, ttop, tright - 1, "left")
+		ttop = ttop + (#outtab * fontheight) + roundNum(fontheight / 2, 0)
 
 		-- Print out the hotseats, with the currently-active one highlighted
 		outtab = {"hotseats"}

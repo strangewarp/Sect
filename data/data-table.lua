@@ -7,8 +7,8 @@ D.keys = {} -- Keystroke-tracking table
 D.overlay = {} -- Overlay-render tracking table
 
 D.active = false -- Currently active sequence (false if nothing loaded)
-D.tp = false -- Current tick-pointer position (false if nothing loaded)
-D.np = false -- Current note-pointer position (false if nothing loaded)
+D.tp = 0 -- Current tick-pointer position
+D.np = 0 -- Current note-pointer position
 
 D.tick = 1 -- Current tick occupied by the play-line position
 D.playing = false -- Toggles whether the tickline is playing or not
@@ -23,11 +23,11 @@ D.activeseat = 1 -- Currently active hotseat-name
 
 -- MIDI VARS --
 D.bpm = 120 -- Beats per minute
-D.tpq = 32 -- Ticks per quarter-note
+D.tpq = 24 -- Ticks per quarter-note
 D.chan = 0 -- Channel
 D.velo = 127 -- Velocity
-D.dur = 8 -- Duration
-D.spacing = 8 -- Spacing
+D.dur = 12 -- Duration
+D.spacing = 12 -- Spacing
 
 -- SOCKET VARS --
 D.udp = false -- Var that will hold the UDP socket
@@ -307,10 +307,10 @@ D.cmdfuncs = {
 	MOD_SEQ_UP = {"moveActiveSequence", -1, false},
 	MOD_SEQ_DOWN = {"moveActiveSequence", 1, false},
 
-	POINTER_UP = {"shiftInternalValue", "np", false, 1},
-	POINTER_DOWN = {"shiftInternalValue", "np", false, -1},
-	POINTER_UP_OCTAVE = {"shiftInternalValue", "np", false, 12},
-	POINTER_DOWN_OCTAVE = {"shiftInternalValue", "np", false, -12},
+	POINTER_UP = {"shiftInternalValue", "np", false, 1, false},
+	POINTER_DOWN = {"shiftInternalValue", "np", false, -1, false},
+	POINTER_UP_OCTAVE = {"shiftInternalValue", "np", false, 12, false},
+	POINTER_DOWN_OCTAVE = {"shiftInternalValue", "np", false, -12, false},
 	POINTER_LEFT = {"moveTickPointer", -1},
 	POINTER_RIGHT = {"moveTickPointer", 1},
 	POINTER_LEFT_BEAT = {"moveTickPointerToBeat", -1},

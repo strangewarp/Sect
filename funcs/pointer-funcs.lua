@@ -3,12 +3,7 @@ return {
 	-- Normalize all pointers (e.g. after a command that changes seq length)
 	normalizePointers = function()
 	
-		-- If no sequences are loaded, do nothing
-		if not data.active then
-			return false
-		end
-
-		local tlimit = #data.seq[data.active].tick
+		local tlimit = (data.active and #data.seq[data.active].tick) or 0
 
 		-- Normalize tick and note pointers
 		data.tp = clampNum(data.tp, 1, tlimit)
@@ -69,10 +64,11 @@ return {
 	end,
 
 	-- Shift an internal bounded value, additively or multiplicatively, by a given distance
-	shiftInternalValue = function(vname, multi, dist)
+	shiftInternalValue = function(vname, multi, dist, emptyabort)
 
 		-- If no sequences are loaded, abort the function
-		if data.active == false then
+		emptyabort = ((emptyabort == nil) and true) or emptyabort
+		if emptyabort and (data.active == false) then
 			print("shiftInternalValue: warning: no active sequence!")
 			return nil
 		end

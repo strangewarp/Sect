@@ -205,18 +205,22 @@ return {
 	-- Insert a note, with the current note-var settings
 	insertNote = function(dist, undo)
 
+		-- If the note/tick pointers don't exist, get temporary values
+		local tempnp = data.np or 0
+		local temptp = data.tp or 1
+
 		-- If a distance-from-C isn't given, set it to the note-pointer position
-		dist = dist or (data.np % 12)
+		dist = dist or (tempnp % 12)
 
 		-- Get the note-pointer position, modulated by dist-offset
-		local npoffset = dist + (data.np - (data.np % 12))
+		local npoffset = dist + (tempnp - (tempnp % 12))
 		local adjnote = clampNum(npoffset, data.bounds.np)
 
 		local n = {
-			tick = data.tp, -- 1-indexed tick start-time
+			tick = temptp, -- 1-indexed tick start-time
 			note = {
 				'note', -- MIDI.lua item command
-				data.tp - 1, -- 0-indexed tick start-time
+				temptp - 1, -- 0-indexed tick start-time
 				data.dur, -- Duration (ticks)
 				data.chan, -- Channel
 				adjnote, -- Pitch + piano key dist
