@@ -130,7 +130,14 @@ return {
 
 	img = { -- Image properties
 
-		-- Note: Set "file" to "false" (without quotes) for no image.
+		-- For no image, set "file" to "false" (without quotes).
+
+		-- Place the images you want to use in your savedata folder.
+		-- On Windows, this will be something like:
+		-- "C:/Users/YourName/AppData/Roaming/LOVE/sect".
+		-- Then simply set "file" to their filename.
+		-- Like so: --> file = "file.png",
+		-- Make sure to remember the quotes and comma!
 
 		-- xglue types: "left", "right", "center"
 		-- yglue types: "top", "bottom", "center"
