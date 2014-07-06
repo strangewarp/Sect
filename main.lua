@@ -91,7 +91,6 @@ function love.load()
 				{{"indexScalesByNoteQuantity"}, "Indexing scales by k-species..."},
 				{{"purgeEmptyScales"}, "Purging empty scales..."},
 				{{"buildConsonanceRatings"}, "Building consonance ratings..."},
-				{{"buildFilledKeys"}, "Populating on-note key tables..."},
 				{{"buildWheels"}, "Building wheels..."},
 				{{"saveScalesAndWheels"}, "Saving scale and wheel data..."},
 			}

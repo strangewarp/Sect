@@ -75,8 +75,8 @@ D.scaleswitch = 20 -- Chance to switch scales, per note
 D.wheelswitch = 20 -- Chance to switch wheels, per note
 D.density = 66 -- Melody note-density
 D.beatstick = 66 -- Likelihood for notes to favor major beats
-D.beatlength = 32 -- Secondary beat length, decoupled from TPQ
-D.beatbound = 2 -- Number of TPQ-based beats to fill with generated notes
+D.beatlength = 24 -- Secondary beat length, decoupled from TPQ
+D.beatbound = 1 -- Number of TPQ-based beats to fill with generated notes
 D.beatgrain = 8 -- Smallest beatlength factor to which notes will stick
 D.notegrain = 2 -- Minimum note size, in ticks
 

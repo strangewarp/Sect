@@ -111,22 +111,6 @@ return {
 
 	end,
 
-	-- For each scale, build a table of keys pointing to each on-note
-	buildFilledKeys = function()
-
-		for k, v in pairs(data.scales) do
-			for skey, s in pairs(v.s) do
-				data.scales[k].s[skey].filled = {}
-				for nkey, n in ipairs(s.notes) do
-					if n == 1 then
-						table.insert(data.scales[k].s[skey].filled, nkey)
-					end
-				end
-			end
-		end
-
-	end,
-
 	-- Calculate each scale's interval spectrum, and add it to each scale-table
 	buildIntervalSpectrum = function()
 
@@ -165,10 +149,12 @@ return {
 		tree = tree or {
 			["0"] = {
 				notes = {0}, -- List of notes in scale
+				filled = {}, -- Keys of filled notes in scale
 				bin = "0", -- Binary string that corresponds to note-list
 			},
 			["1"] = {
 				notes = {1},
+				filled = {1},
 				bin = "1",
 			},
 		}
@@ -182,6 +168,7 @@ return {
 			local b1, b2 = deepCopy(v), deepCopy(v)
 			table.insert(b1.notes, 0)
 			table.insert(b2.notes, 1)
+			table.insert(b2.filled, #b2.notes)
 			b1.bin = b1.bin .. "0"
 			b2.bin = b2.bin .. "1"
 			out[b1.bin] = b1
@@ -340,11 +327,16 @@ return {
 
 		local out = deepCopy(scale)
 		out.notes = {}
+		out.filled = {}
 		out.bin = ""
 
 		-- Rotate scale's notes
 		for k, v in pairs(scale.notes) do
-			out.notes[wrapNum(k + pos, 1, 12)] = v
+			local wrap = wrapNum(k + pos, 1, 12)
+			out.notes[wrap] = v
+			if v == 1 then -- Re-populate scale's "filled" table
+				table.insert(out.filled, wrap)
+			end
 		end
 
 		-- Match binary string to new note positions
