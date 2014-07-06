@@ -26,8 +26,8 @@ D.bpm = 120 -- Beats per minute
 D.tpq = 24 -- Ticks per quarter-note
 D.chan = 0 -- Channel
 D.velo = 127 -- Velocity
-D.dur = 12 -- Duration
-D.spacing = 12 -- Spacing
+D.dur = 24 -- Duration
+D.spacing = 24 -- Spacing
 
 -- SOCKET VARS --
 D.udp = false -- Var that will hold the UDP socket

@@ -15,7 +15,7 @@ return {
 		love.graphics.rectangle("fill", 0, 0, width, height)
 
 		-- Draw background-image
-		love.graphics.draw(loadingbg, width - loadingbg:getWidth(), 0)
+		drawBoundedImage(0, 0, width, height, data.img.loading)
 
 		-- Draw loading text-shadows
 		love.graphics.setColor(data.color.loading.text_shadow)

@@ -200,6 +200,9 @@ return {
 		love.graphics.setColor(data.color.seq.light)
 		love.graphics.rectangle("fill", left, top, xfull, yfull)
 
+		-- Render the seq-window's background-image
+		drawBoundedImage(left, top, xfull, yfull, data.img.grid)
+
 		-- Set color for rendering darkened rows
 		love.graphics.setColor(data.color.seq.dark)
 

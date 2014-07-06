@@ -72,7 +72,7 @@ return {
 		},
 
 		seq = { -- Sequence-roll colors
-			dark = {180, 180, 190, 255},
+			dark = {10, 10, 18, 50},
 			light = {200, 200, 209, 255},
 			beat = {0, 0, 220, 250},
 			active = {255, 0, 0, 200},
@@ -124,6 +124,39 @@ return {
 			background = {70, 70, 80, 255},
 			text = {210, 210, 200, 255},
 			text_shadow = {50, 55, 55, 255},
+		},
+
+	},
+
+	img = { -- Image properties
+
+		-- Note: Set "file" to "false" (without quotes) for no image.
+
+		-- xglue types: "left", "right", "center"
+		-- yglue types: "top", "bottom", "center"
+
+		sidebar = { -- Sidebar
+			file = "img/biglogo.png",
+			xglue = "center",
+			yglue = "bottom",
+		},
+
+		botbar = { -- Bottom-bar
+			file = false,
+			xglue = "center",
+			yglue = "center",
+		},
+
+		grid = { -- Sequence-grid
+			file = false,
+			xglue = "center",
+			yglue = "center",
+		},
+
+		loading = { -- Loading screen
+			file = "img/loadingbg.png",
+			xglue = "center",
+			yglue = "center",
 		},
 
 	},

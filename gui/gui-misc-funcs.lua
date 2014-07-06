@@ -42,6 +42,39 @@ return {
 
 	end,
 
+	-- Draw an image in the specified area, aligned in a certain way
+	drawBoundedImage = function(left, top, width, height, imgtab)
+
+		-- If the raster doesn't exist, abort function
+		if not imgtab.raster then
+			return nil
+		end
+
+		local l = left
+		local t = top
+
+		if imgtab.xglue == "right" then
+			l = left + (width - imgtab.width)
+		elseif imgtab.xglue == "center" then
+			l = left + ((width - imgtab.width) / 2)
+		end
+
+		if imgtab.yglue == "bottom" then
+			t = top + (height - imgtab.height)
+		elseif imgtab.yglue == "center" then
+			t = top + ((height - imgtab.height) / 2)
+		end
+
+		love.graphics.setStencil(
+			function()
+				love.graphics.rectangle("fill", left, top, width, height)
+			end
+		)
+		love.graphics.draw(imgtab.raster, l, t)
+		love.graphics.setStencil(nil)
+
+	end,
+
 	-- Mix two colors, with the average biased in the given direction.
 	-- Var "bias" must be a float in range 0.0 to 1.0.
 	mixColors = function(c1, c2, bias)
@@ -137,6 +170,17 @@ return {
 
 		return whitedraw, blackdraw
 
+	end,
+
+	-- Preload all GUI-theme images
+	preloadImages = function()
+		for k, v in pairs(data.img) do
+			if v.file then
+				data.img[k].raster = love.graphics.newImage(v.file)
+				data.img[k].width = data.img[k].raster:getWidth()
+				data.img[k].height = data.img[k].raster:getHeight()
+			end
+		end
 	end,
 
 	-- Given a table of strings, xy coordinates, and a line-height value, print out multiple stacked lines of text

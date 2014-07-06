@@ -72,7 +72,11 @@ function love.load()
 		prefs = require('userprefs')
 	end
 
+	-- Put the prefs into the data object
 	tableToNewContext(data, prefs)
+
+	-- Preload all GUI-theme images
+	preloadImages()
 
 	-- If combinatoric data tables don't exist, generate and store them
 	if (not love.filesystem.exists("scales.lua"))

@@ -12,8 +12,8 @@ return {
 		love.graphics.setColor(data.color.window.mid)
 		love.graphics.rectangle("fill", left, top, right, bot)
 
-		-- Draw the Sect logo
-		love.graphics.draw(sectlogo, left, top + bot - sectlogo:getHeight())
+		-- Draw the sidebar image
+		drawBoundedImage(left, top, right, bot, data.img.sidebar)
 
 		-- Set the font-color
 		love.graphics.setColor(data.color.font.light)
@@ -132,6 +132,8 @@ return {
 
 		love.graphics.setColor(data.color.window.dark)
 		love.graphics.rectangle("fill", left, top, width, height)
+
+		drawBoundedImage(left, top, width, height, data.img.botbar)
 
 		local seqs = #data.seq
 
