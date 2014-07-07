@@ -39,4 +39,15 @@ return {
 
 	end,
 
+	-- Preload all GUI-theme images
+	preloadImages = function()
+		for k, v in pairs(data.img) do
+			if v.file then
+				data.img[k].raster = love.graphics.newImage(v.file)
+				data.img[k].width = data.img[k].raster:getWidth()
+				data.img[k].height = data.img[k].raster:getHeight()
+			end
+		end
+	end,
+
 }

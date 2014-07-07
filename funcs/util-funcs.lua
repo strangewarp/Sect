@@ -347,6 +347,13 @@ return {
 	-- Compare the contents of two tables, including element-ordering
 	strictCompare = function(t, t2)
 
+		if type(t) ~= "table" then
+			if t ~= t2 then
+				return false
+			end
+			return true
+		end
+
 		if #t ~= #t2 then
 			return false
 		end

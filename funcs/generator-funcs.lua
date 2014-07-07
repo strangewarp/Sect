@@ -49,7 +49,7 @@ return {
 
 		local ticks = #data.seq[data.active].tick
 
-		local npoffset = dist + (data.tp - (data.tp % 12))
+		local npoffset = dist + (data.np - (data.np % 12))
 
 		-- Convert percentage-based generator vars into floats
 		local consonance = data.consonance / 100
@@ -120,7 +120,7 @@ return {
 
 			genscales[k] = rots[rotkey]
 
-			print("SCALE " .. k .. ": " .. genscales[k].bin)
+			print("SCALE " .. k .. ": " .. genscales[k].bin) -- debugging
 
 		end
 
@@ -143,8 +143,69 @@ return {
 
 		end
 
-		-- Get all beat and note grains of the secondary non-TPQ beatlength
-		local beatgrains = getGrainFactors(data.beatgrain, data.beatlength)
+		local beatfactors = getFactors(data.beatlength)
+
+		-- Get all beat-factors equal to or larger than the beatgrain
+		for i = #beatfactors, 1, -1 do
+			if beatfactors[i] < data.beatgrain then
+				table.remove(beatfactors, i)
+			end
+		end
+
+		-- If no beat-factors were smaller than beatgrain, use beatlength instead
+		if #beatfactors == 0 then
+
+			table.insert(beatfactors, data.beatlength)
+
+		-- Else, if there's more than one beatfactor...
+		elseif #beatfactors > 1 then
+
+			-- Double every factor, until surpassing the beatbound limit
+			local newfactors = {}
+			local larger = false
+			local i = 2
+			while not larger do
+				for k, v in pairs(beatfactors) do
+					local nf = v * i
+					if nf < (data.beatbound * data.tpq * 4) then
+						table.insert(newfactors, nf)
+					else
+						larger = true
+					end
+				end
+				i = i + 1
+			end
+
+			-- Combine the new-factors and old-factors, remove duplicates, and sort
+			beatfactors = tableCombine(beatfactors, newfactors)
+			print(table.concat(beatfactors, ", "))
+			removeDuplicates(beatfactors)
+			table.sort(beatfactors)
+
+			-- Generate sub-factors
+			for i = #beatfactors, 2, -1 do
+				for i2 = i - 1, 1, -1 do
+					local twofactors = beatfactors[i] + beatfactors[i2]
+					if twofactors < (data.beatbound * data.tpq * 4) then
+						table.insert(beatfactors, twofactors)
+					end
+				end
+			end
+
+			-- Remove duplicate sub-factors
+			removeDuplicates(beatfactors)
+
+			-- Insert the base tick
+			table.insert(beatfactors, 1, 0)
+
+			-- Make the beat-factors correspond to the 1-indexing of ticks
+			for i = 1, #beatfactors do
+				beatfactors[i] = beatfactors[i] + 1
+			end
+
+		end
+
+		-- Get all note grains of the secondary non-TPQ beatlength
 		local notegrains = getGrainFactors(data.notegrain, data.beatlength)
 
 		-- Get all acceptable note-sizes
@@ -155,10 +216,7 @@ return {
 		end
 		table.sort(lengths)
 
-		-- Get the size of the range into which to generate a sequence
-		local limit = math.min(data.beatbound * data.tpq * 4, ticks)
-
-		-- Get initial scale, wheel, scale-pointer, and wheel-pointer
+		-- Get initial scale, wheel, scale-pointer, and wheel-pointer vals
 		local scale = genscales[math.random(#genscales)]
 		local wheel = genwheels[math.random(#genwheels)]
 		local sp = 1
@@ -166,86 +224,68 @@ return {
 
 		local notetotal = 0
 
-		-- For every tick within the limit-range...
-		for i = 1, limit do
+		-- Until a number of ticks comparable to the density threshold are filled...
+		repeat
 
-			-- Get the concrete tick value, as offset by tick-pointer
-			local tick = wrapNum(data.tp + i - 1, 1, ticks)
+			-- Get a random tick from the acceptable beat-factors
+			local tick = table.remove(beatfactors, math.random(#beatfactors))
 
-			-- Get the within-beatlength tick value, shifted to 0-indexing
-			local subtick = wrapNum(tick, 1, data.beatlength)
+			-- If no tick was found, break from the loop
+			if not tick then do break end end
 
-			-- Get the current note-density threshold
-			local threshold = math.max(0, density - (notetotal / i))
-			local stickthresh = threshold - beatstick
-			local modthresh = stickthresh
-			local chance = math.random()
+			-- Get a random duration from the acceptable note-lengths
+			local dur = lengths[math.random(#lengths)]
 
-			-- Find all values that fit the current beat, and index acceptable ones
-			local okbeats = {}
-			for thresh, dists in pairs(beatgrains) do
-				if (subtick % thresh) == 0 then
-					modthresh = stickthresh + (thresh / data.beatlength)
-					if modthresh > chance then
-						for _, val in pairs(dists) do
-							okbeats[val] = true
-						end
-					end
-				end
-			end
+			-- Get a pitch, bounded within an octave from the given note
+			local pitch = wrapNum(npoffset + sp - 1, data.bounds.np)
 
-			-- If the subtick is acceptable, put a note of some kind into outnotes,
-			-- based on scale and wheel iterators.
-			if okbeats[subtick] ~= nil then
-
-				print(sp) -- debugging
-
-				local dur = lengths[math.random(#lengths)]
-
-				local pitch = wrapNum(npoffset + sp - 1, data.bounds.np)
-
-				local note = {
-					tick = wrapNum(tick + 1, 1, ticks),
-					note = {
-						'note',
-						tick,
-						dur,
-						data.chan,
-						pitch,
-						data.velo,
-					}
+			local note = {
+				tick = tick,
+				note = {
+					'note',
+					tick - 1,
+					dur,
+					data.chan,
+					pitch,
+					data.velo,
 				}
+			}
 
-				table.insert(outnotes, note)
+			table.insert(outnotes, note)
 
-				-- Increment notetotal, which modifies note likelihood elsewhere
-				notetotal = notetotal + 1
+			-- Increment notetotal, which modifies note likelihood elsewhere
+			notetotal = notetotal + data.beatgrain
 
-				-- Shift activity to new scales and wheels, if random thresholds are met
-				if math.random() < scaleswitch then
-					if #genscales > 1 then
-						local oldscale = scale
-						repeat
-							scale = genscales[math.random(#genscales)]
-						until oldscale ~= scale
-					end
+			-- Shift activity to new scales and wheels, if random thresholds are met
+			if math.random() < scaleswitch then
+				if #genscales > 1 then
+					local oldscale = scale
+					repeat
+						scale = genscales[math.random(#genscales)]
+					until oldscale ~= scale
 				end
-				if math.random() < wheelswitch then
-					if #genwheels > 1 then
-						local oldwheel = wheel
-						repeat
-							wheel = genwheels[math.random(#genwheels)]
-						until oldwheel ~= wheel
-					end
+			end
+			if math.random() < wheelswitch then
+				if #genwheels > 1 then
+					local oldwheel = wheel
+					repeat
+						wheel = genwheels[math.random(#genwheels)]
+					until oldwheel ~= wheel
 				end
-
-				-- Go to next wheel-position, and grab the scale's corresponding note
-				wp = wheel[wp]
-				sp = scale.filled[wp]
-
 			end
 
-		end
+			-- Go to next wheel-position, and grab the scale's corresponding note
+			wp = wheel[wp]
+			sp = scale.filled[wp]
+			
+		until notetotal >= (ticks * density)
+
+
+
+
+
+
+
 
 		setNotes(data.active, outnotes, undo)
 

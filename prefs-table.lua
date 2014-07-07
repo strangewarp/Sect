@@ -71,8 +71,8 @@ return {
 			labeldark = {40, 40, 35, 255},
 		},
 
-		seq = { -- Sequence-roll colors
-			dark = {10, 10, 18, 50},
+		seq = { -- Sequence-grid colors
+			dark = {10, 5, 108, 50},
 			light = {200, 200, 209, 255},
 			beat = {0, 0, 220, 250},
 			active = {255, 0, 0, 200},
