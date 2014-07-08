@@ -261,6 +261,26 @@ return {
 
 	end,
 
+	-- Get a new random key from a given table, or if table has one entry, return old key.
+	getNewRandomKey = function(t, k)
+		if #t > 1 then
+			local oldk = k
+			repeat
+				k = math.random(#t)
+			until k ~= oldk
+		end
+		return k
+	end,
+
+	-- Get a new key from a given table, if a random float exceeds the threshold
+	getNewThresholdKey = function(t, k, thresh)
+		thresh = thresh or 1
+		if (math.random() < thresh) then
+			k = getNewRandomKey(t, k)
+		end
+		return k
+	end,
+
 	-- Compare two flat, ordered tables, and return true on exact match.
 	orderedCompare = function(t, t2)
 

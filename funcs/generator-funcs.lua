@@ -1,6 +1,8 @@
 
 return {
 
+	-- Get all factors within a given beat, down to grain size,
+	-- combined and doubled up to the fill-limit.
 	getGrainFactors = function(beat, grain, fill, putzero, increase)
 
 		local factors = getFactors(beat)
@@ -94,8 +96,6 @@ return {
 
 		-- Convert percentage-based generator vars into floats
 		local consonance = data.consonance / 100
-		local scaleswitch = data.scaleswitch / 100
-		local wheelswitch = data.wheelswitch / 100
 		local density = data.density / 100
 		local beatstick = data.beatstick / 100
 
@@ -212,8 +212,8 @@ return {
 		table.sort(putticks)
 
 		-- Get initial scale, wheel, scale-pointer, and wheel-pointer vals
-		local scale = genscales[math.random(#genscales)]
-		local wheel = genwheels[math.random(#genwheels)]
+		local snum, wnum = math.random(#genscales), math.random(#genwheels)
+		local scale, wheel = genscales[snum], genwheels[wnum]
 		local sp = scale.filled[math.random(#scale.filled)]
 		local wp = math.random(#wheel)
 
@@ -221,6 +221,9 @@ return {
 
 		-- Fill all selected ticks with wheel-controlled scale notes.
 		for _, tick in ipairs(putticks) do
+
+			-- Wrap all putticks to the sequence range
+			tick = wrapNum(tick, 1, ticks)
 
 			-- Get a random duration from the acceptable note-lengths
 			local dur = notefactors[math.random(#notefactors)]
@@ -245,25 +248,11 @@ return {
 			-- Increment notetotal, which modifies note likelihood elsewhere
 			notetotal = notetotal + data.beatgrain
 
-			-- Shift activity to new scales and wheels, if random thresholds are met
-			if math.random() < scaleswitch then
-				if #genscales > 1 then
-					local oldscale = scale
-					repeat
-						scale = genscales[math.random(#genscales)]
-					until oldscale ~= scale
-				end
-			end
-			if math.random() < wheelswitch then
-				if #genwheels > 1 then
-					local oldwheel = wheel
-					repeat
-						wheel = genwheels[math.random(#genwheels)]
-					until oldwheel ~= wheel
-				end
-			end
-
-			-- Go to next wheel-position, and grab the scale's corresponding note
+			-- Increment all scale and wheel positions
+			snum = getNewThresholdKey(genscales, snum, data.scaleswitch / 100)
+			wnum = getNewThresholdKey(genwheels, wnum, data.wheelswitch / 100)
+			scale = genscales[snum]
+			wheel = genwheels[wnum]
 			wp = wheel[wp]
 			sp = scale.filled[wp]
 
