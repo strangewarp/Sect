@@ -1,37 +1,6 @@
 
 return {
 
-	-- Get all grain lengths that are factors of "max", down to "min",
-	-- plus combinations of said factors, up to "max".
-	getGrainFactors = function(min, max)
-
-		local factors = getFactors(max)
-		local grains = {}
-
-		-- Remove all factors smaller than min
-		for i = #factors, 1, -1 do
-			if factors[i] < min then
-				table.remove(factors, i)
-			end
-		end
-
-		-- If all factors were removed, add max as the only factor
-		if #factors == 0 then
-			factors[1] = max
-		end
-
-		-- For every factor, add its multiples in the same grain-species
-		for k, v in ipairs(factors) do
-			grains[v] = {v}
-			for i = v * 2, max, v do
-				table.insert(grains[v], i)
-			end
-		end
-
-		return grains
-
-	end,
-
 	-- Generate a sequence of notes, following user-defined parameters
 	generateSeqNotes = function(seq, dist, undo)
 
@@ -120,7 +89,7 @@ return {
 
 			genscales[k] = rots[rotkey]
 
-			print("SCALE " .. k .. ": " .. genscales[k].bin) -- debugging
+			print("SCALE " .. k .. "(" .. rotkey .. "): " .. genscales[k].bin .. " - " .. table.concat(genscales[k].filled, "-")) -- debugging
 
 		end
 
@@ -144,6 +113,7 @@ return {
 		end
 
 		local beatfactors = getFactors(data.beatlength)
+		local notefactors = deepCopy(beatfactors)
 
 		-- Get all beat-factors equal to or larger than the beatgrain
 		for i = #beatfactors, 1, -1 do
@@ -178,7 +148,6 @@ return {
 
 			-- Combine the new-factors and old-factors, remove duplicates, and sort
 			beatfactors = tableCombine(beatfactors, newfactors)
-			print(table.concat(beatfactors, ", "))
 			removeDuplicates(beatfactors)
 			table.sort(beatfactors)
 
@@ -192,12 +161,13 @@ return {
 				end
 			end
 
-			-- Remove duplicate sub-factors
+			-- Remove duplicate sub-factors, insert the base tick, and sort again
 			removeDuplicates(beatfactors)
-
-			-- Insert the base tick
 			table.insert(beatfactors, 1, 0)
+			table.sort(beatfactors)
 
+			print(table.concat(beatfactors, ", ")) -- debugging
+			
 			-- Make the beat-factors correspond to the 1-indexing of ticks
 			for i = 1, #beatfactors do
 				beatfactors[i] = beatfactors[i] + 1
@@ -205,16 +175,15 @@ return {
 
 		end
 
-		-- Get all note grains of the secondary non-TPQ beatlength
-		local notegrains = getGrainFactors(data.notegrain, data.beatlength)
-
-		-- Get all acceptable note-sizes
-		for k, ngrains in pairs(notegrains) do
-			for _, n in pairs(ngrains) do
-				table.insert(lengths, n)
+		-- Generate all acceptable note-sizes
+		for i = #notefactors, 1, -1 do
+			if notefactors[i] < data.notegrain then
+				table.remove(notefactors, i)
 			end
 		end
-		table.sort(lengths)
+		if #notefactors == 0 then
+			table.insert(notefactors, data.notegrain)
+		end
 
 		-- Get initial scale, wheel, scale-pointer, and wheel-pointer vals
 		local scale = genscales[math.random(#genscales)]
@@ -224,61 +193,66 @@ return {
 
 		local notetotal = 0
 
-		-- Until a number of ticks comparable to the density threshold are filled...
+		-- Until a number of ticks comparable to the density threshold are filled,
+		-- or no unclaimed beatfactors remain...
 		repeat
 
 			-- Get a random tick from the acceptable beat-factors
 			local tick = table.remove(beatfactors, math.random(#beatfactors))
 
-			-- If no tick was found, break from the loop
-			if not tick then do break end end
+			if math.random() < density then
 
-			-- Get a random duration from the acceptable note-lengths
-			local dur = lengths[math.random(#lengths)]
+				-- Get a random duration from the acceptable note-lengths
+				local dur = notefactors[math.random(#notefactors)]
 
-			-- Get a pitch, bounded within an octave from the given note
-			local pitch = wrapNum(npoffset + sp - 1, data.bounds.np)
+				-- Get a pitch, bounded within an octave from the given note
+				local pitch = wrapNum(npoffset + sp - 1, data.bounds.np)
 
-			local note = {
-				tick = tick,
-				note = {
-					'note',
-					tick - 1,
-					dur,
-					data.chan,
-					pitch,
-					data.velo,
+				print(sp) -- debugging
+
+				local note = {
+					tick = tick,
+					note = {
+						'note',
+						tick - 1,
+						dur,
+						data.chan,
+						pitch,
+						data.velo,
+					}
 				}
-			}
 
-			table.insert(outnotes, note)
+				table.insert(outnotes, note)
 
-			-- Increment notetotal, which modifies note likelihood elsewhere
-			notetotal = notetotal + data.beatgrain
+				-- Increment notetotal, which modifies note likelihood elsewhere
+				notetotal = notetotal + data.beatgrain
 
-			-- Shift activity to new scales and wheels, if random thresholds are met
-			if math.random() < scaleswitch then
-				if #genscales > 1 then
-					local oldscale = scale
-					repeat
-						scale = genscales[math.random(#genscales)]
-					until oldscale ~= scale
+				-- Shift activity to new scales and wheels, if random thresholds are met
+				if math.random() < scaleswitch then
+					if #genscales > 1 then
+						local oldscale = scale
+						repeat
+							scale = genscales[math.random(#genscales)]
+						until oldscale ~= scale
+					end
 				end
-			end
-			if math.random() < wheelswitch then
-				if #genwheels > 1 then
-					local oldwheel = wheel
-					repeat
-						wheel = genwheels[math.random(#genwheels)]
-					until oldwheel ~= wheel
+				if math.random() < wheelswitch then
+					if #genwheels > 1 then
+						local oldwheel = wheel
+						repeat
+							wheel = genwheels[math.random(#genwheels)]
+						until oldwheel ~= wheel
+					end
 				end
-			end
 
-			-- Go to next wheel-position, and grab the scale's corresponding note
-			wp = wheel[wp]
-			sp = scale.filled[wp]
+				-- Go to next wheel-position, and grab the scale's corresponding note
+				wp = wheel[wp]
+				sp = scale.filled[wp]
+
+			end
 			
-		until notetotal >= (ticks * density)
+		until (notetotal >= (ticks * density))
+		or (#beatfactors == 0)
 
 
 
