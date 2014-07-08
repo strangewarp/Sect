@@ -3,9 +3,11 @@ return {
 
 	-- Get all factors within a given beat, down to grain size,
 	-- combined and doubled up to the fill-limit.
-	getGrainFactors = function(beat, grain, fill, putzero, increase)
+	getGrainFactors = function(beat, grain, fill, stick, putzero, increase)
 
-		local factors = getFactors(beat)
+		local beatfactors = getFactors(beat)
+		local factors = deepCopy(beatfactors)
+		local weights = {}
 
 		-- Get all beat-factors equal to or larger than the beatgrain
 		for i = #factors, 1, -1 do
@@ -64,7 +66,28 @@ return {
 		removeDuplicates(factors)
 		table.sort(factors)
 
-		print(table.concat(factors, ", ")) -- debugging
+		-- Get the weight values for each beat's prominence level
+		for k, v in pairs(factors) do
+			local vmod = v % beat
+			local vadd = 0
+			for kk, vv in pairs(beatfactors) do
+				if ((vv % vmod) == 0) or ((vmod % vv) == 0) then
+					vadd = vadd + 1
+				end
+			end
+			weights[v] = vadd ^ (3 * stick)
+		end
+
+		-- Get the total sum of all weight values
+		local wtotal = 0
+		for k, v in pairs(weights) do
+			wtotal = wtotal + v
+		end
+
+		for k, v in pairs(factors) do -- debugging
+			print(v .. ": " .. weights[v]) -- debugging
+		end
+		print("total " .. wtotal) -- debugging
 		
 		-- Make beat-factors correspond to the 1-indexing, if increase-flag is true
 		if increase then
@@ -73,7 +96,7 @@ return {
 			end
 		end
 
-		return factors
+		return factors, weights, wtotal
 
 	end,
 
@@ -184,27 +207,61 @@ return {
 
 		end
 
-		local beatfactors = getGrainFactors(
+		local beatfactors, beatweights, bwtotal = getGrainFactors(
 			data.beatlength, -- Factor source: non-TPQ secondary beat-length
 			data.beatgrain, -- Minimal acceptable factor size
 			data.beatbound * data.tpq * 4, -- Doubling limit: beatmod times beats
+			beatstick, -- Modifies stickiness of prominent beats
 			true, -- Insert a 0 into the factor list's first position
 			true -- Increase each factor by 1
 		)
 
-		local notefactors = getGrainFactors(
+		local notefactors, _, _ = getGrainFactors(
 			data.beatlength,
 			data.notegrain,
 			data.beatlength,
+			beatstick,
 			false,
 			false
 		)
 
 		-- Select the ticks that will be used to allocate notes,
-		-- based on random chance, until the density quotient is fulfilled.
+		-- based on random chance and beat-factor stickiness,
+		-- until the density quotient is fulfilled.
 		repeat
-			local newput = table.remove(beatfactors, math.random(#beatfactors))
-			table.insert(putticks, newput)
+
+			-- Get a random value that covers all integers,
+			-- plus all decimal values, plus the remainder.
+			local wint, wmod = math.modf(bwtotal)
+			local weightrand = math.random(0, wint - 1) + (math.random() * wmod) + math.random()
+
+			local wbot, wtop = 0, 0
+
+			-- Find the beat-value whose threshold catches the random value
+			for k, v in ipairs(beatfactors) do
+
+				-- Get the current weight range
+				local weight = beatweights[v - 1]
+				wbot = wtop
+				wtop = wtop + weight
+
+				-- If the random value is within the current weight range...
+				if rangeCheck(weightrand, wbot, wtop) then
+
+					-- Reduce the beat-weight total by the current weight
+					bwtotal = bwtotal - weight
+
+					-- Remove the beat from factors-table, and put it into the selected-ticks table
+					table.insert(putticks, table.remove(beatfactors, k))
+
+					print(weightrand) -- debugging
+
+					break
+
+				end
+
+			end
+
 		until ((#putticks * data.beatgrain) >= (ticks * density))
 		or (#beatfactors == 0)
 
