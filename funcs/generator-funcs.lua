@@ -9,12 +9,10 @@ return {
 			return nil
 		end
 
-		--math.randomseed(os.time())
-
 		local outnotes = {}
 		local genscales = {}
 		local genwheels = {}
-		local lengths = {}
+		local putticks = {}
 
 		local ticks = #data.seq[data.active].tick
 
@@ -185,81 +183,74 @@ return {
 			table.insert(notefactors, data.notegrain)
 		end
 
+		-- Select the ticks that will be used to allocate notes,
+		-- based on random chance, until the density quotient is fulfilled.
+		repeat
+			local newput = table.remove(beatfactors, math.random(#beatfactors))
+			table.insert(putticks, newput)
+		until ((#putticks * data.beatgrain) >= (ticks * density))
+		or (#beatfactors == 0)
+
+		-- Sort the selected ticks by position
+		table.sort(putticks)
+
 		-- Get initial scale, wheel, scale-pointer, and wheel-pointer vals
 		local scale = genscales[math.random(#genscales)]
 		local wheel = genwheels[math.random(#genwheels)]
-		local sp = 1
+		local sp = scale.filled[math.random(#scale.filled)]
 		local wp = math.random(#wheel)
 
 		local notetotal = 0
 
-		-- Until a number of ticks comparable to the density threshold are filled,
-		-- or no unclaimed beatfactors remain...
-		repeat
+		-- Fill all selected ticks with wheel-controlled scale notes.
+		for _, tick in ipairs(putticks) do
 
-			-- Get a random tick from the acceptable beat-factors
-			local tick = table.remove(beatfactors, math.random(#beatfactors))
+			-- Get a random duration from the acceptable note-lengths
+			local dur = notefactors[math.random(#notefactors)]
 
-			if math.random() < density then
+			-- Get a pitch, bounded within an octave from the given note
+			local pitch = wrapNum(npoffset + sp - 1, data.bounds.np)
 
-				-- Get a random duration from the acceptable note-lengths
-				local dur = notefactors[math.random(#notefactors)]
-
-				-- Get a pitch, bounded within an octave from the given note
-				local pitch = wrapNum(npoffset + sp - 1, data.bounds.np)
-
-				print(sp) -- debugging
-
-				local note = {
-					tick = tick,
-					note = {
-						'note',
-						tick - 1,
-						dur,
-						data.chan,
-						pitch,
-						data.velo,
-					}
+			local note = {
+				tick = tick,
+				note = {
+					'note',
+					tick - 1,
+					dur,
+					data.chan,
+					pitch,
+					data.velo,
 				}
+			}
 
-				table.insert(outnotes, note)
+			table.insert(outnotes, note)
 
-				-- Increment notetotal, which modifies note likelihood elsewhere
-				notetotal = notetotal + data.beatgrain
+			-- Increment notetotal, which modifies note likelihood elsewhere
+			notetotal = notetotal + data.beatgrain
 
-				-- Shift activity to new scales and wheels, if random thresholds are met
-				if math.random() < scaleswitch then
-					if #genscales > 1 then
-						local oldscale = scale
-						repeat
-							scale = genscales[math.random(#genscales)]
-						until oldscale ~= scale
-					end
+			-- Shift activity to new scales and wheels, if random thresholds are met
+			if math.random() < scaleswitch then
+				if #genscales > 1 then
+					local oldscale = scale
+					repeat
+						scale = genscales[math.random(#genscales)]
+					until oldscale ~= scale
 				end
-				if math.random() < wheelswitch then
-					if #genwheels > 1 then
-						local oldwheel = wheel
-						repeat
-							wheel = genwheels[math.random(#genwheels)]
-						until oldwheel ~= wheel
-					end
-				end
-
-				-- Go to next wheel-position, and grab the scale's corresponding note
-				wp = wheel[wp]
-				sp = scale.filled[wp]
-
 			end
-			
-		until (notetotal >= (ticks * density))
-		or (#beatfactors == 0)
+			if math.random() < wheelswitch then
+				if #genwheels > 1 then
+					local oldwheel = wheel
+					repeat
+						wheel = genwheels[math.random(#genwheels)]
+					until oldwheel ~= wheel
+				end
+			end
 
+			-- Go to next wheel-position, and grab the scale's corresponding note
+			wp = wheel[wp]
+			sp = scale.filled[wp]
 
-
-
-
-
-
+		end
 
 		setNotes(data.active, outnotes, undo)
 
