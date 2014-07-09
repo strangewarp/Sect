@@ -298,8 +298,6 @@ return {
 						#data.seq[data.active].tick
 					)
 					temp.note[2] = temp.tick - 1
-				elseif index == 3 then
-					temp.note[3] = clampNum(temp.note[3] + dist, 1, #data.seq[data.active].tick)
 				end
 
 				-- If the modification resulted in a change,

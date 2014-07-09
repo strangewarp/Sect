@@ -435,6 +435,15 @@ return {
 			a, b = unpack(a)
 		end
 
+		-- If either of the limits is infinite, treat them as equal to n;
+		-- and if n is to be bounded, set said limit to the opposite bound.
+		if a == -math.huge then
+			a = math.min(b, n)
+		end
+		if b == math.huge then
+			b = math.max(a, n)
+		end
+
 		-- Return the wrapped number
 		return ((n - a) % ((b + 1) - a)) + a
 

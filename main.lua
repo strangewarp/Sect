@@ -78,6 +78,9 @@ function love.load()
 	-- Preload all GUI-theme images
 	preloadImages()
 
+	-- Get a new time-based random-seed for the entire session
+	math.randomseed(os.time())
+
 	-- If combinatoric data tables don't exist, generate and store them
 	if (not love.filesystem.exists("scales.lua"))
 	or (not love.filesystem.exists("wheels.lua"))

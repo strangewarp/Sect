@@ -259,6 +259,9 @@ return {
 			SPACING_UP_MULTI = {"shift", "'"},
 			SPACING_DOWN_MULTI = {"shift", ";"},
 
+			MOD_DUR_INCREASE = {"shift", "tab", "right"},
+			MOD_DUR_DECREASE = {"shift", "tab", "left"},
+
 			MOD_CHANNEL_UP = {"shift", "tab", "up"},
 			MOD_CHANNEL_DOWN = {"shift", "tab", "down"},
 

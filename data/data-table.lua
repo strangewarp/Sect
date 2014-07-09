@@ -291,6 +291,9 @@ D.cmdfuncs = {
 	NOTE_GRAIN_UP_MULTI = {"shiftInternalValue", "notegrain", true, 2},
 	NOTE_GRAIN_DOWN_MULTI = {"shiftInternalValue", "notegrain", true, 0.5},
 
+	MOD_DUR_INCREASE = {"modNotes", "dur", 1, false},
+	MOD_DUR_DECREASE = {"modNotes", "dur", -1, false},
+
 	MOD_CHANNEL_UP = {"modNotes", "chan", 1, false},
 	MOD_CHANNEL_DOWN = {"modNotes", "chan", -1, false},
 
