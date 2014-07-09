@@ -328,6 +328,8 @@ D.cmdfuncs = {
 
 	SEQ_TAB_UP = {"tabActiveSeq", -1},
 	SEQ_TAB_DOWN = {"tabActiveSeq", 1},
+	SEQ_TAB_UP_10 = {"tabActiveSeq", -10},
+	SEQ_TAB_DOWN_10 = {"tabActiveSeq", 10},
 
 	EXTROVERT_LOAD_FILE = {"sendExtrovertCommand", "loadmidi"},
 

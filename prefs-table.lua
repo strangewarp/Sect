@@ -275,8 +275,8 @@ return {
 			MOD_VELOCITY_UP_10 = {"shift", "tab", "pageup"},
 			MOD_VELOCITY_DOWN_10 = {"shift", "tab", "pagedown"},
 
-			MOD_SEQ_UP = {"shift", "pageup"},
-			MOD_SEQ_DOWN = {"shift", "pagedown"},
+			MOD_SEQ_UP = {"ctrl", "pageup"},
+			MOD_SEQ_DOWN = {"ctrl", "pagedown"},
 
 			POINTER_UP = {"up"},
 			POINTER_DOWN = {"down"},
@@ -296,6 +296,8 @@ return {
 
 			SEQ_TAB_UP = {"pageup"},
 			SEQ_TAB_DOWN = {"pagedown"},
+			SEQ_TAB_UP_10 = {"shift", "pageup"},
+			SEQ_TAB_DOWN_10 = {"shift", "pagedown"},
 
 			EXTROVERT_LOAD_FILE = {"ctrl", "e"},
 
