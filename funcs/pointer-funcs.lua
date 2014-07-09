@@ -63,6 +63,85 @@ return {
 
 	end,
 
+	-- Move the tick and note pointers to an adjacent note, in the given direction
+	moveTickPointerByNote = function(dist)
+
+		-- If no sequences are loaded, abort the function
+		if data.active == false then
+			return nil
+		end
+
+		local tick = data.tp
+		local note = data.np
+
+		local ticks = #data.seq[data.active].tick
+		local dir = math.max(-1, math.min(1, dist)) 
+		local goal = math.abs(dist)
+
+		-- While fewer notes have been passed than the distance-goal,
+		-- and fewer loops have been made than there are ticks in the active seq,
+		-- continue looking for more notes.
+		local offset = 0
+		local loops = 0
+		local passed = 0
+		while (loops <= ticks) and (passed < goal) do
+
+			local higher, lower = {}, {}
+			local found = false
+
+			-- Get the current offset-tick
+			tick = wrapNum(data.tp + offset, 1, ticks)
+
+			-- Populate the lower-notes and higher-notes tabs, based on the tick's notes
+			for k, v in pairs(data.seq[data.active].tick[tick]) do
+				local pitch = v.note[data.acceptmidi[v.note[1]][1]]
+				if pitch < note then
+					table.insert(lower, pitch)
+				elseif pitch > note then
+					table.insert(higher, pitch)
+				end
+			end
+
+			-- Get the next-closest note in the given direction
+			if dir == 1 then
+				if #lower > 0 then
+					table.sort(lower)
+					note = lower[#lower]
+					found = true
+				end
+			else
+				if #higher > 0 then
+					table.sort(higher)
+					note = higher[1]
+					found = true
+				end
+			end
+
+			-- If a note wasn't found in the given direction in the current tick,
+			-- change the tick-offset, and set note-val just outside the range.
+			if not found then
+				offset = offset + dir
+				note = data.bounds.np[clampNum(dist, 0, 1) + 1] + dir
+			else
+				passed = passed + 1
+			end
+
+			-- Keep counting the number of loops
+			loops = loops + 1
+
+		end
+
+		-- If the note-val is still in a pre-notes-found state, reset it
+		if not rangeCheck(note, data.bounds.np) then
+			note = data.np
+		end
+
+		-- Update global tick and note pointers with new positions
+		data.tp = tick
+		data.np = note
+
+	end,
+
 	-- Shift an internal bounded value, additively or multiplicatively, by a given distance
 	shiftInternalValue = function(vname, multi, dist, emptyabort)
 

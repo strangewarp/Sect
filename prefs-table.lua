@@ -283,6 +283,8 @@ return {
 			POINTER_RIGHT = {"right"},
 			POINTER_LEFT_BEAT = {"shift", "left"},
 			POINTER_RIGHT_BEAT = {"shift", "right"},
+			POINTER_PREV_NOTE = {"ctrl", "left"},
+			POINTER_NEXT_NOTE = {"ctrl", "right"},
 
 			X_ZOOM_INC = {"shift", "ctrl", "right"},
 			X_ZOOM_DEC = {"shift", "ctrl", "left"},

@@ -315,6 +315,8 @@ D.cmdfuncs = {
 	POINTER_RIGHT = {"moveTickPointer", 1},
 	POINTER_LEFT_BEAT = {"moveTickPointerToBeat", -1},
 	POINTER_RIGHT_BEAT = {"moveTickPointerToBeat", 1},
+	POINTER_PREV_NOTE = {"moveTickPointerByNote", -1},
+	POINTER_NEXT_NOTE = {"moveTickPointerByNote", 1},
 
 	X_ZOOM_INC = {"shiftInternalValue", "zoomx", true, 0.5},
 	X_ZOOM_DEC = {"shiftInternalValue", "zoomx", true, 2},
