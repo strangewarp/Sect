@@ -38,17 +38,14 @@ return {
 			return nil
 		end
 
-		-- Piano-roll width (based on window size)
-		local kwidth = 55 + (width / 50)
-
 		-- Sequence grid's left border position
-		local seqleft = left + (kwidth / 2)
+		local seqleft = left + (data.pianowidth / 2)
 
 		-- Draw the sequence-grid
 		drawSeqGrid(seqleft, top, width, height)
 
 		-- Draw the vertical piano-roll
-		drawPianoRoll(left, kwidth, width, height)
+		drawPianoRoll(left, data.pianowidth, width, height)
 
 	end,
 

@@ -162,6 +162,9 @@ function love.draw()
 		return nil
 	end
 
+	-- Update the piano-bar width, based on window width
+	data.pianowidth = 55 + (width / 50)
+
 	-- Build the GUI
 	buildGUI(width, height)
 

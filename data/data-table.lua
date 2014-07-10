@@ -35,6 +35,7 @@ D.udp = false -- Var that will hold the UDP socket
 -- ZOOM VARS --
 D.cellwidth = 2 -- Horizontal pixels per cell
 D.cellheight = 14 -- Vertical pixels per cell
+D.pianowidth = 0 -- Holds updated width of piano-bar
 
 -- UNDO VARS --
 D.dostack = {} -- Holds all undo and redo command-blocks

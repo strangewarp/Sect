@@ -150,13 +150,9 @@ return {
 		local xfull = right - left
 		local yfull = bot - top
 
-		-- Seq-grid-center coordinates
-		local xhalf = xfull / 2
-		local yhalf = yfull / 2
-
 		-- Reticule anchor coordinates
-		local xanchor = xfull / 3
-		local yanchor = yfull / 1.7
+		local xanchor = xfull * data.size.anchor.x
+		local yanchor = yfull * data.size.anchor.y
 
 		-- Halved cell sizes, for later GUI positioning
 		local xcellhalf = data.cellwidth / 2

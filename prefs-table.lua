@@ -226,6 +226,11 @@ return {
 			breadth = 40,
 		},
 
+		anchor = { -- Center pointer anchors
+			x = 0.33, -- Distance between left and right
+			y = 0.588, -- Distance between top and bottom
+		},
+
 	},
 
 	pianokeys = { -- Keyboard-keys that correspond to piano-keys
