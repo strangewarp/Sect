@@ -1,34 +1,33 @@
 return {
 	
-	-- Add an undo step to the undo stack,
-	-- comprised of an undo-direction and redo-direction command.
+	-- Add an undo-step and redo-step to the current do-block.
 	addUndoStep = function(suppress, u, r)
 
-		-- If undo-suppression is not invoked on this function call...
 		if not suppress then
-
-			-- If a task is being added to the undo stack via new commands,
-			-- empty the newly irrelevant redo-tasks.
-			if #data.redo > 0 then
-				data.redo = {}
-			end
-
-			local composite = {
-				true, -- Suppress flag
-				u, -- Incoming undo command
-				r, -- Incoming redo command
-			}
-
-			-- Put the command-pair, and flags, atop the undo-stack
-			table.insert(data.undo, composite)
-
-			-- If there are more undo states than max-undo-states,
-			-- remove the most distant command pair.
-			if #data.undo > data.maxundo then
-				table.remove(data.undo, 1)
-			end
-
+			table.insert(data.dostack[data.undotarget].undo, 1, u)
+			table.insert(data.dostack[data.undotarget].redo, r)
 		end
+
+	end,
+
+	-- Add a new command-block template on top of the current undo position.
+	addUndoBlock = function()
+
+		-- Remove all command-blocks after the current undo-target point
+		while #data.dostack > data.undotarget do
+			table.remove(data.dostack)
+		end
+
+		-- Insert the template for the new command-block
+		table.insert(data.dostack, {suppress = true, undo = {}, redo = {}})
+
+		-- If size of dostack surpasses maxundo, remove the bottom element
+		if #data.dostack > data.maxundo then
+			table.remove(data.dostack, 1)
+		end
+
+		-- Set undo-target to top of do-stack
+		data.undotarget = #data.dostack
 
 	end,
 
@@ -36,32 +35,26 @@ return {
 	-- and execute the step's table of functions.
 	traverseUndo = function(back)
 
-		-- Get the target stack names, based on the command type
+		-- Get the target direction and stack names, based on the command type
 		local stack = (back and "undo") or "redo"
-		local otherstack = (back and "redo") or "undo"
+		local target = data.undotarget + ((back and 0) or 1)
+		local add = (back and -1) or 1
 
-		-- If the do-stack is empty, do nothing
-		if #data[stack] == 0 then
+		-- If the target block of the do-stack is empty, abort function
+		if data.dostack[target] == nil then
 
-			print("traverseUndo: \"" .. stack .. "\" stack was empty!")
+			print("traverseUndo: \"" .. stack .. "-" .. target .. "\" stack was empty!")
 			return nil
 
-		else -- If the do-command is valid...
+		else -- Else, if the do-command is valid...
 
-			-- Get a single command-table from the do-stack,
-			-- and place it into the other-do-stack.
-			local ctab = table.remove(data[stack])
-			table.insert(data[otherstack], ctab)
+			-- Perform every command in the target do-block
+			for k, v in ipairs(data.dostack[target][stack]) do
+				executeFunction(unpack(v))
+				print("traverseUndo: performed function: " .. v[1] .. "! (" .. stack .. ")")
+			end
 
-			-- Unpack the do-command table
-			local flags, undo, redo = unpack(ctab)
-
-			-- If undo, get the undo command, else get the redo command
-			local cmd = (back and undo) or redo
-
-			-- Execute the function, with its attendant args
-			executeFunction(unpack(cmd))
-			print("traverseUndo: performed function: " .. cmd[1] .. "! (" .. stack .. ")")
+			data.undotarget = wrapNum(data.undotarget + add, 0, data.maxundo)
 
 		end
 

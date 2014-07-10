@@ -37,8 +37,8 @@ D.zoomx = 4 -- Multiplier for X-axis zoom
 D.zoomy = 4 -- Multiplier for Y-axis zoom
 
 -- UNDO VARS --
-D.undo = {} -- Holds the stack of command-pairs accessed by undo
-D.redo = {} -- Holds the stack of command-pairs accessed by redo
+D.dostack = {} -- Holds all undo and redo command-blocks
+D.undotarget = 0 -- Currently targeted undo-block
 
 -- SELECTION VARS --
 D.selbool = false -- Toggles whether a selection is active
@@ -170,11 +170,8 @@ D.cmdfuncs = {
 
 	TOGGLE_SEQ_OVERLAY = {"toggleSeqOverlay"},
 	TOGGLE_NOTE_DRAW = {"toggleNoteDraw"},
-
 	TOGGLE_RECORDING = {"toggleRecording"},
-
 	TOGGLE_GENERATOR_MODE = {"toggleGeneratorMode"},
-
 	TOGGLE_CHAN_NUM_VIEW = {"toggleChanNumView"},
 
 	UNDO = {"traverseUndo", true},
@@ -332,6 +329,46 @@ D.cmdfuncs = {
 	SEQ_TAB_DOWN_10 = {"tabActiveSeq", 10},
 
 	EXTROVERT_LOAD_FILE = {"sendExtrovertCommand", "loadmidi"},
+
+}
+
+-- Functions that incur undo-block formation when called by keystrokes
+D.undocmds = {
+
+	-- data-funcs.lua
+	["growSeq"] = true,
+	["shrinkSeq"] = true,
+	["insertTicks"] = true,
+	["removeTicks"] = true,
+	["insertSpacingTicks"] = true,
+	["removeSpacingTicks"] = true,
+	["addSequence"] = true,
+	["removeSequence"] = true,
+	["addActiveSequence"] = true,
+	["removeActiveSequence"] = true,
+	["switchSequences"] = true,
+	["moveActiveSequence"] = true,
+
+	-- file-funcs.lua
+	["loadFile"] = true,
+
+	-- generator-funcs.lua
+	["generateSeqNotes"] = true,
+
+	-- note-funcs.lua
+	["setNotes"] = true,
+	["moveNotes"] = true,
+	["insertNote"] = true,
+	["deleteNote"] = true,
+	["deleteTickNotes"] = true,
+	["deletePitchNotes"] = true,
+	["deleteBeatNotes"] = true,
+	["humanizeNotes"] = true,
+
+	-- select-funcs.lua
+	["cutSelection"] = true,
+	["pasteSelection"] = true,
+	["modNotes"] = true,
 
 }
 

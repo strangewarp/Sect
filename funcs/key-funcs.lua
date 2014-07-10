@@ -38,10 +38,8 @@ return {
 		if data.cmdfuncs[match] ~= nil then
 
 			print("addKeystroke: received command '" .. match .. "'!")
-			executeFunction(unpack(data.cmdfuncs[match]))
 
-			-- Toggle the drawing of a new frame
-			data.update = true
+			executeFunction(unpack(data.cmdfuncs[match]))
 
 		else
 			print("addKeystroke error: command '" .. match .. "' does not have a referent in cmdfuncs table!")

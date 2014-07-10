@@ -184,7 +184,10 @@ return {
 
 		local t = {...}
 
-		print(t[1]) -- DEBUGGING
+		-- If the function will create an undo entry, create a new undo block
+		if data.undocmds[t[1]] and (not t[#t]) then
+			addUndoBlock()
+		end
 
 		-- Get the func-name, and call it in data namespace with all of its args
 		local fname = table.remove(t, 1)
