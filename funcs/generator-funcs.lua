@@ -271,7 +271,7 @@ return {
 		for _, tick in ipairs(putticks) do
 
 			-- Wrap all putticks to the sequence range
-			tick = wrapNum(tick, 1, ticks)
+			tick = wrapNum(data.tp + tick - 1, 1, ticks)
 
 			-- Get a random duration from the acceptable note-lengths
 			local dur = notefactors[math.random(#notefactors)]
