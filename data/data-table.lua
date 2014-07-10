@@ -33,7 +33,7 @@ D.spacing = 24 -- Spacing
 D.udp = false -- Var that will hold the UDP socket
 
 -- ZOOM VARS --
-D.cellwidth = 3 -- Horizontal pixels per cell
+D.cellwidth = 2 -- Horizontal pixels per cell
 D.cellheight = 14 -- Vertical pixels per cell
 
 -- UNDO VARS --

@@ -7,6 +7,9 @@ return {
 		-- Get the current loading-command data
 		local cmd, text = unpack(data.loadcmds[data.loadnum])
 
+		-- Switch to the loading-screen font
+		love.graphics.setFont(data.font.loading.raster)
+
 		-- Append the new text-line to the loading-screen text
 		data.loadtext = data.loadtext .. "\r\n" .. text
 
@@ -37,6 +40,13 @@ return {
 			love.keyboard.setTextInput(true) -- Set keyboard-input to true
 		end
 
+	end,
+
+	-- Preload all GUI-theme fonts
+	preloadFonts = function()
+		for k, v in pairs(data.font) do
+			data.font[k].raster = love.graphics.newFont(v.file, v.height)
+		end
 	end,
 
 	-- Preload all GUI-theme images

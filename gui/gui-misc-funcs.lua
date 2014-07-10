@@ -11,9 +11,22 @@ return {
 	buildGUI = function(width, height)
 
 		buildBackground(width, height)
-		buildSidebar(0, 5, 100, height - 10, width, height)
-		buildSeqFrame(100, 0, width, height - 60)
-		buildTrackBar(100, height - 60, width - 100, 60)
+
+		buildSidebar(
+			0, 5,
+			data.size.sidebar.width, height - 10,
+			width, height
+		)
+
+		buildSeqFrame(
+			data.size.sidebar.width, 0,
+			width, height - data.size.botbar.height
+		)
+
+		buildTrackBar(
+			data.size.sidebar.width, height - data.size.botbar.height,
+			width - data.size.sidebar.width, data.size.botbar.height
+		)
 
 	end,
 
@@ -171,6 +184,8 @@ return {
 
 	-- Given a table of strings, xy coordinates, and a line-height value, print out multiple stacked lines of text
 	printMultilineText = function(atoms, x, y, w, align)
+
+		w = w or math.huge
 
 		love.graphics.printf(
 			table.concat(atoms, "\n"),

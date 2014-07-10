@@ -14,21 +14,26 @@ return {
 
 	-- Render a table of beat-triangles
 	drawBeatTriangles = function(tris, beatsize, yfull, tritop, trifonttop)
+
+		local breadth = data.size.triangle.breadth
+		local bhalf = breadth / 2
+		local bhalfout = bhalf + 2
 	
 		for k, v in ipairs(tris) do
 
 			local beat, xpos = unpack(v)
 
 			love.graphics.setColor(data.color.triangle.fill)
-			love.graphics.polygon("fill", xpos - 19, yfull, xpos + 19, yfull, xpos, tritop)
+			love.graphics.polygon("fill", xpos - bhalf, yfull, xpos + bhalf, yfull, xpos, tritop)
 
 			love.graphics.setLineWidth(2)
 			love.graphics.setColor(data.color.triangle.line)
-			love.graphics.line(xpos - 21, yfull + 2, xpos, tritop, xpos + 21, yfull + 2)
+			love.graphics.line(xpos - bhalfout, yfull + 2, xpos, tritop, xpos + bhalfout, yfull + 2)
 			love.graphics.setLineWidth(1)
 
 			love.graphics.setColor(data.color.triangle.text)
-			love.graphics.printf(beat, xpos - 19, trifonttop, 38, "center")
+			love.graphics.setFont(data.font.beat.raster)
+			love.graphics.printf(beat, xpos - bhalf, trifonttop, breadth, "center")
 
 		end
 
@@ -37,9 +42,9 @@ return {
 	-- Draw the reticules that show the position and size of current note-entry
 	drawReticules = function(left, top, right, xhalf, yhalf, xcellhalf, ycellhalf)
 
-		local trh = 38
-		local trl = left + xhalf - 19
-		local trt = top + yhalf - 19
+		local trh = data.size.reticule.breadth
+		local trl = left + xhalf - (data.size.reticule.breadth / 2)
+		local trt = top + yhalf - (data.size.reticule.breadth / 2)
 		local trr = trl + trh
 		local trb = trt + trh
 		trt = trt - ycellhalf
@@ -186,9 +191,9 @@ return {
 		local yranges = getTileAxisBounds(0, yfull, nboundary, fullheight)
 
 		-- Positioning for beat-triangles
-		local trifontheight = fontsmall:getHeight()
-		local trifonttop = yfull - (fontsmall:getHeight() + 1)
-		local tritop = trifonttop - trifontheight
+		local trifontheight = data.font.beat.raster:getHeight()
+		local trifonttop = yfull - (trifontheight + 1)
+		local tritop = yfull - (data.size.triangle.breadth / 2)
 
 		-- Initialize the local tables that will be populated
 		local tintcolumns, drawnotes, drawsels, triangles = {}, {}, {}, {}

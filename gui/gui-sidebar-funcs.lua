@@ -5,8 +5,9 @@ return {
 	buildSidebar = function(left, top, right, bot, width, height)
 
 		local tleft, ttop, tright = left + 5, top + 10, right - 10
-		local fontheight = fontsmall:getHeight()
 		local outtab = {}
+
+		local fontheight = data.font.sidebar.raster:getHeight()
 
 		-- Draw the pane's background
 		love.graphics.setColor(data.color.window.mid)
@@ -91,10 +92,11 @@ return {
 		}
 		outtab = tableCombine(outtab, addtab3)
 
+		love.graphics.setFont(data.font.sidebar.raster)
 		love.graphics.setColor(data.color.font.shadow)
-		printMultilineText(outtab, tleft + 1, ttop + 1, tright, "left")
+		printMultilineText(outtab, tleft + 1, ttop + 1, _, "left")
 		love.graphics.setColor(data.color.font.light)
-		printMultilineText(outtab, tleft, ttop, tright - 1, "left")
+		printMultilineText(outtab, tleft, ttop, _, "left")
 		ttop = ttop + (#outtab * fontheight) + roundNum(fontheight / 2, 0)
 
 		-- Print out the hotseats, with the currently-active one highlighted
@@ -106,7 +108,7 @@ return {
 			acheck = acheck + 1
 		end
 		love.graphics.setColor(data.color.font.mid)
-		printMultilineText(outtab, tleft, ttop, tright, "left")
+		printMultilineText(outtab, tleft, ttop, _, "left")
 		ttop = ttop + (#outtab * fontheight)
 
 		love.graphics.setColor(data.color.font.highlight)
@@ -122,7 +124,7 @@ return {
 		end
 		table.insert(outtab, "")
 		love.graphics.setColor(data.color.font.mid)
-		printMultilineText(outtab, tleft, ttop, tright, "left")
+		printMultilineText(outtab, tleft, ttop, _, "left")
 		ttop = ttop + (#outtab * fontheight) + roundNum(fontheight / 2, 0)
 
 	end,
@@ -135,6 +137,8 @@ return {
 
 		drawBoundedImage(left, top, width, height, data.img.botbar)
 
+		local fontheight = data.font.botbar.raster:getHeight()
+
 		local seqs = #data.seq
 
 		local boxwidth = (height / 3) - 1
@@ -144,8 +148,6 @@ return {
 			rowtotal = rowtotal + 1
 		end
 		local boxheight = math.min(boxwidth, (height / rowtotal) - 1)
-
-		local fontheight = fontsmall:getHeight()
 
 		local row = 1
 		local col = 1
@@ -181,7 +183,7 @@ return {
 			love.graphics.rectangle("fill", left + boxleft, top + boxtop, boxwidth, boxheight)
 
 			local itext = tostring(i)
-			local fontwidth = fontsmall:getWidth(itext)
+			local fontwidth = data.font.botbar.raster:getWidth(itext)
 			local textleft = left + boxleft + ((boxwidth - fontwidth) / 2)
 			local texttop = top + boxtop + ((boxheight - fontheight) / 2)
 
@@ -215,6 +217,7 @@ return {
 
 			-- Print a number on the sequence-bar, if space allows
 			if (fontheight <= boxheight) or ((i % 5) == 0) then
+				love.graphics.setFont(data.font.botbar.raster)
 				love.graphics.setColor(data.color.summary.text_shadow)
 				love.graphics.print(itext, textleft + 1, texttop + 1)
 				love.graphics.setColor(data.color.summary.text)
@@ -267,15 +270,15 @@ return {
 		end
 
 		-- Draw all tabled keys, in the proper visibility order
-		drawTabledKeys(whitedraw, "white")
-		drawTabledKeys(blackdraw, "black")
+		drawTabledPianoKeys(whitedraw, "white")
+		drawTabledPianoKeys(blackdraw, "black")
 
 	end,
 
 	-- Draw a table of piano-key rectangles, with text overlay
-	drawTabledKeys = function(tab, kind)
+	drawTabledPianoKeys = function(tab, kind)
 
-		local fh = fontsmall:getHeight()
+		local fontheight = data.font.piano.raster:getHeight()
 
 		for _, v in pairs(tab) do
 
@@ -296,13 +299,14 @@ return {
 			local kh = v.b - v.t
 
 			-- If the small font is smaller than the key size, print the key-name onto the key
-			if fh <= kh then
+			if fontheight <= kh then
 				local color = ((kind == "white") and data.color.piano.labeldark) or data.color.piano.labellight
 				love.graphics.setColor(color)
+				love.graphics.setFont(data.font.piano.raster)
 				love.graphics.printf(
 					v.name,
 					v.l + v.fl,
-					(v.t + kh) - ((kh + fh) / 2),
+					(v.t + kh) - ((kh + fontheight) / 2),
 					v.fr,
 					"center"
 				)

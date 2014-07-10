@@ -32,6 +32,9 @@ return {
 
 		local c1, c2, linecolor = {}, {}, {}
 
+		local fontheight = data.font.note.raster:getHeight()
+		love.graphics.setFont(data.font.note.raster)
+
 		-- If linecolor was not given, keep a note of that
 		local line = not (linecolor == nil)
 
@@ -95,8 +98,8 @@ return {
 
 					love.graphics.print(
 						tostring(n.note[4]),
-						(nleft + (nx / 2)) - (fontsmall:getWidth(tostring(n.note[4])) / 2),
-						(ntop + (ny / 2)) - (fontsmall:getHeight() / 2)
+						(nleft + (nx / 2)) - (data.font.note.raster:getWidth(tostring(n.note[4])) / 2),
+						(ntop + (ny / 2)) - (fontheight / 2)
 					)
 
 				end

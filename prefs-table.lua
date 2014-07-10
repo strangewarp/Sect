@@ -166,12 +166,66 @@ return {
 			yglue = "center",
 		},
 
+		mouse = { -- Mouse pointer
+			file = "img/cursor.gif",
+			x = 0, -- Cursor's x hotspot
+			y = 0, -- Cursor's y hotspot
+		},
+
 	},
 
-	reticule = { -- Reticule properties
+	font = { -- Font types
 
-		width = 38, -- Tick-pointer reticule width
-		
+		sidebar = { -- Sidebar font
+			file = "img/Milavregarian.ttf",
+			height = 8,
+		},
+
+		botbar = { -- Bottom track-bar font
+			file = "img/Milavregarian.ttf",
+			height = 10,
+		},
+
+		piano = { -- Piano-key font
+			file = "img/Milavregarian.ttf",
+			height = 8,
+		},
+
+		note = { -- Sequence-note font
+			file = "img/Milavregarian.ttf",
+			height = 8,
+		},
+
+		beat = { -- Sequence-beat-triangle font
+			file = "img/Milavregarian.ttf",
+			height = 8,
+		},
+
+		loading = { -- Loading-screen font
+			file = "img/Milavregarian.ttf",
+			height = 16,
+		},
+
+	},
+
+	size = { -- Element sizes
+
+		sidebar = { -- Left sidebar
+			width = 100,
+		},
+
+		botbar = { -- Bottom track-bar
+			height = 60,
+		},
+
+		reticule = { -- Tick-pointer reticule
+			breadth = 38,
+		},
+
+		triangle = { -- Beat-line triangle
+			breadth = 40,
+		},
+
 	},
 
 	pianokeys = { -- Keyboard-keys that correspond to piano-keys

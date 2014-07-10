@@ -25,6 +25,7 @@ function love.load()
 	guisidebarfuncs = require('gui/gui-sidebar-funcs')
 	keyfuncs = require('funcs/key-funcs')
 	modefuncs = require('funcs/mode-funcs')
+	mousefuncs = require('funcs/mouse-funcs')
 	notefuncs = require('funcs/note-funcs')
 	oscfuncs = require('funcs/osc-funcs')
 	pointerfuncs = require('funcs/pointer-funcs')
@@ -47,6 +48,7 @@ function love.load()
 		guisidebarfuncs,
 		keyfuncs,
 		modefuncs,
+		mousefuncs,
 		notefuncs,
 		oscfuncs,
 		pointerfuncs,
@@ -75,12 +77,26 @@ function love.load()
 	-- Put the prefs into the data object
 	tableToNewContext(data, prefs)
 
-	-- Preload all GUI-theme images
+	-- Preload all GUI-theme images and fonts
+	preloadFonts()
 	preloadImages()
+
+	-- Create a new cursor from the user-defined mouse image
+	local cursor = love.mouse.newCursor(
+		data.img.mouse.file,
+		data.img.mouse.x,
+		data.img.mouse.y
+	)
+	love.mouse.setCursor(cursor)
 
 	-- Get a new time-based random-seed for the entire session
 	math.randomseed(os.time())
 
+	-- Initialize GUI miscellany
+	love.graphics.setLineStyle("rough")
+	love.graphics.setLineWidth(1)
+	love.keyboard.setKeyRepeat(true)
+	
 	-- If combinatoric data tables don't exist, generate and store them
 	if (not love.filesystem.exists("scales.lua"))
 	or (not love.filesystem.exists("wheels.lua"))
@@ -112,16 +128,6 @@ function love.load()
 		)
 	end
 
-	-- Initialize GUI miscellany
-	local width, height = love.graphics.getDimensions()
-	fontsmall = love.graphics.newFont("img/Milavregarian.ttf", 8)
-	sectlogo = love.graphics.newImage("img/biglogo.png", "normal")
-	loadingbg = love.graphics.newImage("img/loadingbg.png", "normal")
-	love.graphics.setFont(fontsmall)
-	love.graphics.setLineStyle("rough")
-	love.graphics.setLineWidth(1)
-	love.keyboard.setKeyRepeat(true)
-	
 	-- Enable keyboard commands after completing all other load-funcs
 	tableCombine(
 		data.loadcmds,
@@ -165,6 +171,12 @@ end
 --- ON MOUSE PRESS ---
 ----------------------
 function love.mousepressed(x, y, button)
+
+	-- Get window dimensions
+	local width, height = love.graphics.getDimensions()
+
+	-- Call the mouse-picking function
+	mousePick(x, y, width, height)
 
 end
 
