@@ -48,11 +48,9 @@ return {
 		growSeq(seq, addticks, undo)
 
 		-- If there are any ticks to the right of the old top-tick, adjust their notes' positions
-		if top < oldsize then
-			local sidenotes = getNotes(seq, top + 1, #data.seq[seq].tick, _, _)
-			if #sidenotes > 0 then
-				moveNotes(seq, sidenotes, addticks, _, undo)
-			end
+		local sidenotes = getNotes(seq, data.tp, #data.seq[seq].tick, _, _)
+		if #sidenotes > 0 then
+			moveNotes(seq, sidenotes, addticks, _, undo)
 		end
 
 	end,

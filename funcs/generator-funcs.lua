@@ -84,11 +84,6 @@ return {
 			wtotal = wtotal + v
 		end
 
-		for k, v in pairs(factors) do -- debugging
-			print(v .. ": " .. weights[v]) -- debugging
-		end
-		print("total " .. wtotal) -- debugging
-		
 		-- Make beat-factors correspond to the 1-indexing, if increase-flag is true
 		if increase then
 			for i = 1, #factors do
@@ -184,8 +179,6 @@ return {
 
 			genscales[k] = rots[rotkey]
 
-			print("SCALE " .. k .. "(" .. rotkey .. "): " .. genscales[k].bin .. " - " .. table.concat(genscales[k].filled, "-")) -- debugging
-
 		end
 
 		-- If there are fewer wheels in the wheel-species than in wheelnum, grab them
@@ -253,8 +246,6 @@ return {
 
 					-- Remove the beat from factors-table, and put it into the selected-ticks table
 					table.insert(putticks, table.remove(beatfactors, k))
-
-					print(weightrand) -- debugging
 
 					break
 
