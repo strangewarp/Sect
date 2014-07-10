@@ -28,17 +28,14 @@ return {
 		-- Piano-roll width (based on window size)
 		local kwidth = 55 + (width / 50)
 
-		-- Piano-key height (based on zoom)
-		local cellheight = (height / 12) / data.zoomy
-
 		-- Sequence grid's left border position
 		local seqleft = left + (kwidth / 2)
 
 		-- Draw the sequence-grid
-		drawSeqGrid(seqleft, top, width, height, cellheight)
+		drawSeqGrid(seqleft, top, width, height)
 
 		-- Draw the vertical piano-roll
-		drawPianoRoll(left, kwidth, cellheight, width, height)
+		drawPianoRoll(left, kwidth, width, height)
 
 	end,
 

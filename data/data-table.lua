@@ -33,8 +33,8 @@ D.spacing = 24 -- Spacing
 D.udp = false -- Var that will hold the UDP socket
 
 -- ZOOM VARS --
-D.zoomx = 4 -- Multiplier for X-axis zoom
-D.zoomy = 4 -- Multiplier for Y-axis zoom
+D.cellwidth = 3 -- Horizontal pixels per cell
+D.cellheight = 14 -- Vertical pixels per cell
 
 -- UNDO VARS --
 D.dostack = {} -- Holds all undo and redo command-blocks
@@ -103,13 +103,17 @@ D.bounds = { -- Boundaries for user-shiftable control vars
 	-- Misc bounds --
 	bpm = {1, math.huge, false}, -- Beats per minute
 	tpq = {1, 1000, false}, -- Ticks per quarter-note
+	spacing = {0, math.huge, false}, -- Movement spacing
+
+	-- MIDI-Note bounds --
 	np = {0, 127, true}, -- Note-pointer (active pitch)
 	chan = {0, 15, true}, -- Channel
 	velo = {0, 127, true}, -- Velocity
 	dur = {1, math.huge, false}, -- Duration
-	spacing = {0, math.huge, false}, -- Spacing
-	zoomx = {1, 16, false}, -- X-axis zoom (tick axis)
-	zoomy = {1, 16, false}, -- Y-axis zoom (note axis)
+
+	-- Zoom bounds --
+	cellwidth = {1, 16, true}, -- X-axis zoom (tick axis)
+	cellheight = {2, 32, true}, -- Y-axis zoom (note axis)
 
 	-- Generator bounds --
 	kspecies = {1, 8, true}, -- Filled scale notes
@@ -318,10 +322,10 @@ D.cmdfuncs = {
 	POINTER_PREV_NOTE = {"moveTickPointerByNote", -1},
 	POINTER_NEXT_NOTE = {"moveTickPointerByNote", 1},
 
-	X_ZOOM_INC = {"shiftInternalValue", "zoomx", true, 0.5},
-	X_ZOOM_DEC = {"shiftInternalValue", "zoomx", true, 2},
-	Y_ZOOM_INC = {"shiftInternalValue", "zoomy", true, 0.5},
-	Y_ZOOM_DEC = {"shiftInternalValue", "zoomy", true, 2},
+	X_ZOOM_INC = {"shiftInternalValue", "cellwidth", false, 1},
+	X_ZOOM_DEC = {"shiftInternalValue", "cellwidth", false, -1},
+	Y_ZOOM_INC = {"shiftInternalValue", "cellheight", false, 1},
+	Y_ZOOM_DEC = {"shiftInternalValue", "cellheight", false, -1},
 
 	SEQ_TAB_UP = {"tabActiveSeq", -1},
 	SEQ_TAB_DOWN = {"tabActiveSeq", 1},

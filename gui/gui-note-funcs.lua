@@ -125,7 +125,6 @@ return {
 		seq, n,
 		left, top,
 		xfull, yfull,
-		cellwidth, cellheight,
 		xranges, yranges
 	)
 
@@ -154,16 +153,16 @@ return {
 					for _, yr in pairs(yranges) do
 
 						-- Get note's width, via duration, or default to 1 for non-note cmds
-						local xwidth = ((vv.note[1] == 'note') and (cellwidth * vv.note[3])) or cellwidth
+						local xwidth = ((vv.note[1] == 'note') and (data.cellwidth * vv.note[3])) or data.cellwidth
 
 						-- Get note's inner-grid-concrete and absolute left and top offsets
-						local ol = xr.a + ((vv.tick - 1) * cellwidth)
-						local ot = yr.b - ((vp - yr.o) * cellheight)
+						local ol = xr.a + ((vv.tick - 1) * data.cellwidth)
+						local ot = yr.b - ((vp - yr.o) * data.cellheight)
 						local cl = left + ol
 						local ct = top + ot
 
 						-- If the note is onscreen in this chunk, display it
-						if collisionCheck(left, top, xfull, yfull, cl, ct, xwidth, cellheight) then
+						if collisionCheck(left, top, xfull, yfull, cl, ct, xwidth, data.cellheight) then
 
 							-- If the note's leftmost boundary falls outside of frame,
 							-- clip its left-position, and its width to match.
@@ -173,7 +172,7 @@ return {
 							end
 
 							-- Add the note to the draw-table
-							table.insert(notes, {render, seq, vv, cl, ct, xwidth, cellheight})
+							table.insert(notes, {render, seq, vv, cl, ct, xwidth, data.cellheight})
 
 						end
 

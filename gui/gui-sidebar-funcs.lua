@@ -234,15 +234,15 @@ return {
 	end,
 
 	-- Draw the column of piano-keys in the sequence window
-	drawPianoRoll = function(left, kwidth, cellheight, width, height)
+	drawPianoRoll = function(left, kwidth, width, height)
 
 		local whitedraw = {}
 		local blackdraw = {}
 
 		-- Get key heights, and half-key heights, and note-row heights
-		local yflare = cellheight * 1.5
-		local ymid = cellheight
-		local khalf = cellheight / 2
+		local yflare = data.cellheight * 1.5
+		local ymid = data.cellheight
+		local khalf = data.cellheight / 2
 
 		-- Get the center-point, on which the sequence grid (and by extension, the piano-roll) are fixed
 		local ycenter = height / 1.7
@@ -257,8 +257,8 @@ return {
 			-- Update position and pointer values
 			upkey = wrapNum(upkey + 1, data.bounds.np)
 			downkey = wrapNum(downkey - 1, data.bounds.np)
-			uppos = uppos - cellheight
-			downpos = downpos + cellheight
+			uppos = uppos - data.cellheight
+			downpos = downpos + data.cellheight
 
 			-- Add the two outermost notes, with normal color, to the relevant draw-tables
 			whitedraw, blackdraw = pianoNoteToDrawTables(whitedraw, blackdraw, upkey, left, uppos, ymid, yflare, kwidth, false)
