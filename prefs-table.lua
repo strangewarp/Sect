@@ -155,7 +155,7 @@ return {
 		},
 
 		grid = { -- Sequence-grid
-			file = false,
+			file = "test.png",
 			xglue = "center",
 			yglue = "center",
 		},
@@ -212,6 +212,10 @@ return {
 
 		sidebar = { -- Left sidebar
 			width = 100,
+		},
+
+		piano = { -- Piano-bar
+			basewidth = 55,
 		},
 
 		botbar = { -- Bottom track-bar

@@ -91,6 +91,7 @@ D.loading = true -- True while loading; false after loading is done
 D.recording = true -- Toggles whether note-recording is enabled
 D.drawnotes = true -- Toggles whether to draw notes
 D.chanview = true -- Toggles rendering chan-nums on notes
+D.mousemove = false -- Toggles mouse-based movement
 
 -- Baseline contents for new sequences
 D.baseseq = {
@@ -113,8 +114,8 @@ D.bounds = { -- Boundaries for user-shiftable control vars
 	dur = {1, math.huge, false}, -- Duration
 
 	-- Zoom bounds --
-	cellwidth = {1, 16, true}, -- X-axis zoom (tick axis)
-	cellheight = {2, 32, true}, -- Y-axis zoom (note axis)
+	cellwidth = {1, 16, false}, -- X-axis zoom (tick axis)
+	cellheight = {2, 32, false}, -- Y-axis zoom (note axis)
 
 	-- Generator bounds --
 	kspecies = {1, 8, true}, -- Filled scale notes

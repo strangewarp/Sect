@@ -82,12 +82,14 @@ function love.load()
 	preloadImages()
 
 	-- Create a new cursor from the user-defined mouse image
-	local cursor = love.mouse.newCursor(
-		data.img.mouse.file,
-		data.img.mouse.x,
-		data.img.mouse.y
-	)
-	love.mouse.setCursor(cursor)
+	if data.img.mouse.file then
+		local cursor = love.mouse.newCursor(
+			data.img.mouse.file,
+			data.img.mouse.x,
+			data.img.mouse.y
+		)
+		love.mouse.setCursor(cursor)
+	end
 
 	-- Get a new time-based random-seed for the entire session
 	math.randomseed(os.time())
@@ -163,7 +165,7 @@ function love.draw()
 	end
 
 	-- Update the piano-bar width, based on window width
-	data.pianowidth = 55 + (width / 50)
+	data.pianowidth = data.size.piano.basewidth + (width / 50)
 
 	-- Build the GUI
 	buildGUI(width, height)
@@ -178,8 +180,15 @@ function love.mousepressed(x, y, button)
 	-- Get window dimensions
 	local width, height = love.graphics.getDimensions()
 
-	-- Call the mouse-picking function
-	mousePick(x, y, width, height)
+	if button == 'l' then -- Call the mouse-picking function
+		mousePick(x, y, width, height)
+	elseif button == 'r' then -- Toggle mouse-move
+		toggleMouseMove()
+	elseif button == 'wd' then -- Shift tick-zoom down
+		shiftInternalValue("cellwidth", false, -1)
+	elseif button == 'wu' then -- Shit tick-zoom up
+		shiftInternalValue("cellwidth", false, 1)
+	end
 
 end
 

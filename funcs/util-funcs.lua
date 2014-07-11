@@ -178,6 +178,16 @@ return {
 
 	end,
 
+	-- Check whether an entry is present in a given table
+	entryExists = function(t, e)
+		for _, v in pairs(t) do
+			if v == e then
+				return true
+			end
+		end
+		return false
+	end,
+
 	-- Execute a function, after receiving data in the format:
 	-- Object, "funcName", arg1, arg2, ..., argN
 	executeFunction = function(...)

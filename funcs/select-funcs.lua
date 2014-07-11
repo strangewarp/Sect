@@ -12,7 +12,10 @@ return {
 	end,
 
 	-- Toggle select-mode boundaries, which are dragged by the pointers
-	toggleSelect = function(cmd)
+	toggleSelect = function(cmd, tick, note)
+
+		tick = tick or data.tp
+		note = note or data.np
 
 		if cmd == "clear" then -- Clear selection-tables, but leave selnotes alone
 
@@ -29,25 +32,25 @@ return {
 		elseif cmd == "top" then -- Set top selection-pointer
 
 			data.seltop = {
-				x = math.min(data.tp, data.selbot.x or data.tp),
-				y = math.max(data.np, data.selbot.y or data.np),
+				x = math.min(tick, data.selbot.x or tick),
+				y = math.max(note, data.selbot.y or note),
 			}
 
 			data.selbot = {
-				x = math.max(data.tp, data.selbot.x or data.tp),
-				y = math.min(data.np, data.selbot.y or data.np),
+				x = math.max(tick, data.selbot.x or tick),
+				y = math.min(note, data.selbot.y or note),
 			}
 
 		elseif cmd == "bottom" then -- Set bottom selection-pointer
 
 			data.selbot = {
-				x = math.max(data.tp, data.seltop.x or data.tp),
-				y = math.min(data.np, data.seltop.y or data.np),
+				x = math.max(tick, data.seltop.x or tick),
+				y = math.min(note, data.seltop.y or note),
 			}
 
 			data.seltop = {
-				x = math.min(data.tp, data.seltop.x or data.tp),
-				y = math.max(data.np, data.seltop.y or data.np),
+				x = math.min(tick, data.seltop.x or tick),
+				y = math.max(note, data.seltop.y or note),
 			}
 
 		elseif cmd == "all" then -- Select all

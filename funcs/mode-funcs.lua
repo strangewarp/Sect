@@ -12,6 +12,11 @@ return {
 		data.cmdmodes.entry = not data.cmdmodes.gen
 	end,
 
+	-- Toggle whether mouse-clicks will move the tick and note pointers
+	toggleMouseMove = function()
+		data.mousemove = not data.mousemove
+	end,
+
 	-- Flip whether to draw the active sequence's notes
 	toggleNoteDraw = function()
 		data.drawnotes = not data.drawnotes
