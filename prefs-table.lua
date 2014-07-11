@@ -166,10 +166,20 @@ return {
 			yglue = "center",
 		},
 
-		mouse = { -- Mouse pointer
-			file = "img/cursor.gif",
+	},
+
+	cursor = { -- Mouse-cursor images
+
+		active = { -- Cursor while mouse-move is active
+			file = "img/cursor.gif", -- File location in AppData/LOVE/Sect folder
 			x = 0, -- Cursor's x hotspot
 			y = 0, -- Cursor's y hotspot
+		},
+
+		inactive = { -- Cursor while mouse-move is inactive
+			file = "img/cursor2.gif",
+			x = 0,
+			y = 0,
 		},
 
 	},

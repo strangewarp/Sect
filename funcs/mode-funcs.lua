@@ -14,7 +14,16 @@ return {
 
 	-- Toggle whether mouse-clicks will move the tick and note pointers
 	toggleMouseMove = function()
+
 		data.mousemove = not data.mousemove
+
+		-- Toggle between cursor images
+		if data.mousemove and data.cursor.active.file then
+			love.mouse.setCursor(data.cursor.active.c)
+		elseif data.cursor.inactive.file then
+			love.mouse.setCursor(data.cursor.inactive.c)
+		end
+
 	end,
 
 	-- Flip whether to draw the active sequence's notes

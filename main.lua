@@ -77,19 +77,13 @@ function love.load()
 	-- Put the prefs into the data object
 	tableToNewContext(data, prefs)
 
-	-- Preload all GUI-theme images and fonts
+	-- Preload all complex GUI elements
 	preloadFonts()
 	preloadImages()
+	preloadCursors()
 
-	-- Create a new cursor from the user-defined mouse image
-	if data.img.mouse.file then
-		local cursor = love.mouse.newCursor(
-			data.img.mouse.file,
-			data.img.mouse.x,
-			data.img.mouse.y
-		)
-		love.mouse.setCursor(cursor)
-	end
+	-- Load the mousemove-inactive cursor
+	love.mouse.setCursor(data.cursor.inactive.c)
 
 	-- Get a new time-based random-seed for the entire session
 	math.randomseed(os.time())

@@ -54,8 +54,6 @@ return {
 
 				if (newnote == pitch) then
 
-					print("test") -- debugging
-
 					local offset = 0
 					local low = vv.tick + offset
 					local high = low
@@ -79,7 +77,8 @@ return {
 			end
 		end
 
-		if data.mousemove then -- If mousemove is true...
+		-- If mousemove is enabled...
+		if data.mousemove then
 
 			-- Set tick and note pointers to new positions
 			data.tp = modtick
@@ -104,6 +103,11 @@ return {
 			-- Select the note at the click location, and clear the select-window.
 			toggleSelect("top", modtick, newnote)
 			toggleSelect("clear")
+
+		else -- If no note was clicked, clear the select-window and select-memory
+
+			toggleSelect("clear")
+			clearSelectMemory()
 
 		end
 

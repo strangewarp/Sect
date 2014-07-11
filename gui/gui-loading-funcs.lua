@@ -42,6 +42,13 @@ return {
 
 	end,
 
+	-- Pre-render all cursors into Cursor objects
+	preloadCursors = function()
+		for k, v in pairs(data.cursor) do
+			data.cursor[k].c = love.mouse.newCursor(v.file, v.x, v.y)
+		end
+	end,
+
 	-- Preload all GUI-theme fonts
 	preloadFonts = function()
 		for k, v in pairs(data.font) do
