@@ -248,10 +248,17 @@ return {
 	-- Delete the note at the current pointer position
 	deleteNote = function(undo)
 
-		local delnotes = getNotes(data.active, data.tp, data.tp, data.np, data.np)
-		delnotes = notesToRemove(delnotes)
+		local delnotes = {}
 
-		-- If any matching notes were found, send them through removeNotes
+		-- If any notes are selected, slate them for deletion
+		if #data.seldat > 0 then
+			delnotes = notesToRemove(data.seldat)
+		else -- Else, slate the current pointer-position note for deletion
+			delnotes = getNotes(data.active, data.tp, data.tp, data.np, data.np)
+			delnotes = notesToRemove(delnotes)
+		end
+
+		-- If any matching notes were found, remove them
 		if #delnotes > 0 then
 			setNotes(data.active, delnotes, undo)
 		end
