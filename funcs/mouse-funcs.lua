@@ -13,7 +13,7 @@ return {
 		if collisionCheck(x, y, 0, 0, left, 0, right, middle) then
 			reactToGridClick(pianoleft, top, width, middle, x - pianoleft, y)
 		elseif collisionCheck(x, y, 0, 0, left, middle, right, height) then
-			reactToTrackClick(left, middle, width, height - middle, x - left, y - middle)
+			reactToTrackClick(left, middle, width - left, height - middle, x - left, y - middle)
 		end
 
 	end,
@@ -136,25 +136,26 @@ return {
 		local xfull = width - left
 		local yfull = height - top
 
-		local xoffset = roundNum(x / (boxwidth + 1), 0)
-		local yoffset = roundNum(y / (boxheight + 1), 0)
-		local xhit = x % (boxwidth + 1)
-		local yhit = y % (boxheight + 1)
+		local xoffset = math.ceil(x / (boxwidth + 1))
+		local yoffset = math.ceil(y / (boxheight + 1))
+		local xhit = (x % (boxwidth + 1)) and true
+		local yhit = (y % (boxheight + 1)) and true
 
-		local newseq = xoffset + (coltotal * yoffset)
+		local newseq = xoffset + (coltotal * (yoffset - 1))
 
-		if (xhit <= boxwidth) and (yhit <= boxheight) then
+		if xhit and yhit then
 			if newseq <= seqs then
 				data.active = newseq
 			end
 		end
 
-		print("DYE 2: " .. table.concat({boxwidth, boxheight}, " ")) -- debugging
-		print("DYE 2: " .. table.concat({x, y}, " ")) -- debugging
-		print("DYE 2: " .. table.concat({xoffset, yoffset}, " ")) -- debugging
-		print("DYE 2: " .. table.concat({xhit, yhit}, " ")) -- debugging
-		print("DYE 2: " .. newseq) -- debugging
-		print("DYE 3: " .. left .. " " .. x)
+		print("box xy " .. table.concat({boxwidth, boxheight}, " ")) -- debugging
+		print("x y " .. table.concat({x, y}, " ")) -- debugging
+		print("offsets " .. table.concat({xoffset, yoffset}, " ")) -- debugging
+		print("xhit yhit " .. table.concat({tostring(xhit), tostring(yhit)}, " ")) -- debugging
+		print("coltotal " .. coltotal)
+		print("newseq " .. newseq) -- debugging
+		print("left x " .. left .. " " .. x)
 
 
 	end,

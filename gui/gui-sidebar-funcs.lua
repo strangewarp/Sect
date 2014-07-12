@@ -216,7 +216,11 @@ return {
 			end
 
 			-- Print a number on the sequence-bar, if space allows
-			if (fontheight <= boxheight) or ((i % 5) == 0) then
+			local displaynum = 5
+			if (coltotal % 5) == 0 then
+				displaynum = 4
+			end
+			if (fontheight <= boxheight) or ((i % displaynum) == 0) then
 				love.graphics.setFont(data.font.botbar.raster)
 				love.graphics.setColor(data.color.summary.text_shadow)
 				love.graphics.print(itext, textleft + 1, texttop + 1)
