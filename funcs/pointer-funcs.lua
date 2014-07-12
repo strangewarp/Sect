@@ -3,11 +3,11 @@ return {
 	-- Normalize all pointers (e.g. after a command that changes seq length)
 	normalizePointers = function()
 	
-		local tlimit = (data.active and #data.seq[data.active].tick) or 0
+		local tlimit = (data.active and #data.seq[data.active].tick) or 1
 
 		-- Normalize tick and note pointers
-		data.tp = clampNum(data.tp, 1, tlimit)
-		data.np = clampNum(data.np, data.bounds.np)
+		data.tp = (rangeCheck(data.tp, 1, tlimit) and data.tp) or 1
+		data.np = (rangeCheck(data.np, data.bounds.np) and data.np) or 1
 
 		-- Normalize selection-pointers
 		if data.sel.l ~= false then

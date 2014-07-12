@@ -209,4 +209,11 @@ return {
 
 	end,
 
+	-- Sanitize all data-structures
+	sanitizeDataStructures = function()
+		normalizePointers()
+		removeOldSelectItems()
+		selectionDataToIndexes()
+	end,
+
 }

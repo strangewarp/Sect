@@ -204,9 +204,7 @@ return {
 		_G[fname](unpack(t))
 
 		-- Sanitize data structures, which may have been changed
-		normalizePointers()
-		removeOldSelectItems()
-		selectionDataToIndexes()
+		sanitizeDataStructures()
 
 	end,
 

@@ -136,27 +136,22 @@ return {
 		local xfull = width - left
 		local yfull = height - top
 
+		-- Get box-offset and mouse-hit information
 		local xoffset = math.ceil(x / (boxwidth + 1))
 		local yoffset = math.ceil(y / (boxheight + 1))
 		local xhit = (x % (boxwidth + 1)) and true
 		local yhit = (y % (boxheight + 1)) and true
 
+		-- Get new sequence number
 		local newseq = xoffset + (coltotal * (yoffset - 1))
 
+		-- If sequence exists, tab to it, and sanitize data structures
 		if xhit and yhit then
 			if newseq <= seqs then
 				data.active = newseq
+				sanitizeDataStructures()
 			end
 		end
-
-		print("box xy " .. table.concat({boxwidth, boxheight}, " ")) -- debugging
-		print("x y " .. table.concat({x, y}, " ")) -- debugging
-		print("offsets " .. table.concat({xoffset, yoffset}, " ")) -- debugging
-		print("xhit yhit " .. table.concat({tostring(xhit), tostring(yhit)}, " ")) -- debugging
-		print("coltotal " .. coltotal)
-		print("newseq " .. newseq) -- debugging
-		print("left x " .. left .. " " .. x)
-
 
 	end,
 
