@@ -45,15 +45,19 @@ return {
 		local newtick = wrapNum(data.tp + xoffset, 1, #data.seq[data.active].tick)
 		local newnote = wrapNum(data.np + yoffset, data.bounds.np)
 
+		-- Figure out whether the mouse-position overlaps with a note
 		local tightest = math.huge
 		local modtick = newtick
 		for k, v in pairs(data.seq[data.active].tick) do
 			for kk, vv in pairs(v) do
 
+				-- Get the note's pitch or pitch-equivalent
 				local pitch = vv.note[data.acceptmidi[vv.note[1]][1]]
 
+				-- If the pitch matches the new-note-position...
 				if (newnote == pitch) then
 
+					-- Get offsets for notes whose duration passes the seq boundary
 					local offset = 0
 					local low = vv.tick + offset
 					local high = low
@@ -64,6 +68,9 @@ return {
 						high = vv.tick + vv.note[3] + offset
 					end
 
+					-- If the note matches the new-tick,
+					-- and is shorter than other matching candidates,
+					-- set modtick to that note's first tick.
 					if rangeCheck(newtick + offset, low, high) then
 						local size = high - low
 						if size < tightest then
