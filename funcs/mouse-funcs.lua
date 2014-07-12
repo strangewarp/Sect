@@ -46,7 +46,7 @@ return {
 		local newnote = wrapNum(data.np + yoffset, data.bounds.np)
 
 		-- Figure out whether the mouse-position overlaps with a note
-		local tightest = math.huge
+		local closest = false
 		local modtick = newtick
 		for k, v in pairs(data.seq[data.active].tick) do
 			for kk, vv in pairs(v) do
@@ -59,12 +59,13 @@ return {
 
 					-- Get offsets for notes whose duration passes the seq boundary
 					local offset = 0
-					local low = vv.tick + offset
+					local low = vv.tick
 					local high = low
 					if vv.note[1] == 'note' then
 						if (vv.tick + vv.note[3]) > ticks then
 							offset = ticks - (vv.tick - 1)
 						end
+						low = vv.tick + offset
 						high = vv.tick + vv.note[3] + offset
 					end
 
@@ -73,8 +74,8 @@ return {
 					-- set modtick to that note's first tick.
 					if rangeCheck(newtick + offset, low, high) then
 						local size = high - low
-						if size < tightest then
-							tightest = size
+						if (not closest) or (low > closest) then
+							closest = low
 							modtick = vv.tick
 						end
 					end
@@ -97,7 +98,7 @@ return {
 		end
 
 		-- If a note overlapped the mouse-click...
-		if tightest ~= math.huge then
+		if closest then
 
 			-- Clear any selection-window that might be active
 			toggleSelect("clear")
@@ -111,10 +112,12 @@ return {
 			toggleSelect("top", modtick, newnote)
 			toggleSelect("clear")
 
-		else -- If no note was clicked, clear the select-window and select-memory
+		else -- If no note was clicked, and shift isn't held, clear select-memory
 
-			toggleSelect("clear")
-			clearSelectMemory()
+			if not entryExists(data.keys, "shift") then
+				toggleSelect("clear")
+				clearSelectMemory()
+			end
 
 		end
 

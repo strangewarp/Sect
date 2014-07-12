@@ -38,9 +38,23 @@ return {
 		-- If linecolor was not given, keep a note of that
 		local line = not (linecolor == nil)
 
-		-- Sort shadow notes to the beginning of the render-table,
-		-- in order to prevent Z-fighting.
-		table.sort(notes, function(a, b) return (a[1] == 'shadow') and (b[1] ~= 'shadow') end)
+		-- Seperate notes into 'shadow' and 'other' tabs
+		local shadownotes = {}
+		local othernotes = {}
+		for _, v in pairs(notes) do
+			if v[1] == 'shadow' then
+				table.insert(shadownotes, v)
+			else
+				table.insert(othernotes, v)
+			end
+		end
+
+		-- Sort notes by tick position
+		table.sort(shadownotes, function(a, b) return a[3].tick < b[3].tick end)
+		table.sort(othernotes, function(a, b) return a[3].tick < b[3].tick end)
+
+		-- Recombine the sorted tables, to render shadow first, then other.
+		notes = tableCombine(shadownotes, othernotes)
 
 		-- For every note in the render-table...
 		for k, v in pairs(notes) do
