@@ -57,23 +57,30 @@ return {
 				-- If the pitch matches the new-note-position...
 				if (newnote == pitch) then
 
-					-- Get offsets for notes whose duration passes the seq boundary
-					local offset = 0
 					local low = vv.tick
 					local high = low
+
+					-- If the note is a note-note, get and wrap its high-point
 					if vv.note[1] == 'note' then
-						if (vv.tick + vv.note[3]) > ticks then
-							offset = ticks - (vv.tick - 1)
+						high = vv.tick + vv.note[3] - 1
+						if high > ticks then
+							high = wrapNum(high + 1, 1, ticks)
 						end
-						low = vv.tick + offset
-						high = vv.tick + vv.note[3] + offset
 					end
 
-					-- If the note matches the new-tick,
-					-- and is shorter than other matching candidates,
+					-- If the note wrapped around, adjust its virtual bounds
+					if low > high then
+						if newtick < high then
+							low = low - ticks
+						else
+							high = high + ticks
+						end
+					end
+
+					-- If the note contains the clicked tick,
+					-- and starts later than other matching candidates,
 					-- set modtick to that note's first tick.
-					if rangeCheck(newtick + offset, low, high) then
-						local size = high - low
+					if rangeCheck(newtick, low, high) then
 						if (not closest) or (low > closest) then
 							closest = low
 							modtick = vv.tick
@@ -95,28 +102,30 @@ return {
 			-- Set mouse-position to the anchor point
 			love.mouse.setPosition(left + xanchor, top + yanchor)
 
-		end
+		else -- Else if mousemove is disabled...
 
-		-- If a note overlapped the mouse-click...
-		if closest then
+			-- If a note overlapped the mouse-click...
+			if closest then
 
-			-- Clear any selection-window that might be active
-			toggleSelect("clear")
-
-			-- If shift isn't being held, clear the select-memory
-			if not entryExists(data.keys, "shift") then
-				clearSelectMemory()
-			end
-
-			-- Select the note at the click location, and clear the select-window.
-			toggleSelect("top", modtick, newnote)
-			toggleSelect("clear")
-
-		else -- If no note was clicked, and shift isn't held, clear select-memory
-
-			if not entryExists(data.keys, "shift") then
+				-- Clear any selection-window that might be active
 				toggleSelect("clear")
-				clearSelectMemory()
+
+				-- If shift isn't being held, clear the select-memory
+				if not entryExists(data.keys, "shift") then
+					clearSelectMemory()
+				end
+
+				-- Select the note at the click location, and clear the select-window.
+				toggleSelect("top", modtick, newnote)
+				toggleSelect("clear")
+
+			else -- If no note was clicked, and shift isn't held, clear select-memory
+
+				if not entryExists(data.keys, "shift") then
+					toggleSelect("clear")
+					clearSelectMemory()
+				end
+
 			end
 
 		end
