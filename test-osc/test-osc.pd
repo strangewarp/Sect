@@ -1,4 +1,5 @@
-#N canvas 141 12 461 665 10;
+#N canvas 321 10 461 665 10;
+#X declare -lib mrpeach;
 #X obj 69 105 unpackOSC;
 #X obj 69 83 udpreceive 8500;
 #X obj 69 163 route /extrovert;
@@ -53,6 +54,7 @@
 #X obj 112 590 list trim;
 #X obj 112 620 noteout;
 #X obj 25 613 print cmd;
+#X obj 344 29 import mrpeach;
 #X connect 0 0 2 0;
 #X connect 0 0 17 0;
 #X connect 1 0 0 0;

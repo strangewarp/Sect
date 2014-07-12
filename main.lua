@@ -142,6 +142,47 @@ end
 -----------------
 function love.update(dt)
 
+	-- If still on the loading screen, abort function
+	if data.loading then
+		return nil
+	end
+
+	local newnotes = {}
+
+	-- While incoming messages are present, decode them,
+	-- and put them into the newnotes table.
+	repeat
+
+		local cmd, msg = data.udpin:receive()
+
+		if cmd then
+
+			local n = decodeOSC(cmd)
+
+			print(cmd) -- debugging
+			print(msg) -- debugging
+
+			local innote = {
+				tick = data.tp,
+				note = {
+					n[1],
+					data.tp - 1,
+					n[2], n[3], n[4],
+				},
+			}
+
+			table.insert(newnotes, innote)
+
+		end
+
+	until not cmd
+
+	-- If any newnotes were received, add a new undo-block and insert them.
+	if #newnotes > 0 then
+		addUndoBlock()
+		setNotes(newnotes, false)
+	end
+
 end
 
 ---------------

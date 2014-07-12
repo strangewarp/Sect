@@ -1,14 +1,20 @@
 
 return {
 	
-	-- Port for sending commands to Extrovert
-	oscsend = 8500,
+	osc = { -- OSC-over-UDP ports
+		send = 8500, -- API-over-OSC: OUT to Extrovert
+		receive = 8600, -- MIDI-over-OSC: IN from PdSectClient
+	},
 
 	-- Path where savefiles are stored
 	savepath = "C:/Users/Christian/Documents/MUSIC_STAGING/",
 
 	-- Max undo depth
 	maxundo = 100,
+
+	-- Toggles whether the mouse is reset to the center,
+	-- during click, in movement-mode.
+	mousetocenter = false,
 
 	hotseats = { -- Names of savefiles that are tabled for quick loading
 
@@ -233,7 +239,7 @@ return {
 		},
 
 		reticule = { -- Tick-pointer reticule
-			breadth = 38,
+			breadth = 26,
 		},
 
 		triangle = { -- Beat-line triangle

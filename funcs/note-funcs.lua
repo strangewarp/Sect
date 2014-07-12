@@ -326,7 +326,6 @@ return {
 			if v.note[1] == 'note' then
 				local rand = math.random(0, data.velo)
 				local newvelo = clampNum(v.note[6] + (roundNum(data.velo / 2) - rand), data.bounds.velo)
-				print(newvelo) -- DEBUGGING
 				data.seldat[k].note[6] = newvelo
 			end
 

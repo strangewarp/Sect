@@ -30,7 +30,8 @@ D.dur = 24 -- Duration
 D.spacing = 24 -- Spacing
 
 -- SOCKET VARS --
-D.udp = false -- Var that will hold the UDP socket
+D.udpin = false -- Holds UDP-IN socket
+D.udpout = false -- Holds UDP-OUT socket
 
 -- ZOOM VARS --
 D.cellwidth = 2 -- Horizontal pixels per cell

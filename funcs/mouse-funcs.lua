@@ -100,7 +100,9 @@ return {
 			data.np = newnote
 
 			-- Set mouse-position to the anchor point
-			love.mouse.setPosition(left + xanchor, top + yanchor)
+			if data.mousetocenter then
+				love.mouse.setPosition(left + xanchor, top + yanchor)
+			end
 
 		else -- Else if mousemove is disabled...
 
