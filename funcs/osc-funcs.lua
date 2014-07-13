@@ -26,80 +26,6 @@ return {
 		end
 	end,
 
-	-- Decode an OSC message
-	decodeOSC = function(data)
-		if #data == 0 then
-			return nil
-		end
-		if string.match(data, "^#bundle") then
-			return decodeBundle(data)
-		else
-			return decodeMessage(data)
-		end
-	end,
-
-	decodeMessage = function(data)
-		local types, addr, tmp_data = nil
-		local message = {}
-		addr, tmp_data = getAddrFromData(data)
-		types, tmp_data = getTypesFromData(tmp_data)
-		if addr == nil or types == nil then
-			return nil
-		end
-		for _,t in base.ipairs(types) do
-			tmp_data = collectDecodingFromMessage(t, tmp_data, message)
-		end
-		return message
-	end,
-
-	decodeBundle = function(data) 
-		local match, last = nextString(data)
-		local tmp_data = nil
-		local msg = {}
-		local sec, frac
-		-- skip first string data since it will only contian #bundle
-		tmp_data = string.sub(data, 9)
-		-- check that there is a part of the message left
-		if not tmp_data then
-			return nil
-		end
-		table.insert(msg, "#bundle")	
-		_, sec, frac = upack("> u4 > u4", {string.sub(tmp_data, 1, 8)})
-		-- note this is an awful way of decoding to a bin string and
-		-- then decoding the frac again TODO: make this nicer
-		frac = numberstring(frac, 2)
-		if sec == 0 and frac == IMMEDIATE then
-			table.insert(msg, 0)
-		else
-			table.insert(msg, sec - ADJUSTMENT_FACTOR + decode_frac(frac) )
-		end
-		tmp_data = string.sub(tmp_data, 9)
-		while #tmp_data > 0 do
-			local length = decodeInt(string.sub(tmp_data,1,4))
-			table.insert(msg, decodeOSC(string.sub(tmp_data, 5, 4 + length)))
-			tmp_data = string.sub(tmp_data, 9 + length)
-		end
-		return msg
-	end,
-
-	decodeFrac = function(bin)
-		local frac = 0
-		for i = #bin, 1 do
-			frac = (frac + string.sub(bin, i - 1, i)) / 2
-		end
-		return frac
-	end,
-
-	decodeFloat = function(bin)
-		local pos, res = upack("> f4", {bin})
-		return res
-	end,
-
-	decodeInt = function(bin)
-		local pos, res = upack("> i4", {bin} )
-		return res
-	end,
-
 	-- Encode OSC string
 	encodeString = function(astring) 
 		local fillbits = (4 - #astring % 4)
@@ -237,10 +163,7 @@ return {
 		data.udpin = socket.udp()
 
 		data.udpout:settimeout(0)
-		data.udpout:setpeername("localhost", data.osc.send)
-
-		data.udpin:settimeout(0)
-		data.udpin:setpeername("localhost", data.osc.receive)
+		data.udpout:setpeername("localhost", data.oscsend)
 
 	end,
 

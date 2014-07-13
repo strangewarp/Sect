@@ -1,10 +1,7 @@
 
 return {
 	
-	osc = { -- OSC-over-UDP ports
-		send = 8500, -- API-over-OSC: OUT to Extrovert
-		receive = 8600, -- MIDI-over-OSC: IN from PdSectClient
-	},
+	oscsend = 8500, -- API-over-OSC: OUT to Extrovert
 
 	-- Path where savefiles are stored
 	savepath = "C:/Users/Christian/Documents/MUSIC_STAGING/",
