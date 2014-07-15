@@ -1,4 +1,60 @@
 
+-----------------------
+--- CUSTOM RUN-LOOP ---
+-----------------------
+function love.run()
+
+	if love.math then
+		love.math.setRandomSeed(os.time())
+	end
+
+	if love.event then
+		love.event.pump()
+	end
+
+	if love.load then love.load(arg) end
+
+	if love.timer then love.timer.step() end
+
+	local dt = 0
+
+	while true do
+
+		if love.event then
+			love.event.pump()
+			for e,a,b,c,d in love.event.poll() do
+				if e == "quit" then
+					if not love.quit or not love.quit() then
+						if love.audio then
+							love.audio.stop()
+						end
+						return
+					end
+				end
+				love.handlers[e](a,b,c,d)
+			end
+		end
+
+		if love.timer then
+			love.timer.step()
+			dt = love.timer.getDelta()
+		end
+
+		if love.update then love.update(dt) end
+
+		if love.window and love.graphics and love.window.isCreated() then
+			love.graphics.clear()
+			love.graphics.origin()
+			if love.draw then love.draw() end
+			love.graphics.present()
+		end
+
+		if love.timer then love.timer.sleep(data.updatespeed) end
+
+	end
+
+end
+
 ---------------
 --- ON LOAD ---
 ---------------
@@ -28,6 +84,7 @@ function love.load()
 	mousefuncs = require('funcs/mouse-funcs')
 	notefuncs = require('funcs/note-funcs')
 	oscfuncs = require('funcs/osc-funcs')
+	playfuncs = require('funcs/play-funcs')
 	pointerfuncs = require('funcs/pointer-funcs')
 	selectfuncs = require('funcs/select-funcs')
 	undofuncs = require('funcs/undo-funcs')
@@ -51,6 +108,7 @@ function love.load()
 		mousefuncs,
 		notefuncs,
 		oscfuncs,
+		playfuncs,
 		pointerfuncs,
 		selectfuncs,
 		undofuncs,
@@ -141,6 +199,11 @@ end
 --- ON UPDATE ---
 -----------------
 function love.update(dt)
+
+	-- If Play Mode is active, iterate by one tick
+	if data.playing then
+		iteratePlayMode(dt)
+	end
 
 end
 

@@ -291,11 +291,9 @@ return {
 
 			TOGGLE_SEQ_OVERLAY = {"backspace"},
 			TOGGLE_NOTE_DRAW = {"shift", "backspace"},
-
-			TOGGLE_RECORDING = {" "},
-
+			TOGGLE_RECORDING = {"escape"},
+			TOGGLE_PLAY_MODE = {" "},
 			TOGGLE_GENERATOR_MODE = {"shift", " "},
-
 			TOGGLE_CHAN_NUM_VIEW = {"`"},
 
 			UNDO = {"ctrl", "z"},

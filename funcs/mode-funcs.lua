@@ -26,9 +26,19 @@ return {
 
 	end,
 
-	-- Flip whether to draw the active sequence's notes
+	-- Toggle whether to draw the active sequence's notes
 	toggleNoteDraw = function()
 		data.drawnotes = not data.drawnotes
+	end,
+
+	-- Toggle whether to be actively playing through the sequence's ticks
+	togglePlayMode = function()
+		data.playing = not data.playing
+		if data.playing then
+			data.updatespeed = 60 / (data.bpm * data.tpq * 4)
+		else
+			data.updatespeed = 0.01
+		end
 	end,
 
 	-- Toggle whether note-recording commands are accepted
@@ -36,7 +46,7 @@ return {
 		data.recording = not data.recording
 	end,
 	
-	-- Flip a given sequence's overlay activity
+	-- Toggle a given sequence's overlay activity
 	toggleSeqOverlay = function()
 		data.seq[data.active].overlay = not data.seq[data.active].overlay
 	end,

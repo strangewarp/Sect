@@ -1,15 +1,16 @@
 
 local D = {}
 
+-- LOVE ENGINE VARS --
+D.updatespeed = 0.01 -- Speed at which to attempt to update program-state
+
 -- DATA VARS --
 D.seq = {} -- Sequence-data table
 D.keys = {} -- Keystroke-tracking table
 D.overlay = {} -- Overlay-render tracking table
-
 D.active = false -- Currently active sequence (false if nothing loaded)
 D.tp = 0 -- Current tick-pointer position
 D.np = 0 -- Current note-pointer position
-
 D.tick = 1 -- Current tick occupied by the play-line position
 D.playing = false -- Toggles whether the tickline is playing or not
 
@@ -81,6 +82,9 @@ D.beatbound = 1 -- Number of TPQ-based beats to fill with generated notes
 D.beatgrain = 8 -- Smallest beatlength factor to which notes will stick
 D.notegrain = 2 -- Minimum note size, in ticks
 
+-- SEQ-PLAY VARS --
+D.playoffset = 0 -- Holds the sub-delta time offset for tick-playing
+
 -- MODE VARS --
 D.cmdmodes = { -- Mode flags for accepting certain command types
 	base = true, -- Accept base-commands
@@ -89,18 +93,19 @@ D.cmdmodes = { -- Mode flags for accepting certain command types
 }
 D.loading = true -- True while loading; false after loading is done
 D.recording = true -- Toggles whether note-recording is enabled
+D.playing = false -- Toggles whether to play through the seq's contents
 D.drawnotes = true -- Toggles whether to draw notes
 D.chanview = true -- Toggles rendering chan-nums on notes
 D.mousemove = false -- Toggles mouse-based movement
 
 -- Baseline contents for new sequences
 D.baseseq = {
-	point = 1, -- Internal pointer, for playing decoupled from global tick
 	overlay = false, -- Toggles whether the seq shadows other seqs
 	tick = {}, -- Table that holds all ticks (each holds its own notes)
 }
 
-D.bounds = { -- Boundaries for user-shiftable control vars
+-- Boundaries for user-shiftable control vars
+D.bounds = {
 
 	-- Misc bounds --
 	bpm = {1, math.huge, false}, -- Beats per minute
@@ -178,6 +183,7 @@ D.cmdfuncs = {
 	TOGGLE_NOTE_DRAW = {"toggleNoteDraw"},
 	TOGGLE_RECORDING = {"toggleRecording"},
 	TOGGLE_GENERATOR_MODE = {"toggleGeneratorMode"},
+	TOGGLE_PLAY_MODE = {"togglePlayMode"},
 	TOGGLE_CHAN_NUM_VIEW = {"toggleChanNumView"},
 
 	UNDO = {"traverseUndo", true},
