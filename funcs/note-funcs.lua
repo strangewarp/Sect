@@ -191,7 +191,6 @@ return {
 			elseif (v.note[1] ~= 'note') and rangeCheck(v.note[4], data.bounds.np) then
 				nt[k].note[4] = wrapNum(v.note[4] + ndir, data.bounds.np)
 			end
-			print("DYE 1: " .. nt[k].tick .. " " .. nt[k].note[2] .. " " .. nt[k].note[5]) --DEBUGGING
 		end
 
 		notes = notesToRemove(notes)

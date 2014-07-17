@@ -106,7 +106,9 @@ return {
 				elseif v[1] == 'set_tempo' then
 					bpm = 60000000 / v[3]
 				elseif data.acceptmidi[v[1]] then
-					endpoint = math.max(endpoint, v[2])
+					if v[1] == 'note' then -- Extend note by tick + dur
+						endpoint = math.max(endpoint, v[2] + v[3])
+					end
 					table.insert(newnotes, {tick = v[2] + 1, note = v})
 				else
 					print("loadFile: Discarded unsupported command: " .. v[1])
@@ -123,8 +125,6 @@ return {
 			if newseqlen < endpoint then
 				insertTicks(inseq, newseqlen, endpoint - newseqlen, undo)
 			end
-
-			--print(endpoint) -- DEBUGGING
 
 			-- Insert all known commands into the new sequence
 			setNotes(inseq, newnotes, undo)
