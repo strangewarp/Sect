@@ -21,6 +21,7 @@ return {
 		-- Get the remainder-time-offset for next iteration
 		data.playoffset = dtadj - (data.updatespeed * steps)
 
+		-- Get the current ideal update-speed
 		data.updatespeed = 60 / (data.bpm * data.tpq * 4)
 
 		-- Iterate through a "steps" number of ticks, if applicable

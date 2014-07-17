@@ -84,6 +84,11 @@ return {
 
 		selectionDataToIndexes()
 
+		-- If all notes were just selected, remove the selection-area
+		if cmd == "all" then
+			toggleSelect("clear")
+		end
+
 	end,
 
 	-- Clear the select-table
