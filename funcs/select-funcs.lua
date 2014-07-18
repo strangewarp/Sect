@@ -295,10 +295,12 @@ return {
 			if v.note[1] == 'note' then
 
 				local temp = deepCopy(v)
+				local changed = false
 
 				-- Shift the temp-values
 				if data.bounds[cmd] then
 					temp.note[index] = wrapNum(temp.note[index] + dist, data.bounds[cmd])
+					changed = true
 				elseif index == 2 then
 					temp.tick = wrapNum(
 						temp.tick + (dist * data.spacing),
@@ -306,11 +308,12 @@ return {
 						#data.seq[data.active].tick
 					)
 					temp.note[2] = temp.tick - 1
+					changed = true
 				end
 
 				-- If the modification resulted in a change,
 				-- add the notes to the update-tables
-				if not orderedCompare(temp.note, v.note) then
+				if changed then
 					table.insert(oldnotes, v)
 					table.insert(newnotes, temp)
 				end
