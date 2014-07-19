@@ -111,6 +111,8 @@ return {
 		local removenotes = {}
 		local addnotes = {}
 
+		local ticks = #data.seq[p].tick
+
 		-- Find all overlapping notes, and all to-be-removed notes
 		for i = #notes, 1, -1 do
 
@@ -140,6 +142,15 @@ return {
 		for k, v in pairs(notes) do
 			if v.note[1] ~= 'remove' then
 				table.insert(addnotes, deepCopy(v))
+			end
+		end
+
+		-- Bound note duration to the end of the sequence
+		for k, v in pairs(addnotes) do
+			if (v.note[1] == 'note')
+			and ((v.note[2] + v.note[3] - 1) > ticks)
+			then
+				v.note[3] = ticks - v.note[2]
 			end
 		end
 

@@ -311,6 +311,15 @@ return {
 					changed = true
 				end
 
+				-- If duration was changed, keep it from overlapping sequence length
+				if index == 3 then
+					temp.note[index] = clampNum(
+						temp.note[index],
+						1,
+						#data.seq[data.active].tick - temp.note[2]
+					)
+				end
+
 				-- If the modification resulted in a change,
 				-- add the notes to the update-tables
 				if changed then
