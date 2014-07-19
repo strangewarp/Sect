@@ -105,12 +105,19 @@ return {
 
 		local key = wrapNum(note + 1, 1, 12)
 		local octave = math.floor(note / 12)
+		local oanchor = math.floor(data.np / 12) * 12
 		local whicharr = true
 		local shape = data.pianometa[key][1]
 
+		-- Change flag for key coloration, based on key's keyboard-piano position
+		local activekey = false
+		if rangeCheck(note, oanchor, oanchor + (#data.pianokeys - 1)) then
+			activekey = true
+		end
+
 		local intab = {
 			name = data.pianometa[key][2] .. "-" .. octave,
-			color = data.color.piano.light,
+			color = (activekey and data.color.piano.active_light) or data.color.piano.inactive_light,
 			l = left,
 			t = center - midhalf,
 			b = center + midhalf,
@@ -122,7 +129,7 @@ return {
 		-- Insert color type and rectangle polygon, based on key type
 		if shape == 0 then -- Black note poly
 			whicharr = false
-			intab.color = data.color.piano.dark
+			intab.color = (activekey and data.color.piano.active_dark) or data.color.piano.inactive_dark
 			intab.r = left + left + kcenter
 			intab.fl = 0
 			intab.fr = kcenter

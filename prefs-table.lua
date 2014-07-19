@@ -66,8 +66,10 @@ return {
 		},
 
 		piano = { -- Vertical-piano colors
-			dark = {20, 20, 30, 255},
-			light = {240, 240, 250, 255},
+			active_dark = {20, 20, 30, 255},
+			active_light = {240, 240, 250, 255},
+			inactive_dark = {100, 100, 150, 255},
+			inactive_light = {150, 150, 200, 255},
 			highlight = {230, 45, 40, 255},
 			border = {130, 129, 132, 255},
 			labellight = {200, 200, 205, 255},
