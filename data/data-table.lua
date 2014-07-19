@@ -203,9 +203,9 @@ D.cmdfuncs = {
 
 	TOGGLE_TOP = {"toggleSelect", "top"},
 	TOGGLE_BOT = {"toggleSelect", "bottom"},
+	SELECT_ALL = {"toggleSelect", "all"},
 	CLEAR_SELECT_RANGE = {"toggleSelect", "clear"},
 	CLEAR_SELECT_MEMORY = {"clearSelectMemory"},
-	SELECT_ALL = {"toggleSelect", "all"},
 
 	COPY = {"copySelection", false},
 	COPY_ADD = {"copySelection", true},

@@ -303,9 +303,9 @@ return {
 
 			TOGGLE_TOP = {"ctrl", ","},
 			TOGGLE_BOT = {"ctrl", "."},
-			CLEAR_SELECT_RANGE = {"ctrl", "/"},
-			CLEAR_SELECT_MEMORY = {"ctrl", "shift", "/"},
 			SELECT_ALL = {"ctrl", "a"},
+			CLEAR_SELECT_RANGE = {"ctrl", "/"},
+			CLEAR_SELECT_MEMORY = {"ctrl", "shift", "a"},
 
 			COPY = {"ctrl", "c"},
 			COPY_ADD = {"ctrl", "shift", "c"},

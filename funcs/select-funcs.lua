@@ -181,9 +181,12 @@ return {
 		-- Get duplicates of the notes in selection-memory
 		local n = deepCopy(data.seldat)
 
+		-- If there is no selection window, use tick-pointer for offset
+		local offset = data.sel.l or data.tp
+
 		-- Reduce tick values relative to the left selection-pointer's position
 		for i = 1, #n do
-			n[i].tick = n[i].tick - (data.sel.l - 1)
+			n[i].tick = (n[i].tick - offset) + 1
 			n[i].note[2] = n[i].tick - 1
 		end
 
