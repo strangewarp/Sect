@@ -346,10 +346,10 @@ return {
 			MOD_NOTE_LEFT = {"tab", "left"},
 			MOD_NOTE_RIGHT = {"tab", "right"},
 
-			MOD_VELOCITY_UP = {"tab", "pageup"},
-			MOD_VELOCITY_DOWN = {"tab", "pagedown"},
-			MOD_VELOCITY_UP_10 = {"shift", "tab", "pageup"},
-			MOD_VELOCITY_DOWN_10 = {"shift", "tab", "pagedown"},
+			MOD_VELOCITY_UP = {"tab", "="},
+			MOD_VELOCITY_DOWN = {"tab", "-"},
+			MOD_VELOCITY_UP_10 = {"shift", "tab", "="},
+			MOD_VELOCITY_DOWN_10 = {"shift", "tab", "-"},
 
 			MOD_SEQ_UP = {"ctrl", "pageup"},
 			MOD_SEQ_DOWN = {"ctrl", "pagedown"},
