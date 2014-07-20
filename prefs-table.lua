@@ -160,7 +160,7 @@ return {
 		},
 
 		grid = { -- Sequence-grid
-			file = "test.png",
+			file = false,
 			xglue = "center",
 			yglue = "center",
 		},
