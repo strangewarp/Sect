@@ -3,10 +3,8 @@ function love.conf(t)
     t.identity = "sect" -- The name of the save directory (string)
     t.version = "0.9.1" -- The LÖVE version this game was made for (string)
 
-    -- TODO: Set this to false before final release!!!
-    t.console = true -- Attach a console (boolean, Windows only)
-    -- TODO: Remove this before final release!!
-    io.stdout:setvbuf("no")
+    --t.console = true -- Attach a console (boolean, Windows only)
+    --io.stdout:setvbuf("no")
 
     t.window.title = "Sect" -- The window title (string)
     t.window.icon = "img/icon.png" -- Filepath to an image to use as the window's icon (string)
