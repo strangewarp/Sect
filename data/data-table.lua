@@ -62,6 +62,11 @@ D.seldat = {} -- Holds the notes that were selected for commands
 D.copydat = {} -- Table for copied notes
 D.selindex = {} -- Selected notes, indexed by [tick][note]
 
+-- MOUSE VARS --
+D.dragging = false -- True if mouse is dragging across screen
+D.dragx = false -- Holds table of both x-bounds while dragging
+D.dragy = false -- Holds table of both y-bounds while dragging
+
 -- SCALE VARS --
 D.scales = {} -- All possible scales (built in wheel-funcs)
 D.wheels = {} -- All possible wheels (built in wheel-funcs)
@@ -96,7 +101,6 @@ D.recording = true -- Toggles whether note-recording is enabled
 D.playing = false -- Toggles whether to play through the seq's contents
 D.drawnotes = true -- Toggles whether to draw notes
 D.chanview = true -- Toggles rendering chan-nums on notes
-D.mousemove = false -- Toggles mouse-based movement
 
 -- Baseline contents for new sequences
 D.baseseq = {

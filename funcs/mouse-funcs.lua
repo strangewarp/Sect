@@ -1,8 +1,101 @@
 
 return {
-	
+
+	-- Check whether to enlarge the boundaries ofthe mouse's dragged-range
+	checkMouseDrag = function(left, top, width, height, x, y)
+
+		-- If no sequences exist, abort function
+		if not data.active then
+			return nil
+		end
+
+		-- If the dragging-cursor is outside of frame, abort function
+		if not collisionCheck(0, 0, width, height, x, y, 1, 1) then
+			return nil
+		end
+
+		-- Get panel-position information
+		local xfull = width - left
+		local yfull = height - top
+
+		-- Get anchor-position information
+		local xanchor = xfull * data.size.anchor.x
+		local yanchor = yfull * data.size.anchor.y
+
+		-- Get the cursor's tick and note coordinates
+		local newtick, newnote = getCursorCell(xanchor, yanchor, x, y)
+
+		-- If dragx and dragy are empty, set them to the current position
+		data.dragx = data.dragx or {newtick, newtick}
+		data.dragy = data.dragy or {newnote, newnote}
+
+		-- Keep old values for comparison
+		local oldtick = data.dragx[2]
+		local oldnote = data.dragy[2]
+
+		-- Set the target dragx and dragy based on cursor position
+		data.dragx[2] = newtick
+		data.dragy[2] = newnote
+
+		-- Enlarge the select-area according to new dragx,dragy ranges
+		if (oldtick ~= data.dragx[2])
+		or (oldnote ~= data.dragy[2])
+		then
+			print(#data.seldat)--debugging
+			toggleSelect("top", data.dragx[1], data.dragy[1])
+			toggleSelect("bottom", data.dragx[2], data.dragy[2])
+		end
+
+	end,
+
+	-- Get the tick-column and note-row that the cursor currently occupies
+	getCursorCell = function(xanchor, yanchor, x, y)
+
+		-- Get mouse-position offsets
+		local xoffset = roundNum((x - xanchor) / data.cellwidth, 0)
+		local yoffset = roundNum((yanchor - y) / data.cellheight, 0)
+
+		-- Get new tick and note positions
+		local newtick = wrapNum(data.tp + xoffset, 1, #data.seq[data.active].tick)
+		local newnote = wrapNum(data.np + yoffset, data.bounds.np)
+
+		return newtick, newnote
+
+	end,
+
+	-- Change the cursor-image, and selection, based on mouse-click state	
+	mouseCursorChange = function(button, down)
+
+		-- If the mouse-click is a downstroke...
+		if down then
+
+			-- Set the cursor to one of the two click-type images
+			if button == 'l' then
+				love.mouse.setCursor(data.cursor.leftclick.c)
+				data.dragging = true
+			elseif button == 'r' then
+				love.mouse.setCursor(data.cursor.rightclick.c)
+			end
+
+		else -- Else, if the mouse-click is an upstroke...
+
+			-- If the mouse was dragged, reset the drag-trackers, and clear selection
+			if data.dragging then
+				data.dragging = false
+				data.dragx = false
+				data.dragy = false
+				toggleSelect("clear")
+			end
+
+			-- Set the cursor to its default image
+			love.mouse.setCursor(data.cursor.default.c)
+
+		end
+
+	end,
+
 	-- Pick out the location of the mouse on-screen, and react to it
-	mousePick = function(x, y, width, height)
+	mousePick = function(x, y, width, height, button)
 
 		local left = data.size.sidebar.width
 		local pianoleft = left + (data.pianowidth / 2)
@@ -11,7 +104,7 @@ return {
 		local middle = height - data.size.botbar.height
 
 		if collisionCheck(x, y, 0, 0, left, 0, right, middle) then
-			reactToGridClick(pianoleft, top, width, middle, x - pianoleft, y)
+			reactToGridClick(pianoleft, top, width, middle, x - pianoleft, y, button)
 		elseif collisionCheck(x, y, 0, 0, left, middle, right, height) then
 			reactToTrackClick(left, middle, width - left, height - middle, x - left, y - middle)
 		end
@@ -19,7 +112,7 @@ return {
 	end,
 
 	-- React to a mouse-click on the sequence-grid
-	reactToGridClick = function(left, top, width, height, x, y)
+	reactToGridClick = function(left, top, width, height, x, y, button)
 
 		-- If no sequences exist, abort function
 		if not data.active then
@@ -34,16 +127,11 @@ return {
 		local xanchor = xfull * data.size.anchor.x
 		local yanchor = yfull * data.size.anchor.y
 
-		-- Get mouse-position offsets
-		local xoffset = roundNum((x - xanchor) / data.cellwidth, 0)
-		local yoffset = roundNum((yanchor - y) / data.cellheight, 0)
-
 		-- Get total number of ticks
 		local ticks = #data.seq[data.active].tick
 
-		-- Get new tick and note positions
-		local newtick = wrapNum(data.tp + xoffset, 1, #data.seq[data.active].tick)
-		local newnote = wrapNum(data.np + yoffset, data.bounds.np)
+		-- Get the cursor's tick and note coordinates
+		local newtick, newnote = getCursorCell(xanchor, yanchor, x, y)
 
 		-- Figure out whether the mouse-position overlaps with a note
 		local closest = false
@@ -92,8 +180,8 @@ return {
 			end
 		end
 
-		-- If mousemove is enabled...
-		if data.mousemove then
+		-- If the right button was clicked...
+		if button == 'r' then
 
 			-- Set tick and note pointers to new positions
 			data.tp = modtick
@@ -104,7 +192,7 @@ return {
 				love.mouse.setPosition(left + xanchor, top + yanchor)
 			end
 
-		else -- Else if mousemove is disabled...
+		else -- Else, if the left button was clicked...
 
 			-- If a note overlapped the mouse-click...
 			if closest then

@@ -141,7 +141,7 @@ function love.load()
 	preloadCursors()
 
 	-- Load the mousemove-inactive cursor
-	love.mouse.setCursor(data.cursor.inactive.c)
+	love.mouse.setCursor(data.cursor.default.c)
 
 	-- Get a new time-based random-seed for the entire session
 	math.randomseed(os.time())
@@ -224,6 +224,27 @@ function love.draw()
 	-- Update the piano-bar width, based on window width
 	data.pianowidth = data.size.piano.basewidth + (width / 50)
 
+	-- If the mouse is being dragged, check drag boundaries
+	if data.dragging then
+
+		-- Get positioning vars
+		local left = data.size.sidebar.width
+		local top = 0
+		local pianoleft = left + (data.pianowidth / 2)
+		local middle = height - data.size.botbar.height
+
+		-- Get the mouse's concrete position
+		local x, y = love.mouse.getPosition()
+
+		-- Check the cursor for dragging behavior
+		checkMouseDrag(
+			pianoleft, top,
+			width, middle,
+			x - pianoleft, y - top
+		)
+
+	end
+
 	-- Build the GUI
 	buildGUI(width, height)
 
@@ -233,14 +254,16 @@ end
 --- ON MOUSE PRESS ---
 ----------------------
 function love.mousepressed(x, y, button)
-
+	
 	-- Get window dimensions
 	local width, height = love.graphics.getDimensions()
 
-	if button == 'l' then -- Call the mouse-picking function
-		mousePick(x, y, width, height)
-	elseif button == 'r' then -- Toggle mouse-move
-		toggleMouseMove()
+	mouseCursorChange(button, true)
+
+	if (button == 'l')
+	or (button == 'r')
+	then -- Call the mouse-picking function
+		mousePick(x, y, width, height, button)
 	elseif button == 'wd' then -- Shift tick-zoom down
 		shiftInternalValue("cellwidth", false, -1)
 	elseif button == 'wu' then -- Shit tick-zoom up
@@ -253,6 +276,11 @@ end
 --- ON MOUSE RELEASE ---
 ------------------------
 function love.mousereleased(x, y, button)
+
+	-- Set the mouse cursor back to its default appearance
+	if (button == 'l') or (button == 'r') then
+		mouseCursorChange(button, false)
+	end
 
 end
 

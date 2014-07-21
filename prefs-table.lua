@@ -175,14 +175,20 @@ return {
 
 	cursor = { -- Mouse-cursor images
 
-		active = { -- Cursor while mouse-move is active
-			file = "img/cursor.gif", -- File location in AppData/LOVE/Sect folder
+		default = { -- Default cursor
+			file = "img/cursor1.gif", -- File location
 			x = 0, -- Cursor's x hotspot
 			y = 0, -- Cursor's y hotspot
 		},
 
-		inactive = { -- Cursor while mouse-move is inactive
+		leftclick = { -- Left-click cursor
 			file = "img/cursor2.gif",
+			x = 0,
+			y = 0,
+		},
+
+		rightclick = { -- Right-click cursor
+			file = "img/cursor3.gif",
 			x = 0,
 			y = 0,
 		},

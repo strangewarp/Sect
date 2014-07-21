@@ -395,10 +395,10 @@ return {
 				return false
 			elseif type(v) ~= type(t2[k]) then
 				return false
-			elseif (type(v) == "table")
-			and (not strictCompare(v, t2[k]))
-			then
-				return false
+			elseif type(v) == "table" then
+				if not strictCompare(v, t2[k]) then
+					return false
+				end
 			elseif v ~= t2[k] then
 				return false
 			end
