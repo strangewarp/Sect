@@ -285,15 +285,24 @@ return {
 				end
 			end
 
+			-- If the shadow-seq is a different length than the active seq,
+			-- wrap the shadow-seq onto the active-seq accordingly.
+			local tempxr = deepCopy(xranges)
+			if snum ~= data.active then
+				if #s.tick ~= ticks then
+					tempxr = getTileAxisBounds(0, xfull, tboundary, data.cellwidth * #s.tick)
+				end
+			end
+
 			-- Add visible notes to the drawnotes tab
 			if render then
 				drawnotes = tableCombine(
 					drawnotes,
 					makeNoteRenderTable(
 						render,
-						seq, s.tick,
+						snum, s.tick,
 						left, top, xfull, yfull,
-						xranges, yranges
+						tempxr, yranges
 					)
 				)
 			end
