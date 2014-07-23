@@ -123,7 +123,7 @@ D.bounds = {
 	dur = {1, math.huge, false}, -- Duration
 
 	-- Zoom bounds --
-	cellwidth = {1, 16, false}, -- X-axis zoom (tick axis)
+	cellwidth = {0.25, 16, false}, -- X-axis zoom (tick axis)
 	cellheight = {2, 32, false}, -- Y-axis zoom (note axis)
 
 	-- Generator bounds --
@@ -334,8 +334,8 @@ D.cmdfuncs = {
 	POINTER_PREV_NOTE = {"moveTickPointerByNote", -1},
 	POINTER_NEXT_NOTE = {"moveTickPointerByNote", 1},
 
-	X_ZOOM_INC = {"shiftInternalValue", "cellwidth", false, 1},
-	X_ZOOM_DEC = {"shiftInternalValue", "cellwidth", false, -1},
+	X_ZOOM_INC = {"shiftInternalValue", "cellwidth", false, 0.25},
+	X_ZOOM_DEC = {"shiftInternalValue", "cellwidth", false, -0.25},
 	Y_ZOOM_INC = {"shiftInternalValue", "cellheight", false, 1},
 	Y_ZOOM_DEC = {"shiftInternalValue", "cellheight", false, -1},
 

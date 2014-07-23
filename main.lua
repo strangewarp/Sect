@@ -254,7 +254,7 @@ end
 --- ON MOUSE PRESS ---
 ----------------------
 function love.mousepressed(x, y, button)
-	
+
 	-- Get window dimensions
 	local width, height = love.graphics.getDimensions()
 
@@ -265,9 +265,9 @@ function love.mousepressed(x, y, button)
 	then -- Call the mouse-picking function
 		mousePick(x, y, width, height, button)
 	elseif button == 'wd' then -- Shift tick-zoom down
-		shiftInternalValue("cellwidth", false, -1)
+		shiftInternalValue("cellwidth", false, -0.25)
 	elseif button == 'wu' then -- Shit tick-zoom up
-		shiftInternalValue("cellwidth", false, 1)
+		shiftInternalValue("cellwidth", false, 0.25)
 	end
 
 end

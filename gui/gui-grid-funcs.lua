@@ -182,6 +182,9 @@ return {
 		local fullwidth = data.cellwidth * ticks
 		local fullheight = data.cellheight * notes
 
+		-- If note-cells are less than 1 wide, keep tick-columns from vanishing
+		local colwidth = math.max(1, data.cellwidth)
+
 		-- All boundaries for wrapping the sequence's display
 		local xranges = getTileAxisBounds(0, xfull, tboundary, fullwidth)
 		local yranges = getTileAxisBounds(0, yfull, nboundary, fullheight)
@@ -249,13 +252,13 @@ return {
 			-- If factor-column, table for later rendering
 			if afactor >= beatthresh then
 				local color = mixColors(beatcolor, invis, 1 - (1 / (beatsize / afactor)))
-				table.insert(tintcolumns, {tick, left + xleft, top, data.cellwidth, yfull, color})
+				table.insert(tintcolumns, {tick, left + xleft, top, colwidth, yfull, color})
 			end
 
 			-- If active column, table activity-color for later rendering
 			if tick == data.tp then
 				local color = data.color.seq.active
-				table.insert(tintcolumns, {tick, left + xleft, top, data.cellwidth, yfull, color})
+				table.insert(tintcolumns, {tick, left + xleft, top, colwidth, yfull, color})
 			end
 
 			-- If this column is on a beat, add a triangle to the beat-triangle-table
