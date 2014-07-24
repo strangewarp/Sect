@@ -180,19 +180,19 @@ return {
 	cursor = { -- Mouse-cursor images
 
 		default = { -- Default cursor
-			file = "img/cursor1.gif", -- File location
+			file = "img/cursor1.png", -- File location
 			x = 0, -- Cursor's x hotspot
 			y = 0, -- Cursor's y hotspot
 		},
 
 		leftclick = { -- Left-click cursor
-			file = "img/cursor2.gif",
+			file = "img/cursor2.png",
 			x = 0,
 			y = 0,
 		},
 
 		rightclick = { -- Right-click cursor
-			file = "img/cursor3.gif",
+			file = "img/cursor3.png",
 			x = 0,
 			y = 0,
 		},
