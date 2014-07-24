@@ -3,4 +3,5 @@ Sect
 
 A MIDI editor written in LOVE2D.
 
-Tutorial and useful info: https://github.com/strangewarp/SectTutorial
+Tutorial page: https://breck.us/sect-tutorial/index.html
+Tutorial docs: https://github.com/strangewarp/SectTutorial

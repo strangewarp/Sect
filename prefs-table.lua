@@ -1,16 +1,19 @@
 
 return {
 	
-	oscsend = 8500, -- API-over-OSC: OUT to Extrovert
-
-	-- Path where savefiles are stored
+	--------------------------------------
+	-- Path where savefiles are stored. --
+	-- Note to new users: Change this!  --
 	savepath = "C:/Users/Christian/Documents/MUSIC_STAGING/",
+	--------------------------------------
 
 	-- Max undo depth
 	maxundo = 100,
 
-	-- Toggles whether the mouse is reset to the center,
-	-- during click, in movement-mode.
+	-- MIDI-over-OSC port (OUT to test-osc.pd or Extrovert)
+	oscsend = 8500,
+
+	-- Toggles whether the mouse is reset to the center on right-click.
 	mousetocenter = false,
 
 	hotseats = { -- Names of savefiles that are tabled for quick loading
@@ -54,6 +57,7 @@ return {
 			mid = {210, 210, 200, 255},
 			light = {250, 250, 250, 255},
 			highlight = {60, 255, 50, 255},
+			warning = {255, 60, 60, 255},
 		},
 
 		summary = { -- Summary-grid colors

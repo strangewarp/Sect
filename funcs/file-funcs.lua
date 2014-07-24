@@ -58,6 +58,11 @@ return {
 	-- Load the current active savefile in the hotseats list
 	loadFile = function(undo)
 
+		-- If the save-directory doesn't exist, abort function
+		if not data.saveok then
+			return nil
+		end
+
 		local bpm, tpq = false, false
 		local undotasks = {}
 
@@ -143,6 +148,11 @@ return {
 
 	-- Save to the current active hotseat location
 	saveFile = function()
+
+		-- If the save-directory doesn't exist, abort function
+		if not data.saveok then
+			return nil
+		end
 
 		local score = {}
 

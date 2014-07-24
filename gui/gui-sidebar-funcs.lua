@@ -92,7 +92,29 @@ return {
 		}
 		outtab = tableCombine(outtab, addtab3)
 
+		-- Set the correct font for sidebar text
 		love.graphics.setFont(data.font.sidebar.raster)
+
+		-- If the save-folder wasn't found, throw some warning-text
+		if not data.saveok then
+			local warntab = {
+				"! WARNING !",
+				"savepath not found!",
+				"saveload disabled.",
+				"",
+				"please change",
+				"\"savepath\" entry",
+				"in user-prefs.lua!",
+				"",
+			}
+			love.graphics.setColor(data.color.font.shadow)
+			printMultilineText(warntab, tleft + 1, ttop + 1, _, "left")
+			love.graphics.setColor(data.color.font.warning)
+			printMultilineText(warntab, tleft, ttop, _, "left")
+			ttop = ttop + (#warntab * fontheight) + roundNum(fontheight / 2, 0)
+		end
+
+		-- Print the pre-hotseat sidebar text
 		love.graphics.setColor(data.color.font.shadow)
 		printMultilineText(outtab, tleft + 1, ttop + 1, _, "left")
 		love.graphics.setColor(data.color.font.light)
@@ -125,7 +147,6 @@ return {
 		table.insert(outtab, "")
 		love.graphics.setColor(data.color.font.mid)
 		printMultilineText(outtab, tleft, ttop, _, "left")
-		ttop = ttop + (#outtab * fontheight) + roundNum(fontheight / 2, 0)
 
 	end,
 

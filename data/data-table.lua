@@ -14,10 +14,13 @@ D.np = 0 -- Current note-pointer position
 D.tick = 1 -- Current tick occupied by the play-line position
 D.playing = false -- Toggles whether the tickline is playing or not
 
--- LOADING VARS --
+-- LOADING SCREEN VARS --
 D.loadcmds = {} -- Holds all loading-screen messages
 D.loadtext = "" -- Holds text from finished and active loading-screen cmds
 D.loadnum = 1 -- Iterates through loading-screen cmds
+
+-- SAVEFILE VARS --
+D.saveok = false -- Controls whether it's OK to save to data.savepath
 
 -- HOTSEAT VARS --
 D.activeseat = 1 -- Currently active hotseat-name

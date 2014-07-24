@@ -135,6 +135,13 @@ function love.load()
 	-- Put the prefs into the data object
 	tableToNewContext(data, prefs)
 
+	-- If the savepath exists, enable saving
+	local pathf = io.open(data.savepath .. "sect_filepath_test.txt", "w")
+	if pathf ~= nil then
+		data.saveok = true
+		pathf:close()
+	end
+
 	-- Preload all complex GUI elements
 	preloadFonts()
 	preloadImages()
