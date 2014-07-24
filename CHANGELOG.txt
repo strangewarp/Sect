@@ -1,4 +1,8 @@
 
+1.0.2
+-- Cursor will now move to the sequence's first note after loadFile.
+-- Put a roundNum onto post-loadFile BPM values.
+
 1.0.1
 -- Changed cursor images from GIF to PNG.
 -- Added a canary mechanism to reject false savepaths.

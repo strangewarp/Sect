@@ -139,8 +139,16 @@ return {
 		end
 
 		-- Set global BPM and TPQ to latest BPM/TPQ values
-		data.bpm = bpm
+		data.bpm = roundNum(bpm, 0)
 		data.tpq = tpq
+
+		-- Move to the first note in the first loaded sequence
+		data.tp = 1
+		data.np = data.bounds.np[2]
+		local checkpoint = getNotes(data.active, data.tp, data.tp, data.np, data.np)
+		if #checkpoint == 0 then
+			moveTickPointerByNote(1)
+		end
 
 		print("loadFile: loaded MIDI file \"" .. data.hotseats[data.activeseat] .. "\"!")
 
