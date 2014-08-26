@@ -259,38 +259,50 @@ return {
 	-- Paste the selection-table's contents, repeating them across the entire seq
 	pasteRepeating = function(undo)
 
+		-- If there are no copied notes, abort function
+		if #data.copydat == 0 then
+			return nil
+		end
+
 		local ticks = #data.seq[data.active].tick
 		local outnotes = {}
-		local size = 1
+		local tleft = math.huge
+		local tright = -math.huge
 		local iter = 1
 
-		-- Get the copy-chunk's total size.
+		-- Get the copy-chunk's furthest left and right bounds
 		for k, v in pairs(data.copydat) do
-			local testsize = v.note[2] + v.note[3]
-			if size < testsize then
-				size = testsize
+			local testright = v.note[2] + v.note[3]
+			if tleft > v.note[2] then
+				tleft = v.note[2]
+			end
+			if tright < testright then
+				tright = testright
 			end
 		end
+
+		-- Get the copydat range's total size
+		local size = tright + math.abs(tleft)
 
 		-- While the repeating-paste hasn't fully looped around the sequence,
 		-- continue pasting the contents of the copydat table at increasing offsets.
 		while (iter * size) <= ticks do
 
-			-- Get a fresh copy of the copydat-table.
-			local ptab = deepCopy(data.copydat)
-
 			-- Adjust the contents of the paste-table relative to the tick-pointer,
 			-- increasing the paste-chunk multiplier on each iteration.
-			for i = 1, #ptab do
-				ptab[i].tick = wrapNum(
-					ptab[i].tick + (data.tp - 1) + ((iter - 1) * size),
+			for i = 1, #data.copydat do
+
+				local outn = deepCopy(data.copydat[i])
+				outn.tick = wrapNum(
+					outn.tick + (data.tp - 1) + ((iter - 1) * size),
 					1, ticks
 				)
-				ptab[i].note[2] = ptab[i].tick - 1
-			end
 
-			-- Combine the offset notes with the rest of the repeating-paste notes
-			tableCombine(outnotes, ptab)
+				outn.note[2] = outn.tick - 1
+
+				table.insert(outnotes, outn)
+
+			end
 
 			iter = iter + 1
 
