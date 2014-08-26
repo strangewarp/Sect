@@ -2,7 +2,7 @@
 return {
 
 	-- Execute a queued data-loading command, and draw the loading-screen
-	executeLoadingFuncAndDraw = function(cnv, width, height)
+	executeLoadingFuncAndDraw = function(width, height)
 
 		-- Get the current loading-command data
 		local cmd, text = unpack(data.loadcmds[data.loadnum])

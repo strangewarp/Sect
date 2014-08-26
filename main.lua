@@ -224,7 +224,7 @@ function love.draw()
 
 	-- If still loading, render a loading screen
 	if data.loading then
-		executeLoadingFuncAndDraw(canvas, width, height)
+		executeLoadingFuncAndDraw(width, height)
 		return nil
 	end
 
