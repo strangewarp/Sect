@@ -322,6 +322,7 @@ return {
 			CUT = {"ctrl", "x"},
 			CUT_ADD = {"ctrl", "shift", "x"},
 			PASTE = {"ctrl", "v"},
+			PASTE_REPEATING = {"ctrl", "shift", "v"},
 
 			HUMANIZE = {"ctrl", "h"},
 

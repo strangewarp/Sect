@@ -1,4 +1,8 @@
 
+1.0.3
+-- Fixed savefile corruption that would be caused by switchSequences under certain circumstances.
+-- Added pasteRepeating, a repeating-paste command.
+
 1.0.2
 -- Cursor will now move to the sequence's first note after loadFile.
 -- Put a roundNum onto post-loadFile BPM values.

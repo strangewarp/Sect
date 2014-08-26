@@ -219,6 +219,7 @@ D.cmdfuncs = {
 	CUT = {"cutSelection", false, false},
 	CUT_ADD = {"cutSelection", true, false},
 	PASTE = {"pasteSelection", false},
+	PASTE_REPEATING = {"pasteRepeating", false},
 
 	HUMANIZE = {"humanizeNotes", false},
 
@@ -342,10 +343,10 @@ D.cmdfuncs = {
 	Y_ZOOM_INC = {"shiftInternalValue", "cellheight", false, 1},
 	Y_ZOOM_DEC = {"shiftInternalValue", "cellheight", false, -1},
 
-	SEQ_TAB_UP = {"tabActiveSeq", -1},
-	SEQ_TAB_DOWN = {"tabActiveSeq", 1},
-	SEQ_TAB_UP_10 = {"tabActiveSeq", -10},
-	SEQ_TAB_DOWN_10 = {"tabActiveSeq", 10},
+	SEQ_TAB_UP = {"tabActiveSequence", -1},
+	SEQ_TAB_DOWN = {"tabActiveSequence", 1},
+	SEQ_TAB_UP_10 = {"tabActiveSequence", -10},
+	SEQ_TAB_DOWN_10 = {"tabActiveSequence", 10},
 
 	EXTROVERT_LOAD_FILE = {"sendExtrovertCommand", "loadmidi"},
 
@@ -387,6 +388,7 @@ D.undocmds = {
 	-- select-funcs.lua
 	["cutSelection"] = true,
 	["pasteSelection"] = true,
+	["pasteRepeating"] = true,
 	["modNotes"] = true,
 
 }

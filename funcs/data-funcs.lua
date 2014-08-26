@@ -2,7 +2,7 @@
 return {
 
 	-- Change the currently active sequence
-	tabActiveSeq = function(dir)
+	tabActiveSequence = function(dir)
 		data.active = wrapNum(data.active + dir, 1, #data.seq)
 	end,
 
@@ -179,7 +179,7 @@ return {
 	-- Switch the positions of two sequences
 	switchSequences = function(k, k2, undo)
 
-		data.seq[k], data.seq[k2] = data.seq[k2], data.seq[k]
+		data.seq[k], data.seq[k2] = deepCopy(data.seq[k2]), deepCopy(data.seq[k])
 
 		-- Build undo tables
 		addUndoStep(

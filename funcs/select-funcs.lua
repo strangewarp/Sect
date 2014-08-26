@@ -256,6 +256,51 @@ return {
 
 	end,
 
+	-- Paste the selection-table's contents, repeating them across the entire seq
+	pasteRepeating = function(undo)
+
+		local ticks = #data.seq[data.active].tick
+		local outnotes = {}
+		local size = 1
+		local iter = 1
+
+		-- Get the copy-chunk's total size.
+		for k, v in pairs(data.copydat) do
+			local testsize = v.note[2] + v.note[3]
+			if size < testsize then
+				size = testsize
+			end
+		end
+
+		-- While the repeating-paste hasn't fully looped around the sequence,
+		-- continue pasting the contents of the copydat table at increasing offsets.
+		while (iter * size) <= ticks do
+
+			-- Get a fresh copy of the copydat-table.
+			local ptab = deepCopy(data.copydat)
+
+			-- Adjust the contents of the paste-table relative to the tick-pointer,
+			-- increasing the paste-chunk multiplier on each iteration.
+			for i = 1, #ptab do
+				ptab[i].tick = wrapNum(
+					ptab[i].tick + (data.tp - 1) + ((iter - 1) * size),
+					1, ticks
+				)
+				ptab[i].note[2] = ptab[i].tick - 1
+			end
+
+			-- Combine the offset notes with the rest of the repeating-paste notes
+			tableCombine(outnotes, ptab)
+
+			iter = iter + 1
+
+		end
+
+		-- Add the paste-notes to current seq, and create an undo command
+		setNotes(data.active, outnotes, undo)
+
+	end,
+
 	-- Modify the selected notes
 	modNotes = function(cmd, dist, undo)
 

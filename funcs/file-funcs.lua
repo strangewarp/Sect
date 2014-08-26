@@ -174,6 +174,7 @@ return {
 			for tick, notes in pairs(track.tick) do -- Copy over all notes to the score-track-table
 				for k, v in pairs(notes) do
 					table.insert(score[tracknum], v.note)
+					print("Save: track " .. tracknum .. ", tick " .. tick .. ", note " .. table.concat(v.note, " ")) -- debugging
 				end
 			end
 			table.insert(score[tracknum], {'end_track', #track.tick})
