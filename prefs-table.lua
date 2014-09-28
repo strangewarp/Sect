@@ -90,17 +90,19 @@ return {
 		},
 
 		note = { -- Note colors
-			quiet = {6, 220, 235, 255},
+			quiet = {6, 20, 235, 255},
 			loud = {255, 10, 20, 255},
 			highlight = {230, 240, 240, 255},
 			select_quiet = {200, 200, 200, 255},
 			select_loud = {225, 20, 225, 255},
 			overlay_quiet = {6, 10, 160, 210},
 			overlay_loud = {160, 10, 10, 210},
+			overlay_select_quiet = {103, 105, 180, 210},
+			overlay_select_loud = {192, 15, 117, 210},
 			bar_quiet = {255, 255, 255, 180},
 			bar_loud = {130, 255, 130, 180},
-			border = {5, 4, 8, 255},
-			adjborder = {210, 210, 220, 255},
+			border = {4, 253, 255, 255},
+			adjborder = {110, 253, 255, 255},
 			lightborder = {255, 255, 255, 255},
 		},
 

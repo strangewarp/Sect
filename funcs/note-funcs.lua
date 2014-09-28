@@ -47,11 +47,18 @@ return {
 			or (
 				(n1.note[1] == 'remove')
 				and (
-					(
-						((n2.note[1] == 'note') and (n1.note[2] == n2.note[5]))
-						or ((n2.note[1] ~= 'note') and (n1.note[2] == n2.note[4]))
+					(n1.tick == n2.tick)
+					and (
+						(
+							(n2.note[1] == 'note')
+							and (n1.note[2] == n2.note[4])
+							and (n1.note[3] == n2.note[5])
+						) or (
+							(n2.note[1] ~= 'note')
+							and (n1.note[2] == n2.note[3])
+							and (n1.note[3] == n2.note[4])
+						)
 					)
-					and (n1.tick == n2.tick)
 				)
 			)
 		)
@@ -63,9 +70,9 @@ return {
 
 		for k, v in pairs(notes) do
 			if v.note[1] == 'note' then
-				notes[k].note = {'remove', v.note[5]}
+				notes[k].note = {'remove', v.note[4], v.note[5]}
 			elseif v.note[1] ~= 'remove' then
-				notes[k].note = {'remove', v.note[4]}
+				notes[k].note = {'remove', v.note[3], v.note[4]}
 			end
 		end
 
@@ -160,7 +167,7 @@ return {
 				if checkNoteOverlap(v, data.seq[p].tick[v.tick][i]) then
 					local rnote = table.remove(data.seq[p].tick[v.tick], i)
 					table.insert(undonotes, rnote)
-					table.insert(redonotes, {tick = v.tick, note = {'remove', v.note[5]}})
+					table.insert(redonotes, {tick = v.tick, note = {'remove', v.note[4], v.note[5]}})
 					break
 				end
 			end
@@ -170,7 +177,7 @@ return {
 		for k, v in pairs(addnotes) do
 			table.insert(data.seq[p].tick[v.tick], deepCopy(v))
 			table.insert(redonotes, deepCopy(v))
-			table.insert(undonotes, {tick = v.tick, note = {'remove', v.note[5]}})
+			table.insert(undonotes, {tick = v.tick, note = {'remove', v.note[4], v.note[5]}})
 		end
 
 		-- Build undo tables

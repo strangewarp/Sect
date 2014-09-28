@@ -38,12 +38,18 @@ return {
 		-- If linecolor was not given, keep a note of that
 		local line = not (linecolor == nil)
 
-		-- Seperate notes into 'shadow' and 'other' tabs
+		-- Seperate notes into tables, which will be used to divide render ordering
 		local shadownotes = {}
+		local sbordernotes = {}
+		local sbselectnotes = {}
 		local othernotes = {}
 		for _, v in pairs(notes) do
 			if v[1] == 'shadow' then
 				table.insert(shadownotes, v)
+			elseif v[1] == 'other-chan' then
+				table.insert(sbordernotes, v)
+			elseif v[1] == 'other-chan-select' then
+				table.insert(sbselectnotes, v)
 			else
 				table.insert(othernotes, v)
 			end
@@ -51,10 +57,15 @@ return {
 
 		-- Sort notes by tick position
 		table.sort(shadownotes, function(a, b) return a[3].tick < b[3].tick end)
+		table.sort(sbordernotes, function(a, b) return a[3].tick < b[3].tick end)
+		table.sort(sbselectnotes, function(a, b) return a[3].tick < b[3].tick end)
 		table.sort(othernotes, function(a, b) return a[3].tick < b[3].tick end)
 
-		-- Recombine the sorted tables, to render shadow first, then other.
-		notes = tableCombine(shadownotes, othernotes)
+		-- Recombine the sorted tables, to render them in the order of:
+		-- shadow, other-chan, shadow-select, other.
+		notes = tableCombine(shadownotes, sbordernotes)
+		notes = tableCombine(notes, sbselectnotes)
+		notes = tableCombine(notes, othernotes)
 
 		-- For every note in the render-table...
 		for k, v in pairs(notes) do
@@ -65,12 +76,15 @@ return {
 			local nyhalf = ny / 2
 
 			-- Set quiet/loud colors differently, for shadow/select/active notes
-			if kind == 'shadow' then
+			if (kind == 'shadow') or (kind == 'other-chan') then
 				c1 = deepCopy(data.color.note.overlay_quiet)
 				c2 = deepCopy(data.color.note.overlay_loud)
 			elseif kind == 'select' then
 				c1 = deepCopy(data.color.note.select_quiet)
 				c2 = deepCopy(data.color.note.select_loud)
+			elseif kind == 'other-chan-select' then
+				c1 = deepCopy(data.color.note.overlay_select_quiet)
+				c2 = deepCopy(data.color.note.overlay_select_loud)
 			else
 				c1 = deepCopy(data.color.note.quiet)
 				c2 = deepCopy(data.color.note.loud)
@@ -86,12 +100,14 @@ return {
 			love.graphics.setColor(notecolor)
 			love.graphics.rectangle("fill", nleft, ntop, nx, ny)
 
-			-- If a linecolor was given...
+			-- If the note isn't to be rendered in shadow mode...
 			if kind ~= 'shadow' then
 
-				-- Draw a border around the note
-				love.graphics.setColor(linecolor)
-				love.graphics.rectangle("line", nleft, ntop, nx, ny)
+				-- If the note isn't other-chan, draw a border around the note
+				if kind ~= 'other-chan' then
+					love.graphics.setColor(linecolor)
+					love.graphics.rectangle("line", nleft, ntop, nx, ny)
+				end
 
 				-- Draw the note's velocity-bar
 				local barcomp = getVelocityColor(
@@ -156,12 +172,30 @@ return {
 				-- Duplicate the kind-of-note val, in case of changes
 				local render = kind
 
-				-- Pick out selected notes from within normal notes
-				if (kind ~= 'shadow')
-				and (data.selindex[vv.tick] ~= nil)
-				and (data.selindex[vv.tick][vp] == true)
-				then
-					render = 'select'
+				-- Pick out selected notes, and other-chan notes, from within normal notes
+				if kind ~= 'shadow' then
+
+					-- If the note is within the select-tables, set it to render as selected
+					if (data.selindex[vv.tick] ~= nil)
+					and (data.selindex[vv.tick][vp] == true)
+					then
+						render = 'select'
+					end
+
+					-- If the note isn't on the active channel...
+					if (vv.note[1] == 'note')
+					and (vv.note[4] ~= data.chan)
+					then
+
+						-- If the note is selected, render as other-chan-select.
+						if render == 'select' then
+							render = 'other-chan-select'
+						else -- If the note isn't selected, render as other-chan.
+							render = 'other-chan'
+						end
+
+					end
+
 				end
 
 				-- For every combination of on-screen X-ranges and Y-ranges,
