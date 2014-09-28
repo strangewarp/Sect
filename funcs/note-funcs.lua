@@ -12,9 +12,10 @@ return {
 				( -- Note is removal-abstraction, and overlaps both pitch and tick
 					noteRemoveCompare(n1, n2)
 				)
-				or ( -- Notes are note-type, and overlap in both pitch and tick
+				or ( -- Notes are note-type, and overlap in pitch, chan, and tick
 					(n1.note[1] == 'note')
 					and (n2.note[1] == 'note')
+					and (n1.note[4] == n2.note[4])
 					and (n1.note[5] == n2.note[5])
 					and (
 						(
@@ -28,10 +29,11 @@ return {
 						or (n1.note[5] == n2.note[5])
 					)
 				)
-				or ( -- Notes are not note-type, and overlap in both type and tick
+				or ( -- Notes are not note-type, and overlap in type, chan, and tick
 					(n1.note[1] ~= 'note')
 					and (n2.note[1] ~= 'note')
 					and (n1.note[1] == n2.note[1])
+					and (n1.note[3] == n2.note[3])
 					and (n1.note[4] == n2.note[4])
 				)
 			)
@@ -80,29 +82,42 @@ return {
 
 	end,
 
-	-- Get the notes from a given slice of the sequence
-	getNotes = function(p, tbot, ttop, nbot, ntop)
+	-- Get the notes from a given slice of a sequence, optionally bounded to a channel
+	getNotes = function(p, tbot, ttop, nbot, ntop, chan)
 
 		-- Set parameters to default if any are empty
 		tbot = tbot or 1
 		ttop = ttop or #data.seq[p].tick
 		nbot = nbot or data.bounds.np[1]
 		ntop = ntop or data.bounds.np[2]
+		chan = chan or false
 
-		local outnotes = {}
+		local notes = {}
 
-		-- Grab all notes within the given range, and put them in outnotes-table
+		-- Grab all notes within the given range, and put them in notes-table
 		for t = tbot, ttop do
 			for k, v in pairs(data.seq[p].tick[t]) do
 				if ((v.note[1] == 'note') and rangeCheck(v.note[5], nbot, ntop))
 				or ((v.note[1] ~= 'note') and rangeCheck(v.note[4], nbot, ntop))
 				then -- If the note is within note-range, grab it
-					table.insert(outnotes, deepCopy(v))
+					table.insert(notes, deepCopy(v))
 				end
 			end
 		end
 
-		return outnotes
+		-- If a channel was specified, purge all notes outside that channel
+		if chan then
+			for i = #notes, 1, -1 do
+				local n = notes[i].note
+				if ((n[1] == 'note') and (n[4] ~= chan))
+				or ((n[1] ~= 'note') and (n[3] ~= chan))
+				then
+					table.remove(notes, i)
+				end
+			end
+		end
+
+		return notes
 
 	end,
 

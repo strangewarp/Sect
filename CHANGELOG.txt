@@ -1,16 +1,19 @@
 
 1.1
--- TODO: Change setNotes() to not overwrite notes with identical start positions and pitches, when they sit on different channels.
 
 -- TODO: Add a "CMD channel", where a sequence's non-NOTE commands are held.
--- TODO: Add a unique view-mode for the "0th channel", based on stacking, rather than repeating-grid. CMD-channel seq-space should be parsed as normal seq-space, but POINTER_PREV_NOTE and POINTER_NEXT_NOTE should be triggered by the POINTER_UP and POINTER_DOWN buttons.
--- TODO: Add variables: "COMMAND TYPE", "BYTE VAL 1", and "BYTE VAL 2", which can be tabbed through when the "0th channel" is active, via "NOTE", "DURATION", and "VELOCITY" keys.
+-- TODO: Add a unique view-mode for the "CMD channel", based on stacking, rather than repeating-grid. CMD-channel seq-space should be parsed as normal seq-space, but POINTER_PREV_NOTE and POINTER_NEXT_NOTE should be triggered by the POINTER_UP and POINTER_DOWN buttons.
+-- TODO: Add variables: "COMMAND TYPE", "BYTE VAL 1", and "BYTE VAL 2", which can be tabbed through when the "CMD channel" is active, via "NOTE", "DURATION", and "VELOCITY" keys.
 
 -- TODO: Add full MIDI-IN, for composition via external MIDI devices.
 -- TODO: Add native MIDI I/O on Windows, via lovemidi.
 
+-- TODO: In Play Mode, notes from Shadow Mode sequences should play alongside notes from the active sequence.
+
 -- TODO: comment out console again
 
+-- Changed selection-commands and getNotes, so that only notes on the active channel are selected in a given selection-command.
+-- Changed some note-functions so they won't overwrite notes that sit on different channels within the same sequence, when they share pitch values.
 -- Changed the rendering properties of the notes within a sequence's non-active channels, both in their default state and while selected.
 -- Started locally keeping track of userprefs' version number, and added a mechanism to update old userprefs versions.
 -- The dummy-file used to test the save-directory's validity will now be deleted.

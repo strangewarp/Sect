@@ -75,9 +75,9 @@ return {
 			b = (data.seltop.x ~= false) and math.min(data.seltop.y, data.selbot.y),
 		}
 
-		-- Merge selected notes into selection-memory table
+		-- Merge selected notes from the active seq's active channel into selection-memory table
 		if cmd ~= "clear" then
-			local n = getNotes(data.active, data.sel.l, data.sel.r, data.sel.b, data.sel.t)
+			local n = getNotes(data.active, data.sel.l, data.sel.r, data.sel.b, data.sel.t, data.chan)
 			data.seldat = tableCombine(n, data.seldat, false)
 			data.seldat = removeDuplicates(data.seldat)
 		end
