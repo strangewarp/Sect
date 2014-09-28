@@ -116,30 +116,70 @@ function love.load()
 		wheelfuncs
 	)
 
-	local defaultprefs, _ = love.filesystem.read('prefs-table.lua')
+	-- If a version.lua exists, grab its version-number contents.
+	-- Else, if there's no version.lua, create one with the current version.
+	local version = false
+	if love.filesystem.exists("version.lua") then
+		local v = require('version')
+		version = v.version
+	else
+		local vf = love.filesystem.newFile("version.lua")
+		vf:open('w')
+		vf:write("return { version = \"" .. data.version .. "\" }")
+		vf:close()
+	end
 
-	-- If the userprefs file doesn't exist, create it in the savefile folder,
-	-- require it like a regular module, and then add it to data-table context.
+	-- Get the default prefs data
+	local prefs = require('prefs-table')
+	local preftext, _ = love.filesystem.read('prefs-table.lua')
+
+	-- If the userprefs file doesn't exist, create it in the savefile folder
 	if not love.filesystem.exists("userprefs.lua") then
 
+		-- Write this version's default prefs to userprefs.lua
 		local uf = love.filesystem.newFile("userprefs.lua")
 		uf:open('w')
-		uf:write(defaultprefs)
+		uf:write(preftext)
 		uf:close()
-		prefs = require('prefs-table')
 
-	else -- If userprefs exist, simply require them.
-		prefs = require('userprefs')
+	else -- If userprefs exist, require them, and compare versions.
+
+		local userprefs = require('userprefs')
+		local uptext, _ = love.filesystem.read('userprefs.lua')
+
+		-- If userprefs contain no version number,
+		-- or are from an old version, then replace them.
+		if (not version) or (data.version ~= version) then
+
+			-- Write outdated prefs to an "oldprefs.lua" file, with version number
+			local oldf = love.filesystem.newFile("oldprefs-" .. (version or "old") .. ".lua")
+			oldf:open('w')
+			oldf:write(uptext)
+			oldf:close()
+
+			-- Write this version's default prefs to userprefs.lua
+			local uf = love.filesystem.newFile("userprefs.lua")
+			uf:open('w')
+			uf:write(preftext)
+			uf:close()
+
+		else -- Else if userprefs were the right version, overwrite prefs with them
+			prefs = deepCopy(userprefs)
+		end
+
 	end
 
 	-- Put the prefs into the data object
 	tableToNewContext(data, prefs)
 
-	-- If the savepath exists, enable saving
-	local pathf = io.open(data.savepath .. "sect_filepath_test.txt", "w")
+	-- Check whether the savepath exists by opening a dummy file.
+	-- If the savepath exists, enable saving, and delete dummy file.
+	local savetestpath = data.savepath .. "sect_filepath_test.txt"
+	local pathf = io.open(savetestpath, "w")
 	if pathf ~= nil then
 		data.saveok = true
 		pathf:close()
+		_ = love.filesystem.remove(savetestpath)
 	end
 
 	-- Preload all complex GUI elements

@@ -3,7 +3,7 @@ return {
 	
 	--------------------------------------
 	-- Path where savefiles are stored. --
-	-- Note to new users: Change this!  --
+	-- Note to new users: Change this!! --
 	savepath = "C:/Users/Christian/Documents/MUSIC_STAGING/",
 	--------------------------------------
 

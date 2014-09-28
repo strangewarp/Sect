@@ -1,4 +1,21 @@
 
+1.1
+-- TODO: Seperate notes in every sequence by channel.
+-- TODO: Modify all note, seq, and GUI commands to act according to channel-seqs.
+-- TODO: Make all of a seq's channels automatically visible in Shadow Mode.
+
+-- TODO: Add a "0th channel", where a sequence's non-NOTE commands are held.
+-- TODO: Add a unique view-mode for the "0th channel", based on stacking, rather than repeating-grid. 0th-channel seq-space should be parsed as normal seq-space, but POINTER_PREV_NOTE and POINTER_NEXT_NOTE should be triggered by the POINTER_UP and POINTER_DOWN buttons.
+-- TODO: Add variables: "COMMAND TYPE", "BYTE VAL 1", and "BYTE VAL 2", which can be tabbed through when the "0th channel" is active, via "NOTE", "DURATION", and "VELOCITY" keys.
+
+-- TODO: Add full MIDI-IN, for composition via external MIDI devices.
+-- TODO: Add native MIDI I/O on Windows, via lovemidi.
+
+-- TODO: comment out console again
+
+-- Started locally keeping track of userprefs' version number, and added a mechanism to update old userprefs versions.
+-- The dummy-file used to test the save-directory's validity will now be deleted.
+
 1.0.3
 -- Fixed savefile corruption that would be caused by switchSequences under certain circumstances.
 -- Added pasteRepeating, a repeating-paste command.
