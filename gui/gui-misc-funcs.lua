@@ -38,14 +38,13 @@ return {
 			return nil
 		end
 
-		-- Sequence grid's left border position
-		local seqleft = left + (data.pianowidth / 2)
-
 		-- Draw the sequence-grid
-		drawSeqGrid(seqleft, top, width, height)
+		drawSeqGrid(left, top, width, height)
 
-		-- Draw the vertical piano-roll
-		drawPianoRoll(left, data.pianowidth, width, height)
+		-- If not in Cmd Mode, draw the vertical piano-roll
+		if data.cmdmode ~= "cmd" then
+			drawPianoRoll(left, data.pianowidth, width, height)
+		end
 
 	end,
 

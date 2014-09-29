@@ -8,11 +8,16 @@ return {
 
 	-- Toggle Command Mode, where non-note MIDI commands can be entered.
 	toggleCmdMode = function()
+
+		-- Reset command-pointer on tabbing in or out, to avoid null pointer errors
+		data.cmdp = 1
+
 		if data.cmdmode == "cmd" then
 			data.cmdmode = "entry"
 		else
 			data.cmdmode = "cmd"
 		end
+
 	end,
 
 	-- Toggle between Generator Mode and Entry Mode

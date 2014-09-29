@@ -273,7 +273,7 @@ return {
 		local khalf = data.cellheight / 2
 
 		-- Get the center-point, on which the sequence grid (and by extension, the piano-roll) are fixed
-		local ycenter = height / 1.7
+		local ycenter = height * data.size.anchor.y
 
 		-- Add the active note, in center position, with highlighted color, to the relevant draw-table
 		whitedraw, blackdraw = pianoNoteToDrawTables(whitedraw, blackdraw, data.np, left, ycenter, ymid, yflare, kwidth, true)

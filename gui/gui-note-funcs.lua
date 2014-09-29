@@ -35,8 +35,22 @@ return {
 		local fontheight = data.font.note.raster:getHeight()
 		love.graphics.setFont(data.font.note.raster)
 
-		-- If linecolor was not given, keep a note of that
-		local line = not (linecolor == nil)
+		-- If Cmd Mode is active, set all the active seq's NOTE commands to Shadow Mode
+		if data.cmdmode == "cmd" then
+			for i = 1, #notes do
+				if notes[i][3].note[1] == 'note' then
+					if notes[i][2] == data.active then
+						notes[i][1] = "other-chan"
+					end
+				end
+			end
+		else -- If Cmd Mode is inactive, remove all non-NOTE commands from rendering
+			for i = #notes, 1, -1 do
+				if notes[i][3].note[1] ~= 'note' then
+					table.remove(notes, i)
+				end
+			end
+		end
 
 		-- Seperate notes into tables, which will be used to divide render ordering
 		local shadownotes = {}
@@ -164,7 +178,18 @@ return {
 		local notes = {}
 
 		for k, v in pairs(n) do
-			for kk, vv in pairs(v) do
+
+			-- If Cmd Mode is active, count the number of commands above the cmd-pointer
+			local above = 0
+			if data.cmdmode == "cmd" then
+				for kk, vv in ipairs(v) do
+					if vv.note[data.acceptmidi[vv.note[1]][1]] < data.cmdp then
+						above = above + 1
+					end
+				end
+			end
+
+			for kk, vv in ipairs(v) do
 
 				-- Get the pitch-value, or pitch-corresponding value, of a given note
 				local vp = vv.note[data.acceptmidi[vv.note[1]][1]]
@@ -206,10 +231,17 @@ return {
 						-- Get note's width, via duration, or default to 1 for non-note cmds
 						local xwidth = ((vv.note[1] == 'note') and (data.cellwidth * vv.note[3])) or data.cellwidth
 
-						-- Get note's inner-grid-concrete and absolute left and top offsets
+						-- Get note's inner-grid-concrete and absolute left offsets
 						local ol = xr.a + ((vv.tick - 1) * data.cellwidth)
-						local ot = yr.b - ((vp - yr.o) * data.cellheight)
 						local cl = left + ol
+						local ot
+
+						-- If Cmd Mode is active, render the note with a "stacked" top-offset
+						if data.cmdmode == "cmd" then
+							ot = yr.b - (data.cellheight * (above + (kk - 1)))
+						else -- Else, render the note with a "wrapping grid" top-offset
+							ot = yr.b - ((vp - yr.o) * data.cellheight)
+						end
 						local ct = top + ot
 
 						-- If the note is onscreen in this chunk, display it

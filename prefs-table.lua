@@ -259,7 +259,7 @@ return {
 
 		anchor = { -- Center pointer anchors
 			x = 0.33, -- Distance between left and right
-			y = 0.588, -- Distance between top and bottom
+			y = 0.7, -- Distance between top and bottom
 		},
 
 	},

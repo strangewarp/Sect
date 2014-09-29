@@ -204,29 +204,34 @@ return {
 		-- Render the seq-window's background-image
 		drawBoundedImage(left, top, xfull, yfull, data.img.grid)
 
-		-- Set color for rendering darkened rows
-		love.graphics.setColor(data.color.seq.dark)
+		-- If Cmd Mode isn't active, draw highlighted rows
+		if data.cmdmode ~= "cmd" then
 
-		-- Find and render darkened rows
-		for y = 0, ycells + 1 do
+			-- Set color for rendering darkened rows
+			love.graphics.setColor(data.color.seq.dark)
 
-			-- Get row's Y-center and Y-top
-			local ytop = gridtop + (data.cellheight * y)
+			-- Find and render darkened rows
+			for y = 0, ycells + 1 do
 
-			-- Get the row's corresponding note, and the note's scale position
-			local note = wrapNum(topnote - y, data.bounds.np)
-			local notetype = data.pianometa[wrapNum(note + 1, 1, 12)][1]
+				-- Get row's Y-center and Y-top
+				local ytop = gridtop + (data.cellheight * y)
 
-			-- On black-key rows, render dark overlays
-			if notetype == 0 then
-				love.graphics.rectangle("fill", left, ytop, xfull, data.cellheight)
-			end
+				-- Get the row's corresponding note, and the note's scale position
+				local note = wrapNum(topnote - y, data.bounds.np)
+				local notetype = data.pianometa[wrapNum(note + 1, 1, 12)][1]
 
-			-- Highlight the active note-row
-			if note == data.np then
-				love.graphics.setColor(data.color.seq.active)
-				love.graphics.rectangle("fill", left, ytop, xfull, data.cellheight)
-				love.graphics.setColor(data.color.seq.dark)
+				-- On black-key rows, render dark overlays
+				if notetype == 0 then
+					love.graphics.rectangle("fill", left, ytop, xfull, data.cellheight)
+				end
+
+				-- Highlight the active note-row
+				if note == data.np then
+					love.graphics.setColor(data.color.seq.active)
+					love.graphics.rectangle("fill", left, ytop, xfull, data.cellheight)
+					love.graphics.setColor(data.color.seq.dark)
+				end
+
 			end
 
 		end
@@ -297,8 +302,15 @@ return {
 				end
 			end
 
-			-- Add visible notes to the drawnotes tab
+			-- If the sequence is to be rendered...
 			if render then
+
+				-- If Cmd Mode is active, use only one vertical render-range
+				if data.cmdmode == "cmd" then
+					yranges = {{a = -math.huge, b = yanchor - ycellhalf, o = 0}}
+				end
+
+				-- Add visible notes to the drawnotes table
 				drawnotes = tableCombine(
 					drawnotes,
 					makeNoteRenderTable(

@@ -2,7 +2,7 @@
 local D = {}
 
 -- VERSIONING VARS --
-D.version = "1.1-a4" -- Holds Sect's current version-number
+D.version = "1.1-a9" -- Holds Sect's current version-number
 
 -- LOVE ENGINE VARS --
 D.updatespeed = 0.01 -- Speed at which to attempt to update program-state
@@ -14,6 +14,7 @@ D.overlay = {} -- Overlay-render tracking table
 D.active = false -- Currently active sequence (false if nothing loaded)
 D.tp = 0 -- Current tick-pointer position
 D.np = 0 -- Current note-pointer position
+D.cmdp = 1 -- Current Cmd Mode command-pointer position
 D.tick = 1 -- Current tick occupied by the play-line position
 D.playing = false -- Toggles whether the tickline is playing or not
 
@@ -35,6 +36,16 @@ D.chan = 0 -- Channel
 D.velo = 127 -- Velocity
 D.dur = 24 -- Duration
 D.spacing = 24 -- Spacing
+D.cmdbyte1 = 0 -- First byte of non-NOTE commands
+D.cmdbyte2 = 0 -- Second byte of non-NOTE commands
+D.cmdtype = 1 -- Command type
+D.cmdtypes = { -- Byte values, command names, and MIDI.lua key names
+	{176, "control", "control_change"},
+	{192, "program", "patch_change"},
+	{224, "pitch-bend", "pitch_wheel_change"},
+	{160, "aftertouch-key", "key_after_touch"},
+	{208, "aftertouch-chan", "channel_after_touch"},
+}
 
 -- SOCKET VARS --
 D.udpout = false -- Holds UDP-OUT socket
@@ -123,11 +134,15 @@ D.bounds = {
 	tpq = {1, 1000, false}, -- Ticks per quarter-note
 	spacing = {0, math.huge, false}, -- Movement spacing
 
-	-- MIDI-Note bounds --
+	-- MIDI NOTE bounds --
 	np = {0, 127, true}, -- Note-pointer (active pitch)
 	chan = {0, 15, true}, -- Channel
 	velo = {0, 127, true}, -- Velocity
 	dur = {1, math.huge, false}, -- Duration
+
+	-- MIDI non-NOTE bounds --
+	cmdbyte1 = {0, 127, true}, -- First byte of non-NOTE commands
+	cmdbyte2 = {0, 127, true}, -- Second byte of non-NOTE commands
 
 	-- Zoom bounds --
 	cellwidth = {0.25, 16, false}, -- X-axis zoom (tick axis)
@@ -353,15 +368,15 @@ D.cmdfuncs = {
 	CMD_TYPE_UP = {"shiftCommandType", -1},
 	CMD_TYPE_DOWN = {"shiftCommandType", 1},
 
-	CMD_BYTE_1_UP = {"shiftCommandByte", 1, -1},
-	CMD_BYTE_1_DOWN = {"shiftCommandByte", 1, 1},
-	CMD_BYTE_1_UP_10 = {"shiftCommandByte", 1, -10},
-	CMD_BYTE_1_DOWN_10 = {"shiftCommandByte", 1, 10},
+	CMD_BYTE_1_UP = {"shiftInternalValue", "cmdbyte1", 1, -1},
+	CMD_BYTE_1_DOWN = {"shiftInternalValue", "cmdbyte1", 1, 1},
+	CMD_BYTE_1_UP_10 = {"shiftInternalValue", "cmdbyte1", 1, -10},
+	CMD_BYTE_1_DOWN_10 = {"shiftInternalValue", "cmdbyte1", 1, 10},
 
-	CMD_BYTE_2_UP = {"shiftCommandByte", 2, -1},
-	CMD_BYTE_2_DOWN = {"shiftCommandByte", 2, 1},
-	CMD_BYTE_2_UP_10 = {"shiftCommandByte", 2, -10},
-	CMD_BYTE_2_DOWN_10 = {"shiftCommandByte", 2, 10},
+	CMD_BYTE_2_UP = {"shiftInternalValue", "cmdbyte2", 2, -1},
+	CMD_BYTE_2_DOWN = {"shiftInternalValue", "cmdbyte2", 2, 1},
+	CMD_BYTE_2_UP_10 = {"shiftInternalValue", "cmdbyte2", 2, -10},
+	CMD_BYTE_2_DOWN_10 = {"shiftInternalValue", "cmdbyte2", 2, 10},
 
 	EXTROVERT_LOAD_FILE = {"sendExtrovertCommand", "loadmidi"},
 
