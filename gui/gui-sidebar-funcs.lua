@@ -26,10 +26,10 @@ return {
 			outtab = {
 				"no seqs loaded!",
 				"",
-				string.upper(table.concat(data.cmds.base.LOAD_FILE, "-")),
+				string.upper(table.concat(data.cmds.LOAD_FILE, "-")),
 				"opens a hotseat",
 				"",
-				string.upper(table.concat(data.cmds.base.INSERT_SEQ, "-")),
+				string.upper(table.concat(data.cmds.INSERT_SEQ, "-")),
 				"creates a seq",
 				"",
 			}
@@ -44,7 +44,7 @@ return {
 		obeats = ((obeats:sub(-3, -3) == ".") and ("~" .. obeats)) or obeats
 
 		local addtab = {
-			"mode: " .. ((data.cmdmodes.entry and "entry") or "generator"),
+			"mode: " .. data.modenames[data.cmdmode],
 			"recording: " .. ((data.recording and "on") or "off"),
 			"notes: " .. ((data.drawnotes and "visible") or "hidden"),
 			"chans: " .. ((data.chanview and "visible") or "hidden"),
@@ -58,7 +58,7 @@ return {
 		}
 		outtab = tableCombine(outtab, addtab)
 
-		if data.cmdmodes.gen then
+		if data.cmdmode == "gen" then
 			local addtab2 = {
 				"k-species: " .. data.kspecies,
 				"maxscales: " .. #data.scales[data.kspecies].s,

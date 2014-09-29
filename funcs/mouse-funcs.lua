@@ -41,7 +41,6 @@ return {
 		if (oldtick ~= data.dragx[2])
 		or (oldnote ~= data.dragy[2])
 		then
-			print(#data.seldat)--debugging
 			toggleSelect("top", data.dragx[1], data.dragy[1])
 			toggleSelect("bottom", data.dragx[2], data.dragy[2])
 		end

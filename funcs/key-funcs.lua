@@ -5,22 +5,24 @@ return {
 
 		key = stripSidedness(key)
 
-		-- If the new key is the same as a currently-pressed key, abort function
-		for k, v in pairs(data.keys) do
-			if v == key then
+		-- If this is a repeating key...
+		if isrepeat then
+
+			-- If the key in question is a chord-key, abort function
+			if (key == "ctrl") or (key == "shift") or (key == "tab") then
 				return nil
 			end
+
+		else -- If this isn't a repeating key, add the key to the keypress table
+			table.insert(data.keys, key)
 		end
 
-		-- Add the key to the keypress table
-		table.insert(data.keys, key)
-
-		-- Seek out the command that matches currently-pressed keys and modes
+		-- Seek out the command that matches currently-active keys and modes
 		local match = false
-		for kind, accept in pairs(data.cmdmodes) do
-			if accept then
-				for k, v in pairs(data.cmds[kind]) do
-					if crossCompare(data.keys, v) then
+		for k, v in pairs(data.cmds) do
+			if crossCompare(data.keys, v) then
+				for kk, vv in pairs(data.cmdgate[k]) do
+					if vv == data.cmdmode then
 						match = k
 						break
 					end
@@ -62,6 +64,11 @@ return {
 
 	end,
 
+	-- Remove all keystrokes from the keystroke-tracking table
+	removeAllKeystrokes = function()
+		data.keys = {}
+	end,
+
 	-- Convert user-defined keyboard-buttons into piano-keys,
 	-- and attach commands to them in the command-tables.
 	buttonsToPianoKeys = function(keys)
@@ -80,8 +87,9 @@ return {
 				-- Make a unique command name
 				local cmdname = "PIANO_KEY_" .. iter
 
-				-- Insert the keycommands into the command-tables
-				data.cmds.base[cmdname] = {button}
+				-- Insert a key-command and its active contexts into the command-tables
+				data.cmds[cmdname] = {button}
+				data.cmdgate[cmdname] = {"entry", "gen"}
 				data.cmdfuncs[cmdname] = {"insertNote", k - 1, false}
 
 				iter = iter + 1
@@ -116,9 +124,10 @@ return {
 			-- Put the number into the keychord-table
 			table.insert(buttons, seat)
 
-			-- Insert the keycommands into the command-tables
-			data.cmds.base[cmdname] = buttons
-			data.cmdfuncs[cmdname]= {"tabToHotseat", i}
+			-- Insert a key-command and its active contexts into the command-tables
+			data.cmds[cmdname] = buttons
+			data.cmdgate[cmdname] = {"entry", "gen", "cmd"}
+			data.cmdfuncs[cmdname] = {"tabToHotseat", i}
 
 		end
 

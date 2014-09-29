@@ -60,13 +60,13 @@ return {
 
 		-- Draw the tick reticule
 		if data.recording then
-			if data.cmdmodes.gen then
+			if data.cmdmode == "gen" then
 				love.graphics.setColor(data.color.reticule.generator)
 			else
 				love.graphics.setColor(data.color.reticule.recording)
 			end
 		else
-			if data.cmdmodes.gen then
+			if data.cmdmode == "gen" then
 				love.graphics.setColor(data.color.reticule.generator_dark)
 			else
 				love.graphics.setColor(data.color.reticule.dark)

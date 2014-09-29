@@ -268,9 +268,9 @@ return {
 			return nil
 		end
 
-		if data.cmdmodes.gen then -- If in Generator Mode, generate a note-sequence
+		if data.cmdmode == "gen" then -- If in Generator Mode, generate a note-sequence
 			generateSeqNotes(data.active, dist, undo)
-		elseif data.cmdmodes.entry then -- If in Entry Mode, enter a note
+		elseif data.cmdmode == "entry" then -- If in Entry Mode, enter a note
 			setNotes(data.active, {n}, undo)
 			moveTickPointer(1) -- Move ahead by one spacing unit
 		end

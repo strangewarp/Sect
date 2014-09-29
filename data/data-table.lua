@@ -2,7 +2,7 @@
 local D = {}
 
 -- VERSIONING VARS --
-D.version = "1.1" -- Holds Sect's current version-number
+D.version = "1.1-a4" -- Holds Sect's current version-number
 
 -- LOVE ENGINE VARS --
 D.updatespeed = 0.01 -- Speed at which to attempt to update program-state
@@ -97,11 +97,12 @@ D.notegrain = 4 -- Minimum note size, in ticks
 D.playoffset = 0 -- Holds the sub-delta time offset for tick-playing
 
 -- MODE VARS --
-D.cmdmodes = { -- Mode flags for accepting certain command types
-	base = true, -- Accept base-commands
-	entry = true, -- Accept Entry Mode commands
-	gen = false, -- Accept Generator Mode commands
+D.modenames = { -- Full names of the various mode types
+	entry = "entry",
+	gen = "generator",
+	cmd = "midi-cmd",
 }
+D.cmdmode = "entry" -- Mode flag, for accepting certain command types
 D.loading = true -- True while loading; false after loading is done
 D.recording = true -- Toggles whether note-recording is enabled
 D.playing = false -- Toggles whether to play through the seq's contents
@@ -191,10 +192,13 @@ D.cmdfuncs = {
 
 	TOGGLE_SEQ_OVERLAY = {"toggleSeqOverlay"},
 	TOGGLE_NOTE_DRAW = {"toggleNoteDraw"},
+	TOGGLE_CHAN_NUM_VIEW = {"toggleChanNumView"},
+
 	TOGGLE_RECORDING = {"toggleRecording"},
+
 	TOGGLE_GENERATOR_MODE = {"toggleGeneratorMode"},
 	TOGGLE_PLAY_MODE = {"togglePlayMode"},
-	TOGGLE_CHAN_NUM_VIEW = {"toggleChanNumView"},
+	TOGGLE_CMD_MODE = {"toggleCmdMode"},
 
 	UNDO = {"traverseUndo", true},
 	REDO = {"traverseUndo", false},
@@ -228,8 +232,6 @@ D.cmdfuncs = {
 
 	KSPECIES_UP = {"shiftInternalValue", "kspecies", false, 1},
 	KSPECIES_DOWN = {"shiftInternalValue", "kspecies", false, -1},
-	NOTECOMP_UP = {"shiftInternalValue", "notecompare", false, 1},
-	NOTECOMP_DOWN = {"shiftInternalValue", "notecompare", false, -1},
 
 	CHANNEL_UP = {"shiftInternalValue", "chan", false, 1},
 	CHANNEL_DOWN = {"shiftInternalValue", "chan", false, -1},
@@ -258,9 +260,6 @@ D.cmdfuncs = {
 	TPQ_DOWN = {"shiftInternalValue", "tpq", false, -1},
 	TPQ_UP_MULTI = {"shiftInternalValue", "tpq", false, 10},
 	TPQ_DOWN_MULTI = {"shiftInternalValue", "tpq", false, -10},
-
-	KSPECIES_UP = {"shiftInternalValue", "kspecies", false, 1},
-	KSPECIES_DOWN = {"shiftInternalValue", "kspecies", false, -1},
 
 	SCALENUM_UP = {"shiftInternalValue", "scalenum", false, 1},
 	SCALENUM_DOWN = {"shiftInternalValue", "scalenum", false, -1},
@@ -351,7 +350,203 @@ D.cmdfuncs = {
 	SEQ_TAB_UP_10 = {"tabActiveSequence", -10},
 	SEQ_TAB_DOWN_10 = {"tabActiveSequence", 10},
 
+	CMD_TYPE_UP = {"shiftCommandType", -1},
+	CMD_TYPE_DOWN = {"shiftCommandType", 1},
+
+	CMD_BYTE_1_UP = {"shiftCommandByte", 1, -1},
+	CMD_BYTE_1_DOWN = {"shiftCommandByte", 1, 1},
+	CMD_BYTE_1_UP_10 = {"shiftCommandByte", 1, -10},
+	CMD_BYTE_1_DOWN_10 = {"shiftCommandByte", 1, 10},
+
+	CMD_BYTE_2_UP = {"shiftCommandByte", 2, -1},
+	CMD_BYTE_2_DOWN = {"shiftCommandByte", 2, 1},
+	CMD_BYTE_2_UP_10 = {"shiftCommandByte", 2, -10},
+	CMD_BYTE_2_DOWN_10 = {"shiftCommandByte", 2, 10},
+
 	EXTROVERT_LOAD_FILE = {"sendExtrovertCommand", "loadmidi"},
+
+}
+
+-- Modes in which a given command will take effect
+D.cmdgate = {
+
+	LOAD_FILE = {"entry", "gen", "cmd"},
+	SAVE_FILE = {"entry", "gen", "cmd"},
+
+	TOGGLE_SEQ_OVERLAY = {"entry", "gen", "cmd"},
+	TOGGLE_NOTE_DRAW = {"entry", "gen", "cmd"},
+	TOGGLE_CHAN_NUM_VIEW = {"entry", "gen", "cmd"},
+
+	TOGGLE_RECORDING = {"entry", "gen", "cmd"},
+
+	TOGGLE_GENERATOR_MODE = {"entry", "gen", "cmd"},
+	TOGGLE_PLAY_MODE = {"entry", "gen", "cmd"},
+	TOGGLE_CMD_MODE = {"entry", "gen", "cmd"},
+
+	UNDO = {"entry", "gen", "cmd"},
+	REDO = {"entry", "gen", "cmd"},
+
+	INSERT_NOTE = {"entry", "gen", "cmd"},
+	DELETE_NOTE = {"entry", "gen", "cmd"},
+	DELETE_TICK_NOTES = {"entry", "gen", "cmd"},
+	DELETE_PITCH_NOTES = {"entry", "gen", "cmd"},
+	DELETE_BEAT_NOTES = {"entry", "gen", "cmd"},
+
+	INSERT_TICKS = {"entry", "gen", "cmd"},
+	REMOVE_TICKS = {"entry", "gen", "cmd"},
+
+	INSERT_SEQ = {"entry", "gen", "cmd"},
+	REMOVE_SEQ = {"entry", "gen", "cmd"},
+
+	TOGGLE_TOP = {"entry", "gen"},
+	TOGGLE_BOT = {"entry", "gen"},
+	SELECT_ALL = {"entry", "gen"},
+	CLEAR_SELECT_RANGE = {"entry", "gen"},
+	CLEAR_SELECT_MEMORY = {"entry", "gen"},
+
+	COPY = {"entry", "gen"},
+	COPY_ADD = {"entry", "gen"},
+	CUT = {"entry", "gen"},
+	CUT_ADD = {"entry", "gen"},
+	PASTE = {"entry", "gen"},
+	PASTE_REPEATING = {"entry", "gen"},
+
+	HUMANIZE = {"entry", "gen"},
+
+	CHANNEL_UP = {"entry", "gen", "cmd"},
+	CHANNEL_DOWN = {"entry", "gen", "cmd"},
+
+	VELOCITY_UP = {"entry", "gen"},
+	VELOCITY_DOWN = {"entry", "gen"},
+	VELOCITY_UP_10 = {"entry", "gen"},
+	VELOCITY_DOWN_10 = {"entry", "gen"},
+
+	DURATION_UP = {"entry", "gen"},
+	DURATION_DOWN = {"entry", "gen"},
+	DURATION_UP_MULTI = {"entry", "gen"},
+	DURATION_DOWN_MULTI = {"entry", "gen"},
+
+	SPACING_UP = {"entry", "gen", "cmd"},
+	SPACING_DOWN = {"entry", "gen", "cmd"},
+	SPACING_UP_MULTI = {"entry", "gen", "cmd"},
+	SPACING_DOWN_MULTI = {"entry", "gen", "cmd"},
+
+	BPM_UP = {"entry", "gen", "cmd"},
+	BPM_DOWN = {"entry", "gen", "cmd"},
+	BPM_UP_10 = {"entry", "gen", "cmd"},
+	BPM_DOWN_10 = {"entry", "gen", "cmd"},
+
+	TPQ_UP = {"entry", "gen", "cmd"},
+	TPQ_DOWN = {"entry", "gen", "cmd"},
+	TPQ_UP_MULTI = {"entry", "gen", "cmd"},
+	TPQ_DOWN_MULTI = {"entry", "gen", "cmd"},
+
+	KSPECIES_UP = {"gen"},
+	KSPECIES_DOWN = {"gen"},
+
+	SCALENUM_UP = {"gen"},
+	SCALENUM_DOWN = {"gen"},
+
+	WHEELNUM_UP = {"gen"},
+	WHEELNUM_DOWN = {"gen"},
+
+	CONSONANCE_UP = {"gen"},
+	CONSONANCE_DOWN = {"gen"},
+	CONSONANCE_UP_10 = {"gen"},
+	CONSONANCE_DOWN_10 = {"gen"},
+
+	SCALE_SWITCH_UP = {"gen"},
+	SCALE_SWITCH_DOWN = {"gen"},
+	SCALE_SWITCH_UP_10 = {"gen"},
+	SCALE_SWITCH_DOWN_10 = {"gen"},
+
+	WHEEL_SWITCH_UP = {"gen"},
+	WHEEL_SWITCH_DOWN = {"gen"},
+	WHEEL_SWITCH_UP_10 = {"gen"},
+	WHEEL_SWITCH_DOWN_10 = {"gen"},
+
+	DENSITY_UP = {"gen"},
+	DENSITY_DOWN = {"gen"},
+	DENSITY_UP_10 = {"gen"},
+	DENSITY_DOWN_10 = {"gen"},
+
+	BEAT_STICK_UP = {"gen"},
+	BEAT_STICK_DOWN = {"gen"},
+	BEAT_STICK_UP_10 = {"gen"},
+	BEAT_STICK_DOWN_10 = {"gen"},
+
+	BEAT_LENGTH_UP = {"gen"},
+	BEAT_LENGTH_DOWN = {"gen"},
+	BEAT_LENGTH_UP_MULTI = {"gen"},
+	BEAT_LENGTH_DOWN_MULTI = {"gen"},
+
+	BEAT_BOUND_UP = {"gen"},
+	BEAT_BOUND_DOWN = {"gen"},
+
+	BEAT_GRAIN_UP = {"gen"},
+	BEAT_GRAIN_DOWN = {"gen"},
+	BEAT_GRAIN_UP_MULTI = {"gen"},
+	BEAT_GRAIN_DOWN_MULTI = {"gen"},
+
+	NOTE_GRAIN_UP = {"gen"},
+	NOTE_GRAIN_DOWN = {"gen"},
+	NOTE_GRAIN_UP_MULTI = {"gen"},
+	NOTE_GRAIN_DOWN_MULTI = {"gen"},
+
+	MOD_DUR_INCREASE = {"entry", "gen"},
+	MOD_DUR_DECREASE = {"entry", "gen"},
+
+	MOD_CHANNEL_UP = {"entry", "gen"},
+	MOD_CHANNEL_DOWN = {"entry", "gen"},
+
+	MOD_VELOCITY_UP = {"entry", "gen"},
+	MOD_VELOCITY_DOWN = {"entry", "gen"},
+	MOD_VELOCITY_UP_10 = {"entry", "gen"},
+	MOD_VELOCITY_DOWN_10 = {"entry", "gen"},
+
+	MOD_NOTE_UP = {"entry", "gen"},
+	MOD_NOTE_DOWN = {"entry", "gen"},
+	MOD_NOTE_LEFT = {"entry", "gen"},
+	MOD_NOTE_RIGHT = {"entry", "gen"},
+
+	MOD_SEQ_UP = {"entry", "gen"},
+	MOD_SEQ_DOWN = {"entry", "gen"},
+
+	POINTER_UP = {"entry", "gen", "cmd"},
+	POINTER_DOWN = {"entry", "gen", "cmd"},
+	POINTER_UP_OCTAVE = {"entry", "gen"},
+	POINTER_DOWN_OCTAVE = {"entry", "gen"},
+	POINTER_LEFT = {"entry", "gen", "cmd"},
+	POINTER_RIGHT = {"entry", "gen", "cmd"},
+	POINTER_LEFT_BEAT = {"entry", "gen", "cmd"},
+	POINTER_RIGHT_BEAT = {"entry", "gen", "cmd"},
+	POINTER_PREV_NOTE = {"entry", "gen", "cmd"},
+	POINTER_NEXT_NOTE = {"entry", "gen", "cmd"},
+
+	X_ZOOM_INC = {"entry", "gen", "cmd"},
+	X_ZOOM_DEC = {"entry", "gen", "cmd"},
+	Y_ZOOM_INC = {"entry", "gen", "cmd"},
+	Y_ZOOM_DEC = {"entry", "gen", "cmd"},
+
+	SEQ_TAB_UP = {"entry", "gen", "cmd"},
+	SEQ_TAB_DOWN = {"entry", "gen", "cmd"},
+	SEQ_TAB_UP_10 = {"entry", "gen", "cmd"},
+	SEQ_TAB_DOWN_10 = {"entry", "gen", "cmd"},
+
+	CMD_TYPE_UP = {"cmd"},
+	CMD_TYPE_DOWN = {"cmd"},
+
+	CMD_BYTE_1_UP = {"cmd"},
+	CMD_BYTE_1_DOWN = {"cmd"},
+	CMD_BYTE_1_UP_10 = {"cmd"},
+	CMD_BYTE_1_DOWN_10 = {"cmd"},
+
+	CMD_BYTE_2_UP = {"cmd"},
+	CMD_BYTE_2_DOWN = {"cmd"},
+	CMD_BYTE_2_UP_10 = {"cmd"},
+	CMD_BYTE_2_DOWN_10 = {"cmd"},
+
+	EXTROVERT_LOAD_FILE = {"entry", "gen", "cmd"},
 
 }
 

@@ -157,6 +157,12 @@ function love.load()
 			oldf:write(uptext)
 			oldf:close()
 
+			-- Update the local version.lua with the current version number
+			local vf = love.filesystem.newFile("version.lua")
+			vf:open('w')
+			vf:write("return { version = \"" .. data.version .. "\" }")
+			vf:close()
+
 			-- Write this version's default prefs to userprefs.lua
 			local uf = love.filesystem.newFile("userprefs.lua")
 			uf:open('w')
@@ -351,4 +357,14 @@ end
 ----------------------
 function love.keyreleased(key)
 	removeKeystroke(key)
+end
+
+-----------------------
+--- ON FOCUS CHANGE ---
+-----------------------
+function love.focus(f)
+
+	-- If any keys are held down during focus-change, remove their keystrokes
+	removeAllKeystrokes()
+
 end

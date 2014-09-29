@@ -6,10 +6,22 @@ return {
 		data.chanview = not data.chanview
 	end,
 
+	-- Toggle Command Mode, where non-note MIDI commands can be entered.
+	toggleCmdMode = function()
+		if data.cmdmode == "cmd" then
+			data.cmdmode = "entry"
+		else
+			data.cmdmode = "cmd"
+		end
+	end,
+
 	-- Toggle between Generator Mode and Entry Mode
 	toggleGeneratorMode = function()
-		data.cmdmodes.gen = not data.cmdmodes.gen
-		data.cmdmodes.entry = not data.cmdmodes.gen
+		if data.cmdmode == "gen" then
+			data.cmdmode = "entry"
+		else
+			data.cmdmode = "gen"
+		end
 	end,
 
 	-- Toggle whether to draw the active sequence's notes
