@@ -68,12 +68,16 @@ return {
 		if data.recording then
 			if data.cmdmode == "gen" then
 				love.graphics.setColor(data.color.reticule.generator)
+			elseif data.cmdmode == "cmd" then
+				love.graphics.setColor(data.color.reticule.cmd)
 			else
 				love.graphics.setColor(data.color.reticule.recording)
 			end
 		else
 			if data.cmdmode == "gen" then
 				love.graphics.setColor(data.color.reticule.generator_dark)
+			elseif data.cmdmode == "cmd" then
+				love.graphics.setColor(data.color.reticule.cmd_dark)
 			else
 				love.graphics.setColor(data.color.reticule.dark)
 			end
@@ -101,13 +105,15 @@ return {
 			nrlr, yhalf,
 			nrll, nrb
 		)
-		if nrrl < right then
-			love.graphics.polygon(
-				"fill",
-				nrrr, nrt,
-				nrrl, yhalf,
-				nrrr, nrb
-			)
+		if data.cmdmode ~= "cmd" then -- Only draw right reticule arrow if Cmd Mode is inactive
+			if nrrl < right then
+				love.graphics.polygon(
+					"fill",
+					nrrr, nrt,
+					nrrl, yhalf,
+					nrrr, nrb
+				)
+			end
 		end
 
 	end,

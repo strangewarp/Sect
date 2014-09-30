@@ -28,7 +28,7 @@ return {
 			return nil
 		end
 
-		data.cmdp = wrapNum(data.cmdp + dist, 1, #data.seq[data.active].tick[data.tp])
+		data.cmdp = wrapNum(data.cmdp + dist, 1, math.max(1, #data.seq[data.active].tick[data.tp]))
 
 		print("moveCmdPointer: active command: " .. data.cmdp)
 
@@ -179,7 +179,7 @@ return {
 		local bds = data.bounds[vname]
 
 		-- Add or multiply the value with the internal var (and round off floats)
-		data[vname] = (multi and roundNum(data[vname] * dist, 0)) or (data[vname] + dist)
+		data[vname] = (multi and math.floor(data[vname] * dist)) or (data[vname] + dist)
 
 		-- Wrap or clamp the value to a given range
 		data[vname] = (bds[3] and wrapNum(data[vname], bds)) or clampNum(data[vname], bds)

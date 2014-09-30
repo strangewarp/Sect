@@ -146,6 +146,36 @@ return {
 						(ntop + (ny / 2)) - (fontheight / 2)
 					)
 
+				elseif (data.cmdmode == "cmd") and (n.tick == data.tp) then
+
+					local outstr = ""
+					for ck, cv in pairs(data.cmdtypes) do
+						if cv[3] == n.note[1] then
+							outstr = cv[2]
+							break
+						end
+					end
+					outstr = outstr .. " " .. n.note[4]
+					if n.note[5] ~= nil then
+						outstr = outstr .. " " .. n.note[5]
+					end
+
+					love.graphics.setColor(data.color.font.cmd_shadow)
+					love.graphics.rectangle(
+						"fill",
+						nleft - 1,
+						(ntop + (ny / 2)) - (fontheight / 2),
+						data.font.note.raster:getWidth(outstr) + 1,
+						data.font.note.raster:getHeight()
+					)
+
+					love.graphics.setColor(data.color.font.cmd)
+					love.graphics.print(
+						outstr,
+						nleft,
+						(ntop + (ny / 2)) - (fontheight / 2)
+					)
+
 				end
 
 			end
@@ -178,16 +208,6 @@ return {
 		local notes = {}
 
 		for k, v in pairs(n) do
-
-			-- If Cmd Mode is active, count the number of commands above the cmd-pointer
-			local above = 0
-			if data.cmdmode == "cmd" then
-				for kk, vv in ipairs(v) do
-					if vv.note[data.acceptmidi[vv.note[1]][1]] < data.cmdp then
-						above = above + 1
-					end
-				end
-			end
 
 			for kk, vv in ipairs(v) do
 
@@ -238,7 +258,7 @@ return {
 
 						-- If Cmd Mode is active, render the note with a "stacked" top-offset
 						if data.cmdmode == "cmd" then
-							ot = yr.b - (data.cellheight * (above + (kk - 1)))
+							ot = yr.b - (data.cellheight * (data.cmdp - kk))
 						else -- Else, render the note with a "wrapping grid" top-offset
 							ot = yr.b - ((vp - yr.o) * data.cellheight)
 						end

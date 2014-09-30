@@ -145,12 +145,12 @@ return {
 
 				-- If the incoming setNote command is for removal,
 				-- and it matches the old note, then put old note into remove-table.
-				-- Else if the new note matches the old note,
+				-- Else if the new note matches the old note, and Cmd Mode is inactive,
 				-- put old note into remove-table, and new note into add-table.
 				if (n.note[1] == 'remove') and checkNoteOverlap(n, v) then
 					table.insert(removenotes, deepCopy(v))
 					break
-				elseif checkNoteOverlap(n, v) then
+				elseif (data.cmdmode ~= "cmd") and checkNoteOverlap(n, v) then
 					table.insert(removenotes, deepCopy(v))
 					table.insert(addnotes, table.remove(notes, i))
 					break
@@ -237,31 +237,37 @@ return {
 	-- Insert a note, with the current note-var settings
 	insertNote = function(dist, undo)
 
+		local n = {}
+
 		-- If the note/tick pointers don't exist, get temporary values
 		local tempnp = data.np or 0
 		local temptp = data.tp or 1
 
-		-- If a distance-from-C isn't given, set it to the note-pointer position
-		dist = dist or (tempnp % 12)
+		if data.cmdmode ~= "cmd" then
 
-		-- Get the note-pointer position, modulated by dist-offset
-		local npoffset = dist + (tempnp - (tempnp % 12))
-		local adjnote = clampNum(npoffset, data.bounds.np)
+			-- If a distance-from-C isn't given, set it to the note-pointer position
+			dist = dist or (tempnp % 12)
 
-		local n = {
-			tick = temptp, -- 1-indexed tick start-time
-			note = {
-				'note', -- MIDI.lua item command
-				temptp - 1, -- 0-indexed tick start-time
-				data.dur, -- Duration (ticks)
-				data.chan, -- Channel
-				adjnote, -- Pitch + piano key dist
-				data.velo, -- Velocity
-			},
-		}
+			-- Get the note-pointer position, modulated by dist-offset
+			local npoffset = dist + (tempnp - (tempnp % 12))
+			local adjnote = clampNum(npoffset, data.bounds.np)
 
-		-- Send the note to Extrovert, on the user-defined port
-		sendExtrovertNote(n.note)
+			n = {
+				tick = temptp, -- 1-indexed tick start-time
+				note = {
+					'note', -- MIDI.lua item command
+					temptp - 1, -- 0-indexed tick start-time
+					data.dur, -- Duration (ticks)
+					data.chan, -- Channel
+					adjnote, -- Pitch + piano key dist
+					data.velo, -- Velocity
+				},
+			}
+
+			-- Send the note to Extrovert, on the user-defined port
+			sendExtrovertNote(n.note)
+
+		end
 
 		-- If no sequences are loaded, or recording is off, abort function
 		if (not data.active) or (not data.recording) then
@@ -269,10 +275,35 @@ return {
 		end
 
 		if data.cmdmode == "gen" then -- If in Generator Mode, generate a note-sequence
+
 			generateSeqNotes(data.active, dist, undo)
+
 		elseif data.cmdmode == "entry" then -- If in Entry Mode, enter a note
+
 			setNotes(data.active, {n}, undo)
 			moveTickPointer(1) -- Move ahead by one spacing unit
+
+		else -- Else, we're in Cmd Mode, so generate a non-note command
+
+			n = {
+				tick = temptp,
+				note = {
+					data.cmdtypes[data.cmdtype][3],
+					temptp - 1,
+					data.chan,
+					data.cmdbyte1,
+				},
+			}
+
+			-- For 2-byte commands, add the second Cmd-byte
+			if (n.note[1] == 'key_after_touch')
+			or (n.note[1] == 'control_change')
+			then
+				n.note[5] = data.cmdbyte2
+			end
+
+			setNotes(data.active, {n}, undo)
+
 		end
 
 	end,

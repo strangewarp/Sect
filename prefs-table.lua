@@ -58,6 +58,8 @@ return {
 			light = {250, 250, 250, 255},
 			highlight = {60, 255, 50, 255},
 			warning = {255, 60, 60, 255},
+			cmd = {245, 245, 255, 255},
+			cmd_shadow = {3, 2, 10, 255},
 		},
 
 		summary = { -- Summary-grid colors
@@ -123,12 +125,14 @@ return {
 		},
 
 		reticule = { -- Reticule colors
-			line = {235, 235, 235, 100},
+			line = {235, 5, 5, 100},
 			light = {255, 255, 255, 125},
 			dark = {5, 5, 255, 90},
 			recording = {5, 205, 215, 215},
 			generator = {215, 210, 9, 215},
 			generator_dark = {125, 125, 9, 215},
+			cmd = {245, 6, 2, 55},
+			cmd_dark = {9, 6, 2, 55},
 		},
 
 		loading = { -- Loading-screen colors
