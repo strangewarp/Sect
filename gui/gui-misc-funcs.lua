@@ -23,6 +23,15 @@ return {
 			width, height - data.size.botbar.height
 		)
 
+		-- Draw a line that compensates for a dangling border on the piano-roll,
+		-- in order to keep any frame-lines from changing when toggled into Cmd Mode.
+		love.graphics.setColor(data.color.piano.border)
+		love.graphics.setLineWidth(2)
+		love.graphics.line(
+			data.size.sidebar.width, 0,
+			data.size.sidebar.width, height
+		)
+
 		buildTrackBar(
 			data.size.sidebar.width, height - data.size.botbar.height,
 			width - data.size.sidebar.width, data.size.botbar.height

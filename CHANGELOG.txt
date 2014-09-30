@@ -12,8 +12,6 @@
 ---- sub-task: Check the functionality of saveFile and loadFile.
 ---- sub-task: Fix mouse-click position, to compensate for new anchor-point caused by changing piano-roll positioning.
 
--- TODO: Figure out what's up with the stray vertical grey line off the bottom edge of the piano-roll, now that tabbing in and out of Cmd Mode has made it noticable. Probably fixable with a proper stencil too.
-
 -- TODO: Add full MIDI-IN, for composition via external MIDI devices. Thanks to how Spacing and Play Mode interact with note-entry, there won't need to be any explicit tabbing between input-types.
 ---- sub-task: Update the LOVE-to-Pd MIDI-OSC Bridge to grab MIDI-IN and send it to Sect.
 
@@ -28,6 +26,7 @@
 
 -- Changed all data-structures and data-handling involved with mode-based interpretation of key-commands.
 -- Started clipping the left edges of beat-triangles properly, now that Cmd Mode's GUI visually requires it.
+-- Compensated for a stray vertical grey line off the bottom edge of the piano-roll that would disappear in Cmd Mode.
 -- Fixed the piano-roll's connection to the Reticule's user-defined Y-anchor position.
 -- Started accepting repeated commands from held-down keys.
 -- Started removing all active keystrokes on focus-change.
