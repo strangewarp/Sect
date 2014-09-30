@@ -53,10 +53,25 @@ return {
 			"beats " .. obeats,
 			"",
 			"tick " .. data.tp .. "/" .. oticks,
-			"note " .. data.np .. " (" .. notelet .. "-" .. octave .. ")",
-			"",
 		}
 		outtab = tableCombine(outtab, addtab)
+
+		if data.cmdmode == "cmd" then
+			local addcmd = {
+				"",
+				"cmd: " .. data.cmdtypes[data.cmdtype][2],
+				"byte1: " .. data.cmdbyte1,
+				"byte2: " .. data.cmdbyte2,
+				"",
+			}
+			outtab = tableCombine(outtab, addcmd)
+		else
+			local addnocmd = {
+				"note " .. data.np .. " (" .. notelet .. "-" .. octave .. ")",
+				"",
+			}
+			outtab = tableCombine(outtab, addnocmd)
+		end
 
 		if data.cmdmode == "gen" then
 			local addtab2 = {

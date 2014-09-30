@@ -7,7 +7,7 @@
 ---- sub-task DONE: Change note-rendering pathway so that Cmd Mode notes are stacked on a baseline, rather than plotted on a grid.
 ---- sub-task DONE: In Cmd Mode, the Up and Down buttons should modify data.cmdp's value.
 ---- sub-task DONE: Add functions: moveCmdPointer and shiftCmdType.
----- sub-task: In Cmd Mode, the vars for CMD-TYPE, CMD-BYTE1, and CMD-BYTE2 should be visible in the sidebar, in place of DURATION and VELOCITY.
+---- sub-task DONE: In Cmd Mode, the vars for CMD-TYPE, CMD-BYTE1, and CMD-BYTE2 should be visible in the sidebar, in place of NOTE, DURATION and VELOCITY.
 ---- sub-task: Modify insertNotes to act differently during Cmd Mode.
 ---- sub-task: Check the functionality of saveFile and loadFile.
 ---- sub-task: Fix mouse-click position, to compensate for new anchor-point caused by changing piano-roll positioning.

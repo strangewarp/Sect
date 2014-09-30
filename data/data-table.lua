@@ -14,7 +14,7 @@ D.overlay = {} -- Overlay-render tracking table
 D.active = false -- Currently active sequence (false if nothing loaded)
 D.tp = 0 -- Current tick-pointer position
 D.np = 0 -- Current note-pointer position
-D.cmdp = 1 -- Current Cmd Mode command-pointer position
+D.cmdp = 1 -- Current Cmd Mode non-note-command pointer position
 D.tick = 1 -- Current tick occupied by the play-line position
 D.playing = false -- Toggles whether the tickline is playing or not
 
@@ -368,18 +368,18 @@ D.cmdfuncs = {
 	CMD_POINTER_UP = {"moveCmdPointer", -1},
 	CMD_POINTER_DOWN = {"moveCmdPointer", 1},
 
-	CMD_TYPE_UP = {"shiftCmdType", -1},
-	CMD_TYPE_DOWN = {"shiftCmdType", 1},
+	CMD_TYPE_UP = {"shiftCmdType", 1},
+	CMD_TYPE_DOWN = {"shiftCmdType", -1},
 
-	CMD_BYTE_1_UP = {"shiftInternalValue", "cmdbyte1", 1, -1},
-	CMD_BYTE_1_DOWN = {"shiftInternalValue", "cmdbyte1", 1, 1},
-	CMD_BYTE_1_UP_10 = {"shiftInternalValue", "cmdbyte1", 1, -10},
-	CMD_BYTE_1_DOWN_10 = {"shiftInternalValue", "cmdbyte1", 1, 10},
+	CMD_BYTE_1_UP = {"shiftInternalValue", "cmdbyte1", false, 1},
+	CMD_BYTE_1_DOWN = {"shiftInternalValue", "cmdbyte1", false, -1},
+	CMD_BYTE_1_UP_10 = {"shiftInternalValue", "cmdbyte1", false, 10},
+	CMD_BYTE_1_DOWN_10 = {"shiftInternalValue", "cmdbyte1", false, -10},
 
-	CMD_BYTE_2_UP = {"shiftInternalValue", "cmdbyte2", 2, -1},
-	CMD_BYTE_2_DOWN = {"shiftInternalValue", "cmdbyte2", 2, 1},
-	CMD_BYTE_2_UP_10 = {"shiftInternalValue", "cmdbyte2", 2, -10},
-	CMD_BYTE_2_DOWN_10 = {"shiftInternalValue", "cmdbyte2", 2, 10},
+	CMD_BYTE_2_UP = {"shiftInternalValue", "cmdbyte2", false, 1},
+	CMD_BYTE_2_DOWN = {"shiftInternalValue", "cmdbyte2", false, -1},
+	CMD_BYTE_2_UP_10 = {"shiftInternalValue", "cmdbyte2", false, 10},
+	CMD_BYTE_2_DOWN_10 = {"shiftInternalValue", "cmdbyte2", false, -10},
 
 	EXTROVERT_LOAD_FILE = {"sendExtrovertCommand", "loadmidi"},
 
