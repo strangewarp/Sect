@@ -19,6 +19,21 @@ return {
 
 	end,
 
+	-- Move the Cmd Mode command-pointer to an adjacent note on the active tick
+	moveCmdPointer = function(dist)
+
+		-- If no sequences are loaded, abort the function
+		if data.active == false then
+			print("moveCmdPointer: warning: no active sequence!")
+			return nil
+		end
+
+		data.cmdp = wrapNum(data.cmdp + dist, 1, #data.seq[data.active].tick[data.tp])
+
+		print("moveCmdPointer: active command: " .. data.cmdp)
+
+	end,
+
 	-- Move the tick pointer, based on spacing, bounded to the current seq's ticks
 	moveTickPointer = function(dist)
 
@@ -139,6 +154,15 @@ return {
 		-- Update global tick and note pointers with new positions
 		data.tp = tick
 		data.np = note
+
+	end,
+
+	-- Shift the Cmd Mode command-type pointer, bounded to the number of possible commands
+	shiftCmdType = function(dist)
+
+		data.cmdtype = wrapNum(data.cmdtype + dist, 1, #data.cmdtypes)
+
+		print("shiftCmdType: command " .. data.cmdtype .. ": " .. table.concat(data.cmdtypes[data.cmdtype], " "))
 
 	end,
 

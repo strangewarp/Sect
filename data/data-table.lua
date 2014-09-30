@@ -2,7 +2,7 @@
 local D = {}
 
 -- VERSIONING VARS --
-D.version = "1.1-a9" -- Holds Sect's current version-number
+D.version = "1.1-a11" -- Holds Sect's current version-number
 
 -- LOVE ENGINE VARS --
 D.updatespeed = 0.01 -- Speed at which to attempt to update program-state
@@ -40,11 +40,11 @@ D.cmdbyte1 = 0 -- First byte of non-NOTE commands
 D.cmdbyte2 = 0 -- Second byte of non-NOTE commands
 D.cmdtype = 1 -- Command type
 D.cmdtypes = { -- Byte values, command names, and MIDI.lua key names
+	{160, "aftertouch-key", "key_after_touch"},
 	{176, "control", "control_change"},
 	{192, "program", "patch_change"},
-	{224, "pitch-bend", "pitch_wheel_change"},
-	{160, "aftertouch-key", "key_after_touch"},
 	{208, "aftertouch-chan", "channel_after_touch"},
+	{224, "pitch-bend", "pitch_wheel_change"},
 }
 
 -- SOCKET VARS --
@@ -365,8 +365,11 @@ D.cmdfuncs = {
 	SEQ_TAB_UP_10 = {"tabActiveSequence", -10},
 	SEQ_TAB_DOWN_10 = {"tabActiveSequence", 10},
 
-	CMD_TYPE_UP = {"shiftCommandType", -1},
-	CMD_TYPE_DOWN = {"shiftCommandType", 1},
+	CMD_POINTER_UP = {"moveCmdPointer", -1},
+	CMD_POINTER_DOWN = {"moveCmdPointer", 1},
+
+	CMD_TYPE_UP = {"shiftCmdType", -1},
+	CMD_TYPE_DOWN = {"shiftCmdType", 1},
 
 	CMD_BYTE_1_UP = {"shiftInternalValue", "cmdbyte1", 1, -1},
 	CMD_BYTE_1_DOWN = {"shiftInternalValue", "cmdbyte1", 1, 1},
@@ -527,8 +530,8 @@ D.cmdgate = {
 	MOD_SEQ_UP = {"entry", "gen"},
 	MOD_SEQ_DOWN = {"entry", "gen"},
 
-	POINTER_UP = {"entry", "gen", "cmd"},
-	POINTER_DOWN = {"entry", "gen", "cmd"},
+	POINTER_UP = {"entry", "gen"},
+	POINTER_DOWN = {"entry", "gen"},
 	POINTER_UP_OCTAVE = {"entry", "gen"},
 	POINTER_DOWN_OCTAVE = {"entry", "gen"},
 	POINTER_LEFT = {"entry", "gen", "cmd"},
@@ -547,6 +550,9 @@ D.cmdgate = {
 	SEQ_TAB_DOWN = {"entry", "gen", "cmd"},
 	SEQ_TAB_UP_10 = {"entry", "gen", "cmd"},
 	SEQ_TAB_DOWN_10 = {"entry", "gen", "cmd"},
+
+	CMD_POINTER_UP = {"cmd"},
+	CMD_POINTER_DOWN = {"cmd"},
 
 	CMD_TYPE_UP = {"cmd"},
 	CMD_TYPE_DOWN = {"cmd"},

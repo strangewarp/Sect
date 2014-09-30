@@ -118,7 +118,7 @@ return {
 
 		triangle = { -- Beat-triangle colors
 			fill = {0, 0, 245, 255},
-			line = {0, 0, 255, 255},
+			line = {0, 0, 25, 255},
 			text = {240, 240, 240, 255},
 		},
 
@@ -462,6 +462,9 @@ return {
 		NOTE_GRAIN_DOWN = {"shift", "j"},
 		NOTE_GRAIN_UP_MULTI = {"tab", "k"},
 		NOTE_GRAIN_DOWN_MULTI = {"tab", "j"},
+
+		CMD_POINTER_UP = {"up"},
+		CMD_POINTER_DOWN = {"down"},
 
 		CMD_TYPE_UP = {"shift", "w"},
 		CMD_TYPE_DOWN = {"shift", "q"},

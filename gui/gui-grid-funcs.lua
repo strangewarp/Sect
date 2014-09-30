@@ -17,19 +17,25 @@ return {
 
 		local breadth = data.size.triangle.breadth
 		local bhalf = breadth / 2
-		local bhalfout = bhalf + 2
+		local bhalfout = bhalf + 1
 	
 		for k, v in ipairs(tris) do
 
 			local beat, xpos = unpack(v)
 
 			love.graphics.setColor(data.color.triangle.fill)
-			love.graphics.polygon("fill", xpos - bhalf, yfull, xpos + bhalf, yfull, xpos, tritop)
 
-			love.graphics.setLineWidth(2)
-			love.graphics.setColor(data.color.triangle.line)
-			love.graphics.line(xpos - bhalfout, yfull + 2, xpos, tritop, xpos + bhalfout, yfull + 2)
-			love.graphics.setLineWidth(1)
+			if (xpos - bhalfout) < data.size.sidebar.width then
+				local xleft = data.size.sidebar.width
+				local yshort = tritop + (xpos - xleft)
+				love.graphics.polygon("fill", xleft, yshort, xleft, yfull, xpos + bhalf, yfull, xpos, tritop)
+				love.graphics.setColor(data.color.triangle.line)
+				love.graphics.line(xleft, yshort, xpos, tritop, xpos + bhalfout, yfull + 2)
+			else
+				love.graphics.polygon("fill", xpos - bhalf, yfull, xpos + bhalf, yfull, xpos, tritop)
+				love.graphics.setColor(data.color.triangle.line)
+				love.graphics.line(xpos - bhalfout, yfull + 1, xpos, tritop, xpos + bhalfout, yfull + 1)
+			end
 
 			love.graphics.setColor(data.color.triangle.text)
 			love.graphics.setFont(data.font.beat.raster)

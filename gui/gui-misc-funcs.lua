@@ -30,6 +30,11 @@ return {
 
 	end,
 
+	-- Draw a rectangle stencil for any given frame
+	frameStencil = function(l, t, w, h)
+		love.graphics.rectangle("fill", l, t, w, h)
+	end,
+
 	-- Draw the contents of the sequence-frame
 	buildSeqFrame = function(left, top, width, height)
 

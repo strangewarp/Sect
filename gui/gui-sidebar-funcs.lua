@@ -153,6 +153,9 @@ return {
 	-- Build a series of flat lines that summarize all currently-loaded sequences
 	buildTrackBar = function(left, top, width, height)
 
+		left = left - 1
+		width = width + 1
+
 		love.graphics.setColor(data.color.window.dark)
 		love.graphics.rectangle("fill", left, top, width, height)
 

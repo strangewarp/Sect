@@ -5,12 +5,12 @@
 ---- sub-task DONE: Change GUI functions so that Entry Mode and Generator Mode renderings ignore non-NOTE commands, and Command Mode rendering ignores NOTE commands.
 ---- sub-task DONE: Add variables: "COMMAND TYPE", "BYTE VAL 1", and "BYTE VAL 2", which can be tabbed through when the "CMD mode" is active, via "NOTE", "DURATION", and "VELOCITY" keys.
 ---- sub-task DONE: Change note-rendering pathway so that Cmd Mode notes are stacked on a baseline, rather than plotted on a grid.
----- sub-task: In CMD-mode seq-space, POINTER_PREV_NOTE and POINTER_NEXT_NOTE should be triggered by the POINTER_UP and POINTER_DOWN buttons.
+---- sub-task DONE: In Cmd Mode, the Up and Down buttons should modify data.cmdp's value.
+---- sub-task DONE: Add functions: moveCmdPointer and shiftCmdType.
+---- sub-task: In Cmd Mode, the vars for CMD-TYPE, CMD-BYTE1, and CMD-BYTE2 should be visible in the sidebar, in place of DURATION and VELOCITY.
 ---- sub-task: Modify insertNotes to act differently during Cmd Mode.
 ---- sub-task: Check the functionality of saveFile and loadFile.
 ---- sub-task: Fix mouse-click position, to compensate for new anchor-point caused by changing piano-roll positioning.
-
--- TODO: Clip the visible edges of beat-triangles properly, now that Cmd Mode visually requires it. Using love.graphics.setStencil() would probably be easiest here.
 
 -- TODO: Figure out what's up with the stray vertical grey line off the bottom edge of the piano-roll, now that tabbing in and out of Cmd Mode has made it noticable. Probably fixable with a proper stencil too.
 
@@ -27,6 +27,7 @@
 -- TODO: change data.version back to "1.1"
 
 -- Changed all data-structures and data-handling involved with mode-based interpretation of key-commands.
+-- Started clipping the left edges of beat-triangles properly, now that Cmd Mode's GUI visually requires it.
 -- Fixed the piano-roll's connection to the Reticule's user-defined Y-anchor position.
 -- Started accepting repeated commands from held-down keys.
 -- Started removing all active keystrokes on focus-change.
