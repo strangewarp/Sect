@@ -58,8 +58,8 @@ return {
 			light = {250, 250, 250, 255},
 			highlight = {60, 255, 50, 255},
 			warning = {255, 60, 60, 255},
-			cmd = {245, 245, 255, 255},
-			cmd_shadow = {3, 2, 10, 255},
+			cmd = {3, 2, 10, 255},
+			cmd_shadow = {245, 245, 255, 255},
 		},
 
 		summary = { -- Summary-grid colors

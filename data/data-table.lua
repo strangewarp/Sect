@@ -2,7 +2,7 @@
 local D = {}
 
 -- VERSIONING VARS --
-D.version = "1.1-a15" -- Holds Sect's current version-number
+D.version = "1.1-a17" -- Holds Sect's current version-number
 
 -- LOVE ENGINE VARS --
 D.updatespeed = 0.01 -- Speed at which to attempt to update program-state
@@ -365,8 +365,8 @@ D.cmdfuncs = {
 	SEQ_TAB_UP_10 = {"tabActiveSequence", -10},
 	SEQ_TAB_DOWN_10 = {"tabActiveSequence", 10},
 
-	CMD_POINTER_UP = {"moveCmdPointer", -1},
-	CMD_POINTER_DOWN = {"moveCmdPointer", 1},
+	CMD_POINTER_UP = {"moveCmdPointer", 1},
+	CMD_POINTER_DOWN = {"moveCmdPointer", -1},
 
 	CMD_TYPE_UP = {"shiftCmdType", 1},
 	CMD_TYPE_DOWN = {"shiftCmdType", -1},
@@ -406,9 +406,9 @@ D.cmdgate = {
 
 	INSERT_NOTE = {"entry", "gen", "cmd"},
 	DELETE_NOTE = {"entry", "gen", "cmd"},
-	DELETE_TICK_NOTES = {"entry", "gen", "cmd"},
-	DELETE_PITCH_NOTES = {"entry", "gen", "cmd"},
-	DELETE_BEAT_NOTES = {"entry", "gen", "cmd"},
+	DELETE_TICK_NOTES = {"entry", "gen"},
+	DELETE_PITCH_NOTES = {"entry", "gen"},
+	DELETE_BEAT_NOTES = {"entry", "gen"},
 
 	INSERT_TICKS = {"entry", "gen", "cmd"},
 	REMOVE_TICKS = {"entry", "gen", "cmd"},

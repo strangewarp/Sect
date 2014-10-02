@@ -155,7 +155,7 @@ return {
 							break
 						end
 					end
-					outstr = outstr .. " " .. n.note[4]
+					outstr = outstr .. " " .. n.note[3] .. " " .. n.note[4]
 					if n.note[5] ~= nil then
 						outstr = outstr .. " " .. n.note[5]
 					end
@@ -258,7 +258,7 @@ return {
 
 						-- If Cmd Mode is active, render the note with a "stacked" top-offset
 						if data.cmdmode == "cmd" then
-							ot = yr.b - (data.cellheight * (data.cmdp - kk))
+							ot = yr.b - ((kk - data.cmdp) * data.cellheight)
 						else -- Else, render the note with a "wrapping grid" top-offset
 							ot = yr.b - ((vp - yr.o) * data.cellheight)
 						end

@@ -9,6 +9,11 @@ return {
 		data.tp = (rangeCheck(data.tp, 1, tlimit) and data.tp) or 1
 		data.np = (rangeCheck(data.np, data.bounds.np) and data.np) or 1
 
+		-- Normalize Cmd Mode pointer
+		if data.active and (data.cmdmode == 'cmd') then
+			data.cmdp = (rangeCheck(data.cmdp, 1, #data.seq[data.active].tick[data.tp]) and data.cmdp) or 1
+		end
+
 		-- Normalize selection-pointers
 		if data.sel.l ~= false then
 			data.seltop.x = math.min(data.seltop.x, tlimit)

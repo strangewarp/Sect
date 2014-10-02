@@ -31,6 +31,7 @@ return {
 			data.size.sidebar.width, 0,
 			data.size.sidebar.width, height
 		)
+		love.graphics.setLineWidth(1)
 
 		buildTrackBar(
 			data.size.sidebar.width, height - data.size.botbar.height,

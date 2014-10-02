@@ -67,19 +67,12 @@ return {
 
 	end,
 
-	-- Set a group of note-subtables to false, which represents removal
+	-- Flag a group of note-subtables for removal
 	notesToRemove = function(notes)
-
 		for k, v in pairs(notes) do
-			if v.note[1] == 'note' then
-				notes[k].note = {'remove', v.note[4], v.note[5]}
-			elseif v.note[1] ~= 'remove' then
-				notes[k].note = {'remove', v.note[3], v.note[4]}
-			end
+			notes[k].note = {'remove', v.note[4], v.note[5]}
 		end
-
 		return notes
-
 	end,
 
 	-- Get the notes from a given slice of a sequence, optionally bounded to a channel
@@ -97,27 +90,62 @@ return {
 		-- Grab all notes within the given range, and put them in notes-table
 		for t = tbot, ttop do
 			for k, v in pairs(data.seq[p].tick[t]) do
-				if ((v.note[1] == 'note') and rangeCheck(v.note[5], nbot, ntop))
-				or ((v.note[1] ~= 'note') and rangeCheck(v.note[4], nbot, ntop))
-				then -- If the note is within note-range, grab it
-					table.insert(notes, deepCopy(v))
-				end
-			end
-		end
+				if (v.note[1] == 'note') and rangeCheck(v.note[5], nbot, ntop) then
 
-		-- If a channel was specified, purge all notes outside that channel
-		if chan then
-			for i = #notes, 1, -1 do
-				local n = notes[i].note
-				if ((n[1] == 'note') and (n[4] ~= chan))
-				or ((n[1] ~= 'note') and (n[3] ~= chan))
-				then
-					table.remove(notes, i)
+					-- If a channel was given, only grab notes from that channel,
+					-- or if no channel was given, just grab all notes.
+					if (not chan) or (chan == data.chan) then
+						table.insert(notes, deepCopy(v))
+					end
+
 				end
 			end
 		end
 
 		return notes
+
+	end,
+
+	-- Insert a given table of command values into a sequence
+	setCmds = function(p, cmds, undo)
+
+		-- Make duplicates of the commands, to prevent reference bugs
+		cmds = deepCopy(cmds)
+
+		local undocmds = {}
+		local redocmds = {}
+		local removecmds = {}
+		local addcmds = {}
+
+		-- Seperate insert-cmds and remove-cmds into the insert and remove tables
+		for k, v in pairs(cmds) do
+			if v[1] == 'remove' then
+				table.insert(removecmds, v)
+			else
+				table.insert(addcmds, v)
+			end
+		end
+
+		-- Remove all remove-cmds, and shape undo tables accordingly
+		for k, v in pairs(removecmds) do
+			table.remove(data.seq[p].tick[v[3].tick], v[2])
+			table.insert(redocmds, v)
+			table.insert(undocmds, {'insert', v[2], v[3]})
+		end
+
+		-- Add all add-cmds, and shape undo tables accordingly
+		for k, v in pairs(addcmds) do
+			table.insert(data.seq[p].tick[v[3].tick], v[2], v[3])
+			table.insert(redocmds, v)
+			table.insert(undocmds, {'remove', v[2], v[3]})
+		end
+
+		-- Build undo tables
+		addUndoStep(
+			((undo == nil) and true) or undo, -- Suppress flag
+			{"setCmds", p, undocmds}, -- Undo command
+			{"setCmds", p, redocmds} -- Redo command
+		)
 
 	end,
 
@@ -302,7 +330,7 @@ return {
 				n.note[5] = data.cmdbyte2
 			end
 
-			setNotes(data.active, {n}, undo)
+			setCmds(data.active, {{'insert', data.cmdp, n}}, undo)
 
 		end
 
@@ -313,17 +341,36 @@ return {
 
 		local delnotes = {}
 
-		-- If any notes are selected, slate them for deletion
-		if #data.seldat > 0 then
-			delnotes = notesToRemove(data.seldat)
-		else -- Else, slate the current pointer-position note for deletion
-			delnotes = getNotes(data.active, data.tp, data.tp, data.np, data.np)
-			delnotes = notesToRemove(delnotes)
-		end
+		-- If Cmd Mode is active, delete the active Non-Note
+		if data.cmdmode == "cmd" then
 
-		-- If any matching notes were found, remove them
-		if #delnotes > 0 then
-			setNotes(data.active, delnotes, undo)
+			-- If the command-pointer corresponds to a cmd on the active tick,
+			-- create a "remove" cmd, and send that cmd to setCmds.
+			if #data.seq[data.active].tick[data.tp] >= data.cmdp then
+				setCmds(
+					data.active,
+					{
+						{'remove', data.cmdp, data.seq[data.active].tick[data.tp][data.cmdp]},
+					},
+					undo
+				)
+			end
+
+		else -- Else, delete the active note
+
+			-- If any notes are selected, slate them for deletion
+			if #data.seldat > 0 then
+				delnotes = notesToRemove(data.seldat)
+			else -- Else, if no notes are selected, slate the current pointer-pos's note for deletion
+				delnotes = getNotes(data.active, data.tp, data.tp, data.np, data.np, data.chan)
+				delnotes = notesToRemove(delnotes)
+			end
+
+			-- If any matching notes were found, remove them
+			if #delnotes > 0 then
+				setNotes(data.active, delnotes, undo)
+			end
+
 		end
 
 	end,
@@ -331,7 +378,7 @@ return {
 	-- Delete all notes in the active tick
 	deleteTickNotes = function(undo)
 
-		local delnotes = getNotes(data.active, data.tp, data.tp, _, _)
+		local delnotes = getNotes(data.active, data.tp, data.tp, _, _, data.chan)
 		delnotes = notesToRemove(delnotes)
 
 		-- If any matching notes were found, send them through removeNotes
@@ -344,7 +391,7 @@ return {
 	-- Delete all notes in the active pitch
 	deletePitchNotes = function(undo)
 
-		local delnotes = getNotes(data.active, _, _, data.np, data.np)
+		local delnotes = getNotes(data.active, _, _, data.np, data.np, data.chan)
 		delnotes = notesToRemove(delnotes)
 
 		-- If any matching notes were found, send them through removeNotes
@@ -364,7 +411,7 @@ return {
 		end
 		local rtick = math.min(#data.seq[data.active].tick, (ltick + (data.tpq * 4)) - 1)
 
-		local delnotes = getNotes(data.active, ltick, rtick, _, _)
+		local delnotes = getNotes(data.active, ltick, rtick, _, _, data.chan)
 		delnotes = notesToRemove(delnotes)
 
 		-- If any matching notes were found, send them through removeNotes

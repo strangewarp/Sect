@@ -2,18 +2,10 @@
 1.1
 
 -- TODO: Add a "CMD mode", where a sequence's non-NOTE commands are held and modified.
----- sub-task DONE: Change GUI functions so that Entry Mode and Generator Mode renderings ignore non-NOTE commands, and Command Mode rendering ignores NOTE commands.
----- sub-task DONE: Add variables: "COMMAND TYPE", "BYTE VAL 1", and "BYTE VAL 2", which can be tabbed through when the "CMD mode" is active, via "NOTE", "DURATION", and "VELOCITY" keys.
----- sub-task DONE: Change note-rendering pathway so that Cmd Mode notes are stacked on a baseline, rather than plotted on a grid.
----- sub-task DONE: In Cmd Mode, the Up and Down buttons should modify data.cmdp's value.
----- sub-task DONE: Add functions: moveCmdPointer and shiftCmdType.
----- sub-task DONE: In Cmd Mode, the vars for CMD-TYPE, CMD-BYTE1, and CMD-BYTE2 should be visible in the sidebar, in place of NOTE, DURATION and VELOCITY.
----- sub-task DONE: Change the reticule color in Cmd Mode, and refrain from rendering the right-border reticule.
----- sub-task DONE: Modify insertNote and setNotes to act differently during Cmd Mode.
----- sub-task DONE: Change Cmd Mode note-rendering so that note-text contains all command-type and byte information, is only visible for the commands on the active tick, and has a thick shadow.
----- sub-task DONE: Fix Cmd Pointer data behavior.
----- sub-task DONE: Fix Cmd Mode Objects' rendering behavior.
----- sub-task: Change the behavior of deleteNote when Cmd Mode is active.
+---- sub-task DONE: Remove all halfhearted Non-Note compensation from Note commands (as in, data.acceptmidi-related routines), and write new explicitly Non-Note-handling routines.
+---- sub-task: Split Cmd Funtions into a new func-file.
+---- sub-task: Add Cmd Mode versions of deleteTickNotes and deleteBeatNotes.
+---- sub-task: In Cmd Mode, render item-text after/above cmd-rectangles.
 ---- sub-task: Show the active sequence's Cmd Mode commands as Shadow Mode notes, with unique coloration, when Cmd Mode isn't active.
 ---- sub-task: Check whether saveFile and loadFile are truly compatible with non-NOTE commands.
 ---- sub-task: Fix mouse-click position, to compensate for new anchor-point caused by changing piano-roll positioning.
@@ -36,6 +28,7 @@
 -- Fixed the piano-roll's connection to the Reticule's user-defined Y-anchor position.
 -- Started accepting repeated commands from held-down keys.
 -- Started removing all active keystrokes on focus-change.
+-- Changed all note-deletion commands to only act upon notes of the currently active channel.
 -- Changed selection-commands and getNotes, so that only notes on the active channel are selected in a given selection-command.
 -- Changed some note-functions so they won't overwrite notes that sit on different channels within the same sequence, when they share pitch values.
 -- Changed shiftInternalValue so that values multiplied by numbers less than 1 will be floored, rather than rounded. This will allow for easier reduction of Spacing to 0.
