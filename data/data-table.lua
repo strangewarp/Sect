@@ -2,7 +2,7 @@
 local D = {}
 
 -- VERSIONING VARS --
-D.version = "1.1-a17" -- Holds Sect's current version-number
+D.version = "1.1-a19" -- Holds Sect's current version-number
 
 -- LOVE ENGINE VARS --
 D.updatespeed = 0.01 -- Speed at which to attempt to update program-state
@@ -49,6 +49,7 @@ D.cmdtypes = { -- Byte values, command names, and MIDI.lua key names
 
 -- SOCKET VARS --
 D.udpout = false -- Holds UDP-OUT socket
+D.udpin = false -- Holds UDP-IN socket
 
 -- ZOOM VARS --
 D.cellwidth = 2 -- Horizontal pixels per cell
@@ -381,8 +382,6 @@ D.cmdfuncs = {
 	CMD_BYTE_2_UP_10 = {"shiftInternalValue", "cmdbyte2", false, 10},
 	CMD_BYTE_2_DOWN_10 = {"shiftInternalValue", "cmdbyte2", false, -10},
 
-	EXTROVERT_LOAD_FILE = {"sendExtrovertCommand", "loadmidi"},
-
 }
 
 -- Modes in which a given command will take effect
@@ -566,8 +565,6 @@ D.cmdgate = {
 	CMD_BYTE_2_DOWN = {"cmd"},
 	CMD_BYTE_2_UP_10 = {"cmd"},
 	CMD_BYTE_2_DOWN_10 = {"cmd"},
-
-	EXTROVERT_LOAD_FILE = {"entry", "gen", "cmd"},
 
 }
 

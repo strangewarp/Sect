@@ -35,10 +35,10 @@ return {
 					if seq.overlay or (s == data.active) then
 
 						-- If the given tick in the given sequence exists,
-						-- then send its notes to Extrovert via MIDI-over-OSC.
+						-- then send its notes to the MIDI-listener via MIDI-over-UDP.
 						if seq.tick[data.tp] ~= nil then
 							for _, n in ipairs(seq.tick[data.tp]) do
-								sendExtrovertNote(n.note)
+								sendMidiMessage(n.note)
 							end
 						end
 

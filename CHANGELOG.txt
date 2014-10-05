@@ -2,27 +2,26 @@
 1.1
 
 -- TODO: Add a "CMD mode", where a sequence's non-NOTE commands are held and modified.
----- sub-task DONE: Remove all halfhearted Non-Note compensation from Note commands (as in, data.acceptmidi-related routines), and write new explicitly Non-Note-handling routines.
----- sub-task: Split Cmd Funtions into a new func-file.
+---- sub-task: Remove all halfhearted Non-Note compensation from Note commands (as in, data.acceptmidi-related routines), and write new explicitly Non-Note-handling routines.
 ---- sub-task: Add Cmd Mode versions of deleteTickNotes and deleteBeatNotes.
 ---- sub-task: In Cmd Mode, render item-text after/above cmd-rectangles.
 ---- sub-task: Show the active sequence's Cmd Mode commands as Shadow Mode notes, with unique coloration, when Cmd Mode isn't active.
 ---- sub-task: Check whether saveFile and loadFile are truly compatible with non-NOTE commands.
 ---- sub-task: Fix mouse-click position, to compensate for new anchor-point caused by changing piano-roll positioning.
 
+-- TODO: Create a new luasocket-based communication system, designed to interact with a netsend/netreceive apparatus in the SectMidiClient script for Puredata.
+
 -- TODO: Add full MIDI-IN, for composition via external MIDI devices. Thanks to how Spacing and Play Mode interact with note-entry, there won't need to be any explicit tabbing between input-types.
 ---- sub-task: Update the LOVE-to-Pd MIDI-OSC Bridge to grab MIDI-IN and send it to Sect.
-
--- TODO: Add native MIDI I/O on Windows, via lovemidi.
----- sub-task: Add mechanism to detect all MIDI devices, and tab between them, refreshing said list on every tab. This should only take effect, and its status should only be displayed, if lovemidi is present.
 
 -- TODO: In Play Mode, notes from Shadow Mode sequences should play alongside notes from the active sequence.
 
 -- TODO: comment out console again
-
+-- TODO: remove "debugging" messages
 -- TODO: change data.version back to "1.1"
 
 -- Changed all data-structures and data-handling involved with mode-based interpretation of key-commands.
+-- Removed old OSC and Extrovert-API code, which was clunky and extraneous.
 -- Started clipping the left edges of beat-triangles properly, now that Cmd Mode's GUI visually requires it.
 -- Compensated for a stray vertical grey line off the bottom edge of the piano-roll that would disappear in Cmd Mode.
 -- Fixed the piano-roll's connection to the Reticule's user-defined Y-anchor position.

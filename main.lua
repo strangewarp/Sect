@@ -68,8 +68,6 @@ function love.load()
 	socket = require('socket')
 
 	vstruct = require('vstruct')
-	pack = vstruct.pack
-	upack = vstruct.unpack
 
 	datafuncs = require('funcs/data-funcs')
 	filefuncs = require('funcs/file-funcs')
@@ -83,10 +81,10 @@ function love.load()
 	modefuncs = require('funcs/mode-funcs')
 	mousefuncs = require('funcs/mouse-funcs')
 	notefuncs = require('funcs/note-funcs')
-	oscfuncs = require('funcs/osc-funcs')
 	playfuncs = require('funcs/play-funcs')
 	pointerfuncs = require('funcs/pointer-funcs')
 	selectfuncs = require('funcs/select-funcs')
+	socketfuncs = require('funcs/socket-funcs')
 	undofuncs = require('funcs/undo-funcs')
 	utilfuncs = require('funcs/util-funcs')
 	wheelfuncs = require('funcs/wheel-funcs')
@@ -107,10 +105,10 @@ function love.load()
 		modefuncs,
 		mousefuncs,
 		notefuncs,
-		oscfuncs,
 		playfuncs,
 		pointerfuncs,
 		selectfuncs,
+		socketfuncs,
 		undofuncs,
 		utilfuncs,
 		wheelfuncs
@@ -239,7 +237,7 @@ function love.load()
 	tableCombine(
 		data.loadcmds,
 		{
-			{{"setupUDP"}, "Setting up OSC-UDP apparatus..."},
+			{{"setupUDP"}, "Setting up MIDI-over-UDP apparatus..."},
 			{{"buttonsToPianoKeys", data.pianokeys}, "Assigning computer-piano keys..."},
 			{{"buildHotseatCommands"}, "Building hotseat commands..."},
 			{{"sortKeyComboTables"}, "Sorting key-command tables..."},
@@ -252,6 +250,19 @@ end
 --- ON UPDATE ---
 -----------------
 function love.update(dt)
+
+	-- If still loading, abort function
+	if data.loading then
+		return nil
+	end
+
+	-- Check for incoming MIDI commands
+	repeat
+		local d, msg = data.udpin:receive()
+		if d then
+			getMidiMessage(d) -- Send incoming MIDI to a parsing function
+		end
+	until not d
 
 	-- If Play Mode is active, iterate by one tick
 	if data.playing then
@@ -356,7 +367,14 @@ end
 --- ON KEY RELEASE ---
 ----------------------
 function love.keyreleased(key)
+
+	-- If still on the loading screen, do nothing
+	if data.loading then
+		return nil
+	end
+
 	removeKeystroke(key)
+
 end
 
 -----------------------

@@ -292,8 +292,8 @@ return {
 				},
 			}
 
-			-- Send the note to Extrovert, on the user-defined port
-			sendExtrovertNote(n.note)
+			-- Send the note to the MIDI-over-UDP listener, on the user-defined port
+			sendMidiMessage(n.note)
 
 		end
 

@@ -10,8 +10,9 @@ return {
 	-- Max undo depth
 	maxundo = 100,
 
-	-- MIDI-over-OSC port (OUT to test-osc.pd or Extrovert)
-	oscsend = 8500,
+	-- MIDI-over-UDP ports
+	udpsend = 8562, -- OUT to SectMidiClient
+	udpreceive = 8563, -- IN from SectMidiClient
 
 	-- Toggles whether the mouse is reset to the center on right-click.
 	mousetocenter = false,
@@ -412,8 +413,6 @@ return {
 		SEQ_TAB_DOWN = {"pagedown"},
 		SEQ_TAB_UP_10 = {"shift", "pageup"},
 		SEQ_TAB_DOWN_10 = {"shift", "pagedown"},
-
-		EXTROVERT_LOAD_FILE = {"ctrl", "e"},
 
 		KSPECIES_UP = {"shift", "w"},
 		KSPECIES_DOWN = {"shift", "q"},
