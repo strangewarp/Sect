@@ -9,10 +9,10 @@
 ---- sub-task: Check whether saveFile and loadFile are truly compatible with non-NOTE commands.
 ---- sub-task: Fix mouse-click position, to compensate for new anchor-point caused by changing piano-roll positioning.
 
--- TODO: Create a new luasocket-based communication system, designed to interact with a netsend/netreceive apparatus in the SectMidiClient script for Puredata.
+-- TODO: Create a two-way MIDI-over-UDP communications system, designed to send MIDI between Sect and user devices, via SectMidiClient. 
+---- sub-task: debug FROM-user-device-TO-Sect pathway
 
 -- TODO: Add full MIDI-IN, for composition via external MIDI devices. Thanks to how Spacing and Play Mode interact with note-entry, there won't need to be any explicit tabbing between input-types.
----- sub-task: Update the LOVE-to-Pd MIDI-OSC Bridge to grab MIDI-IN and send it to Sect.
 
 -- TODO: In Play Mode, notes from Shadow Mode sequences should play alongside notes from the active sequence.
 

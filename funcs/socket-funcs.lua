@@ -13,7 +13,7 @@ return {
 
 		-- Split the incoming message into a command-table
 		for unit in string.gmatch(m, "%S+") do
-			t[#t + 1] = unit
+			t[#t + 1] = ((#t == 0) and unit) or tonumber(unit)
 		end
 
 		-- Convert the Pd MIDI-command format into Sect's score-based format
