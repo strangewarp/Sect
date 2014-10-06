@@ -32,10 +32,14 @@ return {
 				return nil
 			end
 
-			n.note[3] = data.dur -- Replace the dummy duration value
+			-- Replace the dummy duration value
+			n.note[3] = data.dur
 
 			-- Call setNotes from within executeFunction, to spawn a new undo chunk
 			executeFunction("setNotes", data.active, {n}, false)
+
+			-- Set the note-pointer to the incoming note's pitch
+			data.np = n.note[5]
 
 		else
 
