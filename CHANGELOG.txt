@@ -1,4 +1,8 @@
 
+1.2
+
+-- TODO: Add cross-platform native MIDI I/O.
+
 1.1
 
 -- TODO: Add a "CMD mode", where a sequence's non-NOTE commands are held and modified.
@@ -14,7 +18,16 @@
 
 -- TODO: Add full MIDI-IN, for composition via external MIDI devices. Thanks to how Spacing and Play Mode interact with note-entry, there won't need to be any explicit tabbing between input-types.
 
--- TODO: In Play Mode, notes from Shadow Mode sequences should play alongside notes from the active sequence.
+-- TODO: Allow multiple computer-keyboard keys to be pressed simultaneously, so that example-chords can be sent across UDP to external MIDI devices.
+
+-- TODO: Add "Select Chan" command, a version of Select-All that only applies to notes in the active seq's active channel.
+
+-- TODO: Add "Stretch" commands, which double or halve both the duration and the starting tick of every selected note, rounded to nearest value.
+---- sub-task: add these func-names to data.undocmds as well
+
+-- TODO: Add a simple metronome in Play Mode.
+
+-- TODO: Add a visual confirmation of file-save.
 
 -- TODO: comment out console again
 -- TODO: remove "debugging" messages
@@ -22,6 +35,7 @@
 
 -- Changed all data-structures and data-handling involved with mode-based interpretation of key-commands.
 -- Removed old OSC and Extrovert-API code, which was clunky and extraneous.
+-- Started rendering a shadow under every note's channel-number.
 -- Started clipping the left edges of beat-triangles properly, now that Cmd Mode's GUI visually requires it.
 -- Compensated for a stray vertical grey line off the bottom edge of the piano-roll that would disappear in Cmd Mode.
 -- Fixed the piano-roll's connection to the Reticule's user-defined Y-anchor position.

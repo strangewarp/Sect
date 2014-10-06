@@ -67,8 +67,6 @@ function love.load()
 
 	socket = require('socket')
 
-	vstruct = require('vstruct')
-
 	datafuncs = require('funcs/data-funcs')
 	filefuncs = require('funcs/file-funcs')
 	generatorfuncs = require('funcs/generator-funcs')

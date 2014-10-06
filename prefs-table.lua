@@ -61,6 +61,7 @@ return {
 			warning = {255, 60, 60, 255},
 			cmd = {3, 2, 10, 255},
 			cmd_shadow = {245, 245, 255, 255},
+			note_shadow = {4, 5, 9, 100},
 		},
 
 		summary = { -- Summary-grid colors

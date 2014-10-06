@@ -136,15 +136,23 @@ return {
 					nleft + nx, ntop + bartop
 				)
 
-				-- If chanview mode is enabled,
-				-- draw channel numbers and velocity-bars onto notes.
+				-- If chanview mode is enabled, print the note's channel number.
 				if data.chanview and (n.note[1] == 'note') then
 
-					love.graphics.print(
-						tostring(n.note[4]),
-						(nleft + (nx / 2)) - (data.font.note.raster:getWidth(tostring(n.note[4])) / 2),
-						(ntop + (ny / 2)) - (fontheight / 2)
-					)
+					local notename = tostring(n.note[4])
+					local textleft = (nleft + (nx / 2)) - (data.font.note.raster:getWidth(tostring(n.note[4])) / 2)
+					local texttop = (ntop + (ny / 2)) - (fontheight / 2)
+
+					-- Draw the text's shadow
+					love.graphics.setColor(data.color.font.note_shadow)
+					love.graphics.print(notename, textleft, texttop - 1)
+					love.graphics.print(notename, textleft, texttop + 1)
+					love.graphics.print(notename, textleft - 1, texttop)
+					love.graphics.print(notename, textleft + 1, texttop)
+
+					-- Draw the text itself
+					love.graphics.setColor(barcomp)
+					love.graphics.print(notename, textleft, texttop)
 
 				elseif (data.cmdmode == "cmd") and (n.tick == data.tp) then
 

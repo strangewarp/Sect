@@ -17,21 +17,35 @@ return {
 			table.insert(data.keys, key)
 		end
 
-		-- Seek out the command that matches currently-active keys and modes
-		local match = false
-		for k, v in pairs(data.cmds) do
-			if crossCompare(data.keys, v) then
-				for kk, vv in pairs(data.cmdgate[k]) do
-					if vv == data.cmdmode then
-						match = k
-						break
-					end
+		local mixed = false -- Flags whether piano-keys are mixed with non-piano keys
+		local match = false -- Flags whether there is a command-match
+
+		-- Discern whether the only currently-held keys are piano-keyboard keys
+		for k, v in pairs(data.keys) do
+
+			local c = checkKeyChord({v})
+
+			if c then
+
+				-- Set a fallback match to the newest key
+				if v == key then
+					match = c
 				end
-				if match then do break end end
+
+				-- Check for non-piano-command keystrokes
+				if c:sub(1, 10) ~= "PIANO_KEY_" then
+					mixed = true
+				end
+
 			end
+
 		end
 
-		-- If no exact match was found, abort function
+		-- Seek out the command that matches currently-active keys and modes,
+		-- or if such a command doesn't exist, stick to the already-existing match.
+		match = checkKeyChord(data.keys) or match
+
+		-- If no acceptable match was found, then abort function
 		if not match then
 			return nil
 		end
@@ -43,10 +57,25 @@ return {
 
 			executeFunction(unpack(data.cmdfuncs[match]))
 
-		else
-			print("addKeystroke error: command '" .. match .. "' does not have a referent in cmdfuncs table!")
 		end
 
+	end,
+
+	-- Seek out a command that perfectly matches a given keychord.
+	checkKeyChord = function(keytab)
+
+		for k, v in pairs(data.cmds) do
+			if crossCompare(keytab, v) then
+				for kk, vv in pairs(data.cmdgate[k]) do
+					if vv == data.cmdmode then
+						return k
+					end
+				end
+			end
+		end
+
+		return false
+		
 	end,
 
 	-- Remove a key from the keystroke-tracking table
