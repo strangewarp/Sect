@@ -38,8 +38,8 @@ return {
 			-- Call setNotes from within executeFunction, to spawn a new undo chunk
 			executeFunction("setNotes", data.active, {n}, false)
 
-			-- Set the note-pointer to the incoming note's pitch
-			data.np = n.note[5]
+			-- Set the note-pointer to the bottom of the incoming note's octave
+			data.np = n.note[5] - (n.note[5] % 12)
 
 		else
 

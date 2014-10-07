@@ -111,8 +111,8 @@ return {
 		},
 
 		selection = { -- Selection colors
-			fill = {10, 10, 255, 80},
-			line = {255, 255, 255, 200},
+			fill = {10, 255, 5, 80},
+			line = {235, 235, 255, 200},
 		},
 
 		scale = { -- Scale-mode colors

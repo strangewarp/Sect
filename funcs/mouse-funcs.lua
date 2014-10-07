@@ -97,13 +97,12 @@ return {
 	mousePick = function(x, y, width, height, button)
 
 		local left = data.size.sidebar.width
-		local pianoleft = left + (data.pianowidth / 2)
 		local top = 0
 		local right = left + width
 		local middle = height - data.size.botbar.height
 
-		if collisionCheck(x, y, 0, 0, left, 0, right, middle) then
-			reactToGridClick(pianoleft, top, width, middle, x - pianoleft, y, button)
+		if collisionCheck(x, y, 0, 0, left, top, right, middle) then
+			reactToGridClick(left, top, width, middle, x - left, y - top, button)
 		elseif collisionCheck(x, y, 0, 0, left, middle, right, height) then
 			reactToTrackClick(left, middle, width - left, height - middle, x - left, y - middle)
 		end

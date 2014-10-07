@@ -292,7 +292,6 @@ function love.draw()
 		-- Get positioning vars
 		local left = data.size.sidebar.width
 		local top = 0
-		local pianoleft = left + (data.pianowidth / 2)
 		local middle = height - data.size.botbar.height
 
 		-- Get the mouse's concrete position
@@ -300,9 +299,9 @@ function love.draw()
 
 		-- Check the cursor for dragging behavior
 		checkMouseDrag(
-			pianoleft, top,
+			left, top,
 			width, middle,
-			x - pianoleft, y - top
+			x - left, y - top
 		)
 
 	end

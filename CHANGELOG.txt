@@ -11,7 +11,6 @@
 ---- sub-task: In Cmd Mode, render item-text after/above cmd-rectangles.
 ---- sub-task: Show the active sequence's Cmd Mode commands as Shadow Mode notes, with unique coloration, when Cmd Mode isn't active.
 ---- sub-task: Check whether saveFile and loadFile are truly compatible with non-NOTE commands.
----- sub-task: Fix mouse-click position, to compensate for new anchor-point caused by changing piano-roll positioning.
 
 -- TODO: Add full MIDI-IN, for composition via external MIDI devices. Thanks to how Spacing and Play Mode interact with note-entry, there won't need to be any explicit tabbing between input-types.
 ---- sub-task: debug handling of non-note commands
@@ -19,11 +18,12 @@
 -- TODO: Add "Select Chan" command, a version of Select-All that only applies to notes in the active seq's active channel.
 
 -- TODO: Add "Quantize" command, which will snap all selected notes in the active sequence to ticks that are multiples of data.spacing.
+---- sub-task: add this func-name to data.undocmds
 
--- TODO: Add "Stretch" commands, which double or halve both the duration and the starting tick of every selected note, rounded to nearest value.
----- sub-task: add these func-names to data.undocmds as well
+-- TODO: Add "Stretch" and "Squash" commands, which double or halve both the duration and the starting tick of every selected note, rounded to the nearest tick-value.
+---- sub-task: add these func-names to data.undocmds
 
--- TODO: Add a simple metronome in Play Mode.
+-- TODO: Add a simple metronome in Play Mode, and a flag-command to toggle its activity.
 
 -- TODO: Add a visual confirmation of file-save.
 
