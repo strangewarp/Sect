@@ -6,7 +6,7 @@ return {
 		data.selindex = {}
 		for k, v in pairs(data.seldat) do
 			data.selindex[v.tick] = data.selindex[v.tick] or {}
-			data.selindex[v.tick][v.note[data.acceptmidi[v.note[1]][1]]] = true
+			data.selindex[v.tick][v.note[5]] = true
 		end
 
 	end,

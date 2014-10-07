@@ -114,7 +114,7 @@ return {
 
 			-- Populate the lower-notes and higher-notes tabs, based on the tick's notes
 			for k, v in pairs(data.seq[data.active].tick[tick]) do
-				local pitch = v.note[data.acceptmidi[v.note[1]][1]]
+				local pitch = v.note[5]
 				if pitch < note then
 					table.insert(lower, pitch)
 				elseif pitch > note then

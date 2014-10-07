@@ -194,6 +194,11 @@ return {
 		midifile:write(MIDI.score2midi(score))
 		midifile:close()
 
+		-- Toggle the rendering-flag, and set rendering info, for a visual save confirmation
+		data.savepopup = true
+		data.savedegrade = 90
+		data.savemsg = "Saved " .. (#score - 1) .. " track" .. (((#score ~= 2) and "s") or "") .. " to file: " .. saveloc
+
 		print("saveFile: saved " .. (#score - 1) .. " sequences to file \"" .. saveloc .. "\"!")
 
 	end,

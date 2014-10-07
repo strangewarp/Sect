@@ -8,7 +8,7 @@ return {
 	--------------------------------------
 
 	-- Max undo depth
-	maxundo = 100,
+	maxundo = 250,
 
 	-- MIDI-over-UDP ports
 	udpsend = 8562, -- OUT to SectMidiClient
@@ -115,11 +115,6 @@ return {
 			line = {235, 235, 255, 200},
 		},
 
-		scale = { -- Scale-mode colors
-			consonant = {0, 0, 225, 255},
-			dissonant = {225, 4, 8, 255},
-		},
-
 		triangle = { -- Beat-triangle colors
 			fill = {0, 0, 245, 255},
 			line = {0, 0, 25, 255},
@@ -135,6 +130,14 @@ return {
 			generator_dark = {125, 125, 9, 215},
 			cmd = {245, 6, 2, 55},
 			cmd_dark = {9, 6, 2, 55},
+		},
+
+		save = { -- Save-popup colors
+			border = {230, 233, 234, 255},
+			background = {0, 0, 245, 255},
+			background_fade = {100, 100, 150, 255},
+			text = {240, 240, 240, 255},
+			text_shadow = {4, 5, 10, 175},
 		},
 
 		loading = { -- Loading-screen colors
@@ -210,62 +213,73 @@ return {
 	font = { -- Font types
 
 		sidebar = { -- Sidebar font
-			file = "img/Milavregarian.ttf",
+			file = "font/Milavregarian.ttf",
 			height = 8,
 		},
 
 		botbar = { -- Bottom track-bar font
-			file = "img/Milavregarian.ttf",
+			file = "font/Milavregarian.ttf",
 			height = 10,
 		},
 
 		piano = { -- Piano-key font
-			file = "img/Milavregarian.ttf",
+			file = "font/Milavregarian.ttf",
 			height = 8,
 		},
 
 		note = { -- Sequence-note font
-			file = "img/Milavregarian.ttf",
+			file = "font/Milavregarian.ttf",
 			height = 8,
 		},
 
 		beat = { -- Sequence-beat-triangle font
-			file = "img/Milavregarian.ttf",
+			file = "font/Milavregarian.ttf",
 			height = 8,
 		},
 
+		save = { -- Save-popup font
+			file = "font/candal/Candal.ttf",
+			height = 12,
+		},
+
 		loading = { -- Loading-screen font
-			file = "img/Milavregarian.ttf",
-			height = 16,
+			file = "font/candal/Candal.ttf",
+			height = 12,
 		},
 
 	},
 
 	size = { -- Element sizes
 
-		sidebar = { -- Left sidebar
-			width = 100,
-		},
-
-		piano = { -- Piano-bar
-			basewidth = 55,
+		anchor = { -- Center pointer anchors
+			x = 0.33, -- Distance between left and right
+			y = 0.7, -- Distance between top and bottom
 		},
 
 		botbar = { -- Bottom track-bar
 			height = 60,
 		},
 
+		piano = { -- Piano-bar
+			basewidth = 55,
+		},
+
 		reticule = { -- Tick-pointer reticule
 			breadth = 26,
 		},
 
-		triangle = { -- Beat-line triangle
-			breadth = 40,
+		save = { -- Save-confirmation popup
+			margin_top = 25,
+			margin_left = 125,
+			width = 300,
 		},
 
-		anchor = { -- Center pointer anchors
-			x = 0.33, -- Distance between left and right
-			y = 0.7, -- Distance between top and bottom
+		sidebar = { -- Left sidebar
+			width = 100,
+		},
+
+		triangle = { -- Beat-line triangle
+			breadth = 40,
 		},
 
 	},

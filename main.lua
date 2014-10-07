@@ -309,6 +309,9 @@ function love.draw()
 	-- Build the GUI
 	buildGUI(width, height)
 
+	-- If the save-popup is active, gradually degrade its activity
+	degradeSavePopup()
+
 end
 
 ----------------------

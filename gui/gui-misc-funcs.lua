@@ -38,6 +38,8 @@ return {
 			width - data.size.sidebar.width, data.size.botbar.height
 		)
 
+		drawSavePopup()
+
 	end,
 
 	-- Draw a rectangle stencil for any given frame

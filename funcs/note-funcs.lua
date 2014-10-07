@@ -327,7 +327,14 @@ return {
 			if (n.note[1] == 'key_after_touch')
 			or (n.note[1] == 'control_change')
 			then
+
 				n.note[5] = data.cmdbyte2
+
+			-- For pitch-bend commands, sum the two byte commands
+			elseif n.note[1] == 'pitch_wheel_change' then
+
+				n.note[4] = (n.note[4] * 128) + data.cmdbyte2
+
 			end
 
 			setCmds(data.active, {{'insert', data.cmdp, n}}, undo)

@@ -27,30 +27,36 @@ return {
 		-- Depending on command-type, trigger a setNotes or setCmds function
 		if n.note[1] == 'note' then
 
-			-- If velocity is 0, for silly Pd note-off command reasons, abort function
-			if n.note[6] == 0 then
-				return nil
+			if data.cmdmode == 'entry' then
+
+				-- If velocity is 0, for silly Pd note-off command reasons, abort function
+				if n.note[6] == 0 then
+					return nil
+				end
+
+				-- Replace the dummy duration value
+				n.note[3] = data.dur
+
+				-- Call setNotes from within executeFunction, to spawn a new undo chunk
+				executeFunction("setNotes", data.active, {n}, false)
+
+				moveTickPointer(1) -- Move ahead by one spacing unit
+
+				-- Set the note-pointer to the bottom of the incoming note's octave
+				data.np = n.note[5] - (n.note[5] % 12)
+
 			end
-
-			-- Replace the dummy duration value
-			n.note[3] = data.dur
-
-			-- Call setNotes from within executeFunction, to spawn a new undo chunk
-			executeFunction("setNotes", data.active, {n}, false)
-
-			-- Set the note-pointer to the bottom of the incoming note's octave
-			data.np = n.note[5] - (n.note[5] % 12)
 
 		else
 
-			-- Call setCmds from within executeFunction, to spawn a new undo chunk
-			executeFunction("setCmds", data.active, {n}, false)
+			if data.cmdmode == "cmd" then
+
+				-- Call setCmds from within executeFunction, to spawn a new undo chunk
+				executeFunction("setCmds", data.active, {{'insert', 1, n}}, false)
+
+			end
 
 		end
-
-		moveTickPointer(1) -- Move ahead by one spacing unit
-
-		print("DYE: " .. table.concat(n.note, " ")) -- debugging
 
 	end,
 

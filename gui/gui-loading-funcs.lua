@@ -1,6 +1,51 @@
 
 return {
 
+	-- Draw a visual confirmation that the file was saved
+	drawSavePopup = function()
+
+		-- If the popup isn't flagged for drawing, abort function
+		if not data.savepopup then
+			return nil
+		end
+
+		local pl = data.size.save.margin_left
+		local pt = data.size.save.margin_top
+
+		local pw, lines = data.font.save.raster:getWrap(data.savemsg, data.size.save.width - 1)
+		local ph = data.font.save.raster:getHeight() * lines
+
+		love.graphics.setColor(
+			mixColors(
+				data.color.save.background,
+				data.color.save.background_fade,
+				1 - (data.savedegrade / 90)
+			)
+		)
+		love.graphics.rectangle("fill", pl, pt, pw + 2, ph)
+
+		love.graphics.setColor(data.color.save.border)
+		love.graphics.rectangle("line", pl, pt, pw + 2, ph)
+
+		love.graphics.setFont(data.font.save.raster)
+
+		love.graphics.setColor(data.color.save.text_shadow)
+		love.graphics.printf(data.savemsg, pl + 2, pt + 2, data.size.save.width - 1, "left")
+
+		love.graphics.setColor(data.color.save.text)
+		love.graphics.printf(data.savemsg, pl + 1, pt + 1, data.size.save.width - 1, "left")
+
+	end,
+
+	-- If the save-popup is active, gradually degrade its activity
+	degradeSavePopup = function()
+		data.savedegrade = data.savedegrade - 1
+		if data.savedegrade == 0 then
+			data.savepopup = false
+			data.savemsg = ""
+		end
+	end,
+
 	-- Execute a queued data-loading command, and draw the loading-screen
 	executeLoadingFuncAndDraw = function(width, height)
 

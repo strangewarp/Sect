@@ -56,25 +56,36 @@ return {
 		}
 		outtab = tableCombine(outtab, addtab)
 
+		if data.cmdmode ~= "cmd" then
+			local addnocmd = {
+				"note " .. data.np .. " (" .. notelet .. "-" .. octave .. ")",
+			}
+			outtab = tableCombine(outtab, addnocmd)
+		else
+			local addnocmd = {
+				"",
+			}
+			outtab = tableCombine(outtab, addnocmd)
+		end
+
+		local addtab2 = {
+			"chan " .. data.chan,
+			"",
+		}
+		outtab = tableCombine(outtab, addtab2)
+
 		if data.cmdmode == "cmd" then
 			local addcmd = {
-				"",
 				"cmd: " .. data.cmdtypes[data.cmdtype][2],
 				"byte1: " .. data.cmdbyte1,
 				"byte2: " .. data.cmdbyte2,
 				"",
 			}
 			outtab = tableCombine(outtab, addcmd)
-		else
-			local addnocmd = {
-				"note " .. data.np .. " (" .. notelet .. "-" .. octave .. ")",
-				"",
-			}
-			outtab = tableCombine(outtab, addnocmd)
 		end
 
 		if data.cmdmode == "gen" then
-			local addtab2 = {
+			local addtab3 = {
 				"k-species: " .. data.kspecies,
 				"maxscales: " .. #data.scales[data.kspecies].s,
 				"grabscales: " .. data.scalenum,
@@ -92,20 +103,25 @@ return {
 				"note-grain: " .. data.notegrain,
 				"",
 			}
-			outtab = tableCombine(outtab, addtab2)
+			outtab = tableCombine(outtab, addtab3)
 		end
 
-		local addtab3 = {
+		if data.cmdmode ~= "cmd" then
+			local addtab4 = {
+				"velo " .. data.velo,
+				"duration " .. data.dur,
+				"spacing " .. data.spacing,
+				"",
+			}
+			outtab = tableCombine(outtab, addtab4)
+		end
+
+		local addtab5 = {
 			"bpm " .. data.bpm,
 			"tpq " .. data.tpq,
 			"",
-			"chan " .. data.chan,
-			"velo " .. data.velo,
-			"duration " .. data.dur,
-			"spacing " .. data.spacing,
-			"",
 		}
-		outtab = tableCombine(outtab, addtab3)
+		outtab = tableCombine(outtab, addtab5)
 
 		-- Set the correct font for sidebar text
 		love.graphics.setFont(data.font.sidebar.raster)

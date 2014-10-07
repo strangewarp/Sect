@@ -163,9 +163,12 @@ return {
 							break
 						end
 					end
-					outstr = outstr .. " " .. n.note[3] .. " " .. n.note[4]
-					if n.note[5] ~= nil then
-						outstr = outstr .. " " .. n.note[5]
+					outstr = outstr .. " " .. n.note[3]
+					if n.note[4] ~= nil then
+						outstr = outstr .. " " .. n.note[4]
+						if n.note[5] ~= nil then
+							outstr = outstr .. " " .. n.note[5]
+						end
 					end
 
 					love.graphics.setColor(data.color.font.cmd_shadow)

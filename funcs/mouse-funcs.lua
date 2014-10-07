@@ -138,7 +138,7 @@ return {
 			for kk, vv in pairs(v) do
 
 				-- Get the note's pitch or pitch-equivalent
-				local pitch = vv.note[data.acceptmidi[vv.note[1]][1]]
+				local pitch = vv.note[5]
 
 				-- If the pitch matches the new-note-position...
 				if (newnote == pitch) then

@@ -2,7 +2,7 @@
 local D = {}
 
 -- VERSIONING VARS --
-D.version = "1.1-a23" -- Holds Sect's current version-number
+D.version = "1.1-a39" -- Holds Sect's current version-number
 
 -- LOVE ENGINE VARS --
 D.updatespeed = 0.01 -- Speed at which to attempt to update program-state
@@ -25,6 +25,9 @@ D.loadnum = 1 -- Iterates through loading-screen cmds
 
 -- SAVEFILE VARS --
 D.saveok = false -- Controls whether it's OK to save to data.savepath
+D.savemsg = "" -- Current save-popup message
+D.savepopup = false -- Toggles whether a save-popup is visible
+D.savedegrade = 0 -- Number of draw-updates before save popup vanishes
 
 -- HOTSEAT VARS --
 D.activeseat = 1 -- Currently active hotseat-name
@@ -174,7 +177,6 @@ D.acceptmidi = {
 	patch_change = {4, 4},
 	key_after_touch = {4, 5},
 	pitch_wheel_change = {4, 4},
-	set_tempo = {3, 4},
 }
 
 -- Names of keys that start with "l"/"r", which collapse into single keys
@@ -537,8 +539,8 @@ D.cmdgate = {
 	POINTER_RIGHT = {"entry", "gen", "cmd"},
 	POINTER_LEFT_BEAT = {"entry", "gen", "cmd"},
 	POINTER_RIGHT_BEAT = {"entry", "gen", "cmd"},
-	POINTER_PREV_NOTE = {"entry", "gen", "cmd"},
-	POINTER_NEXT_NOTE = {"entry", "gen", "cmd"},
+	POINTER_PREV_NOTE = {"entry", "gen"},
+	POINTER_NEXT_NOTE = {"entry", "gen"},
 
 	X_ZOOM_INC = {"entry", "gen", "cmd"},
 	X_ZOOM_DEC = {"entry", "gen", "cmd"},
@@ -592,6 +594,7 @@ D.undocmds = {
 	["generateSeqNotes"] = true,
 
 	-- note-funcs.lua
+	["setCmds"] = true,
 	["setNotes"] = true,
 	["moveNotes"] = true,
 	["insertNote"] = true,
