@@ -594,7 +594,7 @@ D.undocmds = {
 	["generateSeqNotes"] = true,
 
 	-- note-funcs.lua
-	["setCmds"] = true,
+	["setCmd"] = true,
 	["setNotes"] = true,
 	["moveNotes"] = true,
 	["insertNote"] = true,

@@ -106,45 +106,26 @@ return {
 
 	end,
 
-	-- Insert a given table of command values into a sequence
-	setCmds = function(p, cmds, undo)
+	-- Insert a given command value into a sequence
+	setCmd = function(p, cmd, undo)
 
-		-- Make duplicates of the commands, to prevent reference bugs
-		cmds = deepCopy(cmds)
+		-- Make a duplicate of the command, to prevent reference bugs
+		local undocmd, redocmd = deepCopy(cmd), deepCopy(cmd)
 
-		local undocmds = {}
-		local redocmds = {}
-		local removecmds = {}
-		local addcmds = {}
-
-		-- Seperate insert-cmds and remove-cmds into the insert and remove tables
-		for k, v in pairs(cmds) do
-			if v[1] == 'remove' then
-				table.insert(removecmds, v)
-			else
-				table.insert(addcmds, v)
-			end
+		-- Either insert or remove the cmd, depending on 
+		if cmd[1] == 'remove' then
+			table.remove(data.seq[p].tick[cmd[3].tick], cmd[2])
+			undocmd[1] = 'insert'
+		else
+			table.insert(data.seq[p].tick[cmd[3].tick], cmd[2], cmd[3])
+			undocmd[1] = 'remove'
 		end
 
-		-- Remove all remove-cmds, and shape undo tables accordingly
-		for k, v in pairs(removecmds) do
-			table.remove(data.seq[p].tick[v[3].tick], v[2])
-			table.insert(redocmds, v)
-			table.insert(undocmds, {'insert', v[2], v[3]})
-		end
-
-		-- Add all add-cmds, and shape undo tables accordingly
-		for k, v in pairs(addcmds) do
-			table.insert(data.seq[p].tick[v[3].tick], v[2], v[3])
-			table.insert(redocmds, v)
-			table.insert(undocmds, {'remove', v[2], v[3]})
-		end
-
-		-- Build undo tables
+		-- Build undo table
 		addUndoStep(
 			((undo == nil) and true) or undo, -- Suppress flag
-			{"setCmds", p, undocmds}, -- Undo command
-			{"setCmds", p, redocmds} -- Redo command
+			{"setCmd", p, undocmd}, -- Undo command
+			{"setCmd", p, redocmd} -- Redo command
 		)
 
 	end,
@@ -337,7 +318,7 @@ return {
 
 			end
 
-			setCmds(data.active, {{'insert', data.cmdp, n}}, undo)
+			setCmd(data.active, {'insert', data.cmdp, n}, undo)
 
 		end
 
@@ -352,13 +333,11 @@ return {
 		if data.cmdmode == "cmd" then
 
 			-- If the command-pointer corresponds to a cmd on the active tick,
-			-- create a "remove" cmd, and send that cmd to setCmds.
+			-- create a "remove" cmd, and send that cmd to setCmd.
 			if #data.seq[data.active].tick[data.tp] >= data.cmdp then
-				setCmds(
+				setCmd(
 					data.active,
-					{
-						{'remove', data.cmdp, data.seq[data.active].tick[data.tp][data.cmdp]},
-					},
+					{'remove', data.cmdp, data.seq[data.active].tick[data.tp][data.cmdp]},
 					undo
 				)
 			end

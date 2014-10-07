@@ -2,6 +2,7 @@
 1.2
 
 -- TODO: Add cross-platform native MIDI I/O.
+-- TODO: Add a "custom MIDI command" entry box, for non-note commands of arbitrary value and length (e.g. SYSEX).
 
 1.1
 

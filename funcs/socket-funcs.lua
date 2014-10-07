@@ -51,8 +51,8 @@ return {
 
 			if data.cmdmode == "cmd" then
 
-				-- Call setCmds from within executeFunction, to spawn a new undo chunk
-				executeFunction("setCmds", data.active, {{'insert', 1, n}}, false)
+				-- Call setCmd from within executeFunction, to spawn a new undo chunk
+				executeFunction("setCmd", data.active, {'insert', 1, n}, false)
 
 			end
 
