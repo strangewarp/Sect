@@ -22,6 +22,11 @@ return {
 			data.sel.r = data.selbot.x
 		end
 
+		-- Turn off Play Mode if all sequences have been removed
+		if not data.active then
+			data.playing = false
+		end
+
 	end,
 
 	-- Move the Cmd Mode command-pointer to an adjacent note on the active tick
@@ -173,13 +178,6 @@ return {
 
 	-- Shift an internal bounded value, additively or multiplicatively, by a given distance
 	shiftInternalValue = function(vname, multi, dist, emptyabort)
-
-		-- If no sequences are loaded, abort the function
-		emptyabort = ((emptyabort == nil) and true) or emptyabort
-		if emptyabort and (data.active == false) then
-			print("shiftInternalValue: warning: no active sequence!")
-			return nil
-		end
 
 		local bds = data.bounds[vname]
 

@@ -194,6 +194,21 @@ return {
 
 		local t = {...}
 
+		-- If done loading, and commands aren't allowed without active sequences,
+		-- and a funcgate isn't active, then return nil and throw a warning.
+		if (not data.active)
+		and (not data.loading)
+		and (not data.inactivecmds[t[1]])
+		and (not data.funcgate)
+		then
+			print("executeFunction: Warning: Cannot use function '" .. t[1] .. "' until a sequence is loaded!")
+			return nil
+		end
+
+		-- Set or increase a function-gate, so that sub-commands in the undo system
+		-- can occur even when no sequences are loaded.
+		data.funcgate = (data.funcgate and (data.funcgate + 1)) or 1
+
 		-- If the function will create an undo entry, create a new undo block
 		if data.undocmds[t[1]] and (not t[#t]) then
 			addUndoBlock()
@@ -205,6 +220,12 @@ return {
 
 		-- Sanitize data structures, which may have been changed
 		sanitizeDataStructures()
+
+		-- Reduce and/or unset the funcgate, so that 
+		data.funcgate = data.funcgate - 1
+		if data.funcgate == 0 then
+			data.funcgate = false
+		end
 
 	end,
 
@@ -365,6 +386,22 @@ return {
 		end
 
 		return t
+
+	end,
+
+	-- Reverse-ordered version of ipairs
+	ripairs = function(t)
+
+	  local function ripairs_it(t, i)
+	    i = i - 1
+	    local v = t[i]
+	    if v == nil then
+	    	return v
+	    end
+	    return i, v
+	  end
+
+	  return ripairs_it, t, #t + 1
 
 	end,
 

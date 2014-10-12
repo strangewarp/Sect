@@ -347,10 +347,10 @@ D.cmdfuncs = {
 	MOD_SEQ_UP = {"moveActiveSequence", -1, false},
 	MOD_SEQ_DOWN = {"moveActiveSequence", 1, false},
 
-	POINTER_UP = {"shiftInternalValue", "np", false, 1, false},
-	POINTER_DOWN = {"shiftInternalValue", "np", false, -1, false},
-	POINTER_UP_OCTAVE = {"shiftInternalValue", "np", false, 12, false},
-	POINTER_DOWN_OCTAVE = {"shiftInternalValue", "np", false, -12, false},
+	POINTER_UP = {"shiftInternalValue", "np", false, 1},
+	POINTER_DOWN = {"shiftInternalValue", "np", false, -1},
+	POINTER_UP_OCTAVE = {"shiftInternalValue", "np", false, 12},
+	POINTER_DOWN_OCTAVE = {"shiftInternalValue", "np", false, -12},
 	POINTER_LEFT = {"moveTickPointer", -1},
 	POINTER_RIGHT = {"moveTickPointer", 1},
 	POINTER_LEFT_BEAT = {"moveTickPointerToBeat", -1},
@@ -407,9 +407,9 @@ D.cmdgate = {
 
 	INSERT_NOTE = {"entry", "gen", "cmd"},
 	DELETE_NOTE = {"entry", "gen", "cmd"},
-	DELETE_TICK_NOTES = {"entry", "gen"},
+	DELETE_TICK_NOTES = {"entry", "gen", "cmd"},
 	DELETE_PITCH_NOTES = {"entry", "gen"},
-	DELETE_BEAT_NOTES = {"entry", "gen"},
+	DELETE_BEAT_NOTES = {"entry", "gen", "cmd"},
 
 	INSERT_TICKS = {"entry", "gen", "cmd"},
 	REMOVE_TICKS = {"entry", "gen", "cmd"},
@@ -609,6 +609,16 @@ D.undocmds = {
 	["pasteSelection"] = true,
 	["pasteRepeating"] = true,
 	["modNotes"] = true,
+
+}
+
+-- Functions that are allowed when data.active is false
+D.inactivecmds = {
+	
+	["addActiveSequence"] = true,
+	["loadFile"] = true,
+	["shiftInternalValue"] = true,
+	["traverseUndo"] = true,
 
 }
 

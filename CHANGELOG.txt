@@ -7,7 +7,7 @@
 1.1
 
 -- TODO: Add a "CMD mode", where a sequence's non-NOTE commands are held and modified.
----- sub-task: Add Cmd Mode versions of deleteTickNotes and deleteBeatNotes.
+---- Added Cmd Mode versions of deleteTickNotes and deleteBeatNotes.
 ---- sub-task: In Cmd Mode, render item-text after/above cmd-rectangles.
 ---- sub-task: Show the active sequence's Cmd Mode commands as Shadow Mode notes, with unique coloration, when Cmd Mode isn't active.
 ---- sub-task: Check whether saveFile and loadFile are truly compatible with non-NOTE commands.
@@ -15,6 +15,7 @@
 -- TODO: Add "Select Chan" command, a version of Select-All that only applies to notes in the active seq's active channel.
 
 -- TODO: Add "Quantize" command, which will snap all selected notes in the active sequence to ticks that are multiples of data.spacing.
+---- sub-task: construct undo-table at end of function
 ---- sub-task: add this func-name to data.undocmds
 
 -- TODO: Add "Stretch" and "Squash" commands, which double or halve both the duration and the starting tick of every selected note, rounded to the nearest tick-value.
@@ -27,7 +28,11 @@
 -- TODO: change data.version back to "1.1"
 
 -- Added full MIDI-IN, for composition via external MIDI devices. Due to how Spacing and Play Mode interact with note-entry, there doesn't need to be any explicit tabbing between input-types.
--- Created a two-way MIDI-over-UDP communications system, designed to send MIDI between Sect and user devices, via SectMidiClient. 
+-- Created a two-way MIDI-over-UDP communications system, designed to send MIDI between Sect and user devices, via SectMidiClient.
+-- Fixed a potentially fatal bug in the interaction of deleteBeatNotes and getNotes.
+-- normalizePointers will now halt Play Mode if all sequences are deleted.
+-- Added a "funcgate" mechanism to executeFunction, so that undo commands stay functional during the proper times, due to changes incurred by its command-blocking mechanism.
+-- Modified executeFunction to start blocking commands that try to access or modify the data.seq table, whenever data.active is false. Also removed more primitive versions of this functionality from some commands.
 -- Changed all data-structures and data-handling involved with mode-based interpretation of key-commands.
 -- Added a visual confirmation on file-save.
 -- Removed old OSC and Extrovert-API code, which was clunky and extraneous.

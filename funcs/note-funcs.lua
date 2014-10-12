@@ -75,6 +75,51 @@ return {
 		return notes
 	end,
 
+	-- Modify a table of non-note commands to flag them for removal
+	cmdsToRemove = function(cmds)
+		for k, v in pairs(cmds) do
+			v[1] = 'remove'
+		end
+		return cmds
+	end,
+
+	-- Get the non-note commands from a given slice of a sequence, bounded to a channel
+	getCmds = function(p, tbot, ttop, chan, kind)
+
+		-- Set parameters to default if any are empty
+		tbot = tbot or 1
+		ttop = ttop or #data.seq[p].tick
+		chan = chan or false
+
+		-- Choose the iterator type, based on whether the table will
+		-- be inserted in order, or removed in order.
+		local iter = 'ipairs'
+		if kind == 'remove' then
+			iter = 'ripairs'
+		end
+
+		local cmds = {}
+
+		-- Grab all cmds within the given range, and put them in the cmds-table
+		for t = tbot, ttop do
+			for k, v in _G[iter](data.seq[p].tick[t]) do
+				if v.note[1] ~= 'note' then
+
+					-- If a channel was given, only grab cmd-keys from that channel,
+					-- or if no channel was given, grab all cmd-keys.
+					if (not chan) or (chan == data.chan) then
+						table.insert(cmds, {'insert', k, deepCopy(v)})
+						print(v.note[1])--debugging
+					end
+
+				end
+			end
+		end
+
+		return cmds
+
+	end,
+
 	-- Get the notes from a given slice of a sequence, optionally bounded to a channel
 	getNotes = function(p, tbot, ttop, nbot, ntop, chan)
 
@@ -84,6 +129,10 @@ return {
 		nbot = nbot or data.bounds.np[1]
 		ntop = ntop or data.bounds.np[2]
 		chan = chan or false
+
+		-- Compensate for erroneous bounds
+		if ttop < tbot then ttop = tbot end
+		if ntop < nbot then ntop = nbot end
 
 		local notes = {}
 
@@ -112,7 +161,7 @@ return {
 		-- Make a duplicate of the command, to prevent reference bugs
 		local undocmd, redocmd = deepCopy(cmd), deepCopy(cmd)
 
-		-- Either insert or remove the cmd, depending on 
+		-- Either insert or remove the cmd, depending on its flag
 		if cmd[1] == 'remove' then
 			table.remove(data.seq[p].tick[cmd[3].tick], cmd[2])
 			undocmd[1] = 'insert'
@@ -278,8 +327,8 @@ return {
 
 		end
 
-		-- If no sequences are loaded, or recording is off, abort function
-		if (not data.active) or (not data.recording) then
+		-- If recording is off, then abort function
+		if not data.recording then
 			return nil
 		end
 
@@ -364,12 +413,29 @@ return {
 	-- Delete all notes in the active tick
 	deleteTickNotes = function(undo)
 
-		local delnotes = getNotes(data.active, data.tp, data.tp, _, _, data.chan)
-		delnotes = notesToRemove(delnotes)
+		-- If Cmd Mode is active, delete all non-note commands within the tick
+		if data.cmdmode == "cmd" then
 
-		-- If any matching notes were found, send them through removeNotes
-		if #delnotes > 0 then
-			setNotes(data.active, delnotes, undo)
+			local delcmds = getCmds(data.active, data.tp, data.tp, _, 'remove')
+			delcmds = cmdsToRemove(delcmds)
+
+			-- If any matching cmds were found, send them through setCmd individually
+			if #delcmds > 0 then
+				for k, v in pairs(delcmds) do
+					setCmd(data.active, v, undo)
+				end
+			end
+
+		else -- Else, delete all notes on the tick
+
+			local delnotes = getNotes(data.active, data.tp, data.tp, _, _, data.chan)
+			delnotes = notesToRemove(delnotes)
+
+			-- If any matching notes were found, send them through removeNotes
+			if #delnotes > 0 then
+				setNotes(data.active, delnotes, undo)
+			end
+
 		end
 
 	end,
@@ -395,14 +461,31 @@ return {
 		while wrapNum(ltick, 1, data.tpq * 4) ~= 1 do
 			ltick = ltick - 1
 		end
-		local rtick = math.min(#data.seq[data.active].tick, (ltick + (data.tpq * 4)) - 1)
+		local rtick = clampNum((ltick + (data.tpq * 4)) - 1, 1, #data.seq[data.active].tick)
 
-		local delnotes = getNotes(data.active, ltick, rtick, _, _, data.chan)
-		delnotes = notesToRemove(delnotes)
+		-- If Cmd Mode is active, delete all non-note commands within the beat
+		if data.cmdmode == "cmd" then
 
-		-- If any matching notes were found, send them through removeNotes
-		if #delnotes > 0 then
-			setNotes(data.active, delnotes, undo)
+			local delcmds = getCmds(data.active, ltick, rtick, _, 'remove')
+			delcmds = cmdsToRemove(delcmds)
+
+			-- If any matching cmds were found, send them through setCmd individually
+			if #delcmds > 0 then
+				for k, v in pairs(delcmds) do
+					setCmd(data.active, v, undo)
+				end
+			end
+
+		else -- Else, delete all notes in the beat
+
+			local delnotes = getNotes(data.active, ltick, rtick, _, _, data.chan)
+			delnotes = notesToRemove(delnotes)
+
+			-- If any matching notes were found, send them through removeNotes
+			if #delnotes > 0 then
+				setNotes(data.active, delnotes, undo)
+			end
+
 		end
 
 	end,
