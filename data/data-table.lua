@@ -2,7 +2,7 @@
 local D = {}
 
 -- VERSIONING VARS --
-D.version = "1.1-a39" -- Holds Sect's current version-number
+D.version = "1.1-a40" -- Holds Sect's current version-number
 
 -- LOVE ENGINE VARS --
 D.updatespeed = 0.01 -- Speed at which to attempt to update program-state
@@ -236,6 +236,7 @@ D.cmdfuncs = {
 	TOGGLE_TOP = {"toggleSelect", "top"},
 	TOGGLE_BOT = {"toggleSelect", "bottom"},
 	SELECT_ALL = {"toggleSelect", "all"},
+	SELECT_CHAN = {"toggleSelect", "chan"},
 	CLEAR_SELECT_RANGE = {"toggleSelect", "clear"},
 	CLEAR_SELECT_MEMORY = {"clearSelectMemory"},
 
@@ -420,6 +421,7 @@ D.cmdgate = {
 	TOGGLE_TOP = {"entry", "gen"},
 	TOGGLE_BOT = {"entry", "gen"},
 	SELECT_ALL = {"entry", "gen"},
+	SELECT_CHAN = {"entry", "gen"},
 	CLEAR_SELECT_RANGE = {"entry", "gen"},
 	CLEAR_SELECT_MEMORY = {"entry", "gen"},
 

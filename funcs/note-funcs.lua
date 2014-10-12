@@ -141,9 +141,12 @@ return {
 			for k, v in pairs(data.seq[p].tick[t]) do
 				if (v.note[1] == 'note') and rangeCheck(v.note[5], nbot, ntop) then
 
-					-- If a channel was given, only grab notes from that channel,
+					-- If a channel was given, only grab notes that match that channel,
 					-- or if no channel was given, just grab all notes.
-					if (not chan) or (chan == data.chan) then
+					if (not chan)
+					or ((chan == data.chan) and (v.note[4] == chan))
+					then
+						print("DYE: "..tostring(not chan).." "..tostring(chan==data.chan))--debugging
 						table.insert(notes, deepCopy(v))
 					end
 

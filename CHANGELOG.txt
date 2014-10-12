@@ -12,8 +12,6 @@
 ---- sub-task: Show the active sequence's Cmd Mode commands as Shadow Mode notes, with unique coloration, when Cmd Mode isn't active.
 ---- sub-task: Check whether saveFile and loadFile are truly compatible with non-NOTE commands.
 
--- TODO: Add "Select Chan" command, a version of Select-All that only applies to notes in the active seq's active channel.
-
 -- TODO: Add "Quantize" command, which will snap all selected notes in the active sequence to ticks that are multiples of data.spacing.
 ---- sub-task: construct undo-table at end of function
 ---- sub-task: add this func-name to data.undocmds
@@ -29,6 +27,7 @@
 
 -- Added full MIDI-IN, for composition via external MIDI devices. Due to how Spacing and Play Mode interact with note-entry, there doesn't need to be any explicit tabbing between input-types.
 -- Created a two-way MIDI-over-UDP communications system, designed to send MIDI between Sect and user devices, via SectMidiClient.
+-- Added "Select Chan" command, a version of Select-All that only applies to notes in the active seq's active channel.
 -- Fixed a potentially fatal bug in the interaction of deleteBeatNotes and getNotes.
 -- normalizePointers will now halt Play Mode if all sequences are deleted.
 -- Added a "funcgate" mechanism to executeFunction, so that undo commands stay functional during the proper times, due to changes incurred by its command-blocking mechanism.
@@ -44,7 +43,6 @@
 -- Now allow multiple computer-keyboard keys to be pressed simultaneously, so that example-chords can be sent across UDP to external MIDI devices.
 -- Started removing all active keystrokes on focus-change.
 -- Changed all note-deletion commands to only act upon notes of the currently active channel.
--- Changed selection-commands and getNotes, so that only notes on the active channel are selected in a given selection-command.
 -- Changed some note-functions so they won't overwrite notes that sit on different channels within the same sequence, when they share pitch values.
 -- Changed shiftInternalValue so that values multiplied by numbers less than 1 will be floored, rather than rounded. This will allow for easier reduction of Spacing to 0.
 -- Changed the rendering properties of the notes within a sequence's non-active channels, both in their default state and while selected.

@@ -337,6 +337,7 @@ return {
 		TOGGLE_TOP = {"ctrl", ","},
 		TOGGLE_BOT = {"ctrl", "."},
 		SELECT_ALL = {"ctrl", "a"},
+		SELECT_CHAN = {"ctrl", "n"},
 		CLEAR_SELECT_RANGE = {"ctrl", "/"},
 		CLEAR_SELECT_MEMORY = {"ctrl", "shift", "a"},
 
