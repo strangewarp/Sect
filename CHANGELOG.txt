@@ -50,6 +50,9 @@
 
 -- TODO: Fix deletion of dummy-file used to test user-directory's validity
 
+-- TODO: Make hotseat and loadFile commands available when no sequences are loaded
+
+-- TODO: Remove all "debugging" lines
 -- TODO: comment out console again
 -- TODO: remove "debugging" messages
 -- TODO: change data.version back to "1.1"

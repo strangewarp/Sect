@@ -47,6 +47,14 @@ return {
 
 		out = out or {}
 
+		-- If this portion of the context-chain doesn't exist, then return the out-table
+		if context == nil then
+			return out
+		end
+
+		-- Make a copy of the keychain, to prevent sticky-reference errors
+		keychain = deepCopy(keychain)
+
 		-- If history is to be returned, then start tracking history
 		if gethist then
 			history = history or {}
@@ -150,7 +158,7 @@ return {
 
 			if tokentype == 'function' then
 
-				for k, _ in _G[token](context) do
+				for k, _ in token(context) do
 					dismantleTable(context[k], indices)
 				end
 
