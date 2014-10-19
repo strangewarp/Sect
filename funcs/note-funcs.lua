@@ -256,8 +256,9 @@ return {
 
 			-- If the command-pointer corresponds to a cmd on the active tick,
 			-- create a "remove" cmd, and send that cmd to setCmd.
-			local cmdtab = getIndex(t, {data.chan, "cmd", data.cmdp})
-			if cmdtab and (#t[data.chan].cmd >= data.cmdp) then
+			local cmdtab = getIndex(t, {"cmd", data.chan, data.cmdp})
+			local allcmds = getContents(t, {"cmd", data.chan, pairs})
+			if cmdtab and (#allcmds >= data.cmdp) then
 				setCmd(
 					data.active,
 					{'remove', data.cmdp, cmdtab},

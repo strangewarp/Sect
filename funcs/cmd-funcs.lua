@@ -67,16 +67,18 @@ return {
 		local ctick = cmd[3][2] + 1
 		local chan = cmd[3][3]
 
+		-- Check whether the index is already filled
+		local filled = false
+		if getIndex(data.seq[p].tick[ctick], {"cmd", chan, cmd[2]}) then
+			filled = true
+		end
+
 		-- If cmd is flagged for removal, remove it
 		if cmd[1] == 'remove' then
 
 			-- If channel index exists, remove the cmd
-			if getIndex(data.seq[p].tick[ctick], {"cmd", chan, cmd[2]}) then
-
-				table.remove(data.seq[p].tick[ctick].cmd[chan], cmd[2])
-				seqUnsetCascade(p, 'cmd', cmd[2])
-				dismantleTable(data.seq[p].tick[ctick].cmd, {chan})
-
+			if filled then
+				seqUnsetCascade(p, 'cmd', cmd[3], cmd[2])
 			else -- If channel index doesn't exist to remove from, abort function
 				return nil
 			end
@@ -84,7 +86,11 @@ return {
 			undocmd[1] = 'insert'
 
 		else -- Else, insert cmd
-			buildTable(data.seq[p].tick[ctick], {"cmd", chan, cmd[2]}, cmd[3])
+			if filled then
+				table.insert(data.seq[p].tick[ctick].cmd[chan], cmd[2], cmd[3])
+			else
+				buildTable(data.seq[p].tick[ctick], {"cmd", chan, cmd[2]}, cmd[3])
+			end
 			undocmd[1] = 'remove'
 		end
 

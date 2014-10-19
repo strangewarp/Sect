@@ -154,7 +154,7 @@ return {
 					love.graphics.setColor(barcomp)
 					love.graphics.print(notename, textleft, texttop)
 
-				elseif (data.cmdmode == "cmd") and (n.tick == data.tp) then
+				elseif (data.cmdmode == "cmd") and ((n[2] + 1) == data.tp) then
 
 					local outstr = ""
 					for ck, cv in pairs(data.cmdtypes) do
@@ -218,7 +218,9 @@ return {
 
 		local notes = {}
 
-		for _, n in pairs(ntab) do
+		for _, two in pairs(ntab) do
+
+			local hist, n = unpack(two)
 
 			-- Get the pitch-value, or pitch-corresponding value, of a given note
 			local vp = n[data.acceptmidi[n[1]][1]]
@@ -265,7 +267,8 @@ return {
 
 					-- If Cmd Mode is active, render the note with a "stacked" top-offset
 					if data.cmdmode == "cmd" then
-						ot = yr.b - ((tk - data.cmdp) * data.cellheight)
+						--print(data.cmdp .. " " .. hist[#hist])--debugging
+						ot = yr.b - ((hist[#hist] - data.cmdp) * data.cellheight)
 					else -- Else, render the note with a "wrapping grid" top-offset
 						ot = yr.b - ((vp - yr.o) * data.cellheight)
 					end

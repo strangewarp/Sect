@@ -11,7 +11,8 @@ return {
 
 		-- Normalize Cmd Mode pointer
 		if data.active and (data.cmdmode == 'cmd') then
-			data.cmdp = (rangeCheck(data.cmdp, 1, #data.seq[data.active].tick[data.tp]) and data.cmdp) or 1
+			local allcmds = getContents(data.seq[data.active].tick[data.tp], {'cmd', pairs, pairs})
+			data.cmdp = (rangeCheck(data.cmdp, 1, #allcmds) and data.cmdp) or 1
 		end
 
 		-- Normalize selection-pointers
@@ -38,7 +39,9 @@ return {
 			return nil
 		end
 
-		data.cmdp = wrapNum(data.cmdp + dist, 1, math.max(1, #data.seq[data.active].tick[data.tp]))
+		local allcmds = getContents(data.seq[data.active].tick[data.tp], {"cmd", pairs, pairs})
+
+		data.cmdp = wrapNum(data.cmdp + dist, 1, math.max(1, #allcmds))
 
 		print("moveCmdPointer: active command: " .. data.cmdp)
 

@@ -323,7 +323,7 @@ return {
 					drawnotes,
 					makeNoteRenderTable(
 						render,
-						snum, getContents(s.tick, {pairs, {'cmd', 'note'}, pairs, pairs}),
+						snum, getContents(s.tick, {pairs, {'cmd', 'note'}, pairs, pairs}, true),
 						left, top, xfull, yfull,
 						tempxr, yranges
 					)

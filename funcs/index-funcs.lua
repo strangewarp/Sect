@@ -151,20 +151,21 @@ return {
 	seqUnsetCascade = function(s, kind, n, cmdkey)
 
 		local tick = n[2] + 1
+		local chan = ((kind == 'cmd') and n[3]) or n[4]
 
 		if data.seq[s].tick[tick][kind] ~= nil then
-			if cmdkey and (kind == 'cmd') then -- Cascade-unset a value in the cmd table
-				if data.seq[s].tick[tick][kind][cmdkey] ~= nil then
-					data.seq[s].tick[tick][kind][cmdkey] = nil
-				end
-			elseif kind == 'note' then -- Cascade-unset a value in the note table
-				if data.seq[s].tick[tick][kind][n[4]] ~= nil then
-					if data.seq[s].tick[tick][kind][n[4]][n[5]] ~= nil then
-						data.seq[s].tick[tick][kind][n[4]][n[5]] = nil
+			if data.seq[s].tick[tick][kind][chan] ~= nil then
+				if cmdkey and (kind == 'cmd') then -- Cascade-unset a value in the cmd table
+					if data.seq[s].tick[tick][kind][chan][cmdkey] ~= nil then
+						table.remove(data.seq[s].tick[tick][kind][chan], cmdkey)
 					end
-					for _, _ in pairs(data.seq[s].tick[tick][kind][n[4]]) do return nil end
-					data.seq[s].tick[tick][kind][n[4]] = nil
+				elseif kind == 'note' then -- Cascade-unset a value in the note table
+					if data.seq[s].tick[tick][kind][chan][n[5]] ~= nil then
+						data.seq[s].tick[tick][kind][chan][n[5]] = nil
+					end
 				end
+				for _, _ in pairs(data.seq[s].tick[tick][kind][chan]) do return nil end
+				data.seq[s].tick[tick][kind][chan] = nil
 			end
 			for _, _ in pairs(data.seq[s].tick[tick][kind]) do return nil end
 			data.seq[s].tick[tick][kind] = nil
