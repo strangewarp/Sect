@@ -39,11 +39,10 @@ return {
 
 	-- Run a series of iterators on a table structure,
 	-- and return all elements as a flat table,
-	-- optionally dismantling the table along the way,
-	-- and optionally returning tables containing the chains of keys that led to each item.
+	-- optionally returning tables containing the chains of keys that led to each item.
 	-- Example data structure for function call:
-	-- tab = getContents(tab.stuff, {1, "thing", pairs, ipairs, 2}, true, true)
-	getContents = function(context, keychain, dismantle, gethist, history, out)
+	-- tab = getContents(tab.stuff, {1, "thing", pairs, ipairs, 2}, true)
+	getContents = function(context, keychain, gethist, history, out)
 
 		out = out or {}
 
@@ -81,7 +80,7 @@ return {
 					end
 
 					-- Run a new getContents command on each sub-value.
-					out = getContents(context[k], modkeys, dismantle, gethist, histnew, out)
+					out = getContents(context[k], modkeys, gethist, histnew, out)
 
 				end
 
@@ -100,7 +99,7 @@ return {
 						end
 
 						-- Run a new getContents command on each index-value.
-						out = getContents(context[v], modkeys, dismantle, gethist, histnew, out)
+						out = getContents(context[v], modkeys, gethist, histnew, out)
 
 					end
 				end
@@ -115,7 +114,7 @@ return {
 				end
 
 				-- Run a new getContents command on the table signified by the token.
-				out = getContents(context[token], modkeys, dismantle, gethist, histnew, out)
+				out = getContents(context[token], modkeys, gethist, histnew, out)
 
 			end
 
@@ -144,63 +143,50 @@ return {
 
 		end
 
-		-- If flagged for dismantle, run a dismantleIndex on the current context referent.
-		if dismantle then
-			dismantleIndex(context, true)
-		end
-
 		return out
 
 	end,
 
-	-- Walk a given table structure, nullifying its empty branches,
-	-- and optinoally forcing its non-table items to be nullified as well,
-	-- in order from top to bottom of the table structure,
-	-- so that unsetting items could also unset some of the tables under them.
-	-- Example data structure for function call:
-	-- dismantleTable(tab.stuff, {1, "things", pairs, customIterator}, true)
-	dismantleTable = function(context, indices, force)
+	-- Unset a given note in a given sequence, and then unset all empty tables underneath it
+	seqUnsetCascade = function(s, kind, n, cmdkey)
 
-		if indices and (#indices > 0) then
+		local tick = n[2] + 1
 
-			local token = table.remove(indices, 1)
-			local tokentype = type(token)
-
-			if tokentype == 'function' then
-
-				for k, _ in token(context) do
-					dismantleTable(context[k], indices)
+		if data.seq[s].tick[tick][kind] ~= nil then
+			if cmdkey and (kind == 'cmd') then -- Cascade-unset a value in the cmd table
+				if data.seq[s].tick[tick][kind][cmdkey] ~= nil then
+					data.seq[s].tick[tick][kind][cmdkey] = nil
 				end
-
-			elseif tokentype == 'table' then
-
-				for _, v in pairs(token) do
-					dismantleTable(context[v], indices)
+			elseif kind == 'note' then -- Cascade-unset a value in the note table
+				if data.seq[s].tick[tick][kind][n[4]] ~= nil then
+					if data.seq[s].tick[tick][kind][n[4]][n[5]] ~= nil then
+						data.seq[s].tick[tick][kind][n[4]][n[5]] = nil
+					end
+					for _, _ in pairs(data.seq[s].tick[tick][kind][n[4]]) do return nil end
+					data.seq[s].tick[tick][kind][n[4]] = nil
 				end
-
-			else
-				dismantleTable(context[token], indices)
 			end
-
+			for _, _ in pairs(data.seq[s].tick[tick][kind]) do return nil end
+			data.seq[s].tick[tick][kind] = nil
 		end
-
-		dismantleIndex(context, force)
 
 	end,
 
-	-- If a given context is a table with 0 entries, nullify it.
-	-- Or, if it is some other type of value, and "force" is set true, nullify it.
-	-- Else, leave the index the way it is.
-	-- Example data structure for function call:
-	-- dismantleIndex(tab.stuff[1].thing[2][5], true)
-	dismantleIndex = function(context, force)
+	-- Unset a given note in a given copy-tab, and then unset all empty tables underneath it
+	copyUnsetCascade = function(kind, n)
 
-		local ctype = type(context)
+		local tick = n[2] + 1
 
-		if ((ctype ~= 'table') and force)
-		or ((ctype == 'table') and (#context == 0))
-		then
-			context = nil
+		if data[kind][tick] ~= nil then
+			if data[kind][tick][n[4]] ~= nil then
+				if data[kind][tick][n[4]][n[5]] ~= nil then
+					data[kind][tick][n[4]][n[5]] = nil
+				end
+				for _, _ in pairs(data[kind][tick][n[4]]) do return nil end
+				data[kind][tick][n[4]] = nil
+			end
+			for _, _ in pairs(data[kind][tick]) do return nil end
+			data[kind][tick] = nil
 		end
 
 	end,

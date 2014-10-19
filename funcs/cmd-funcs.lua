@@ -74,6 +74,7 @@ return {
 			if getIndex(data.seq[p].tick[ctick], {"cmd", chan, cmd[2]}) then
 
 				table.remove(data.seq[p].tick[ctick].cmd[chan], cmd[2])
+				seqUnsetCascade(p, 'cmd', cmd[2])
 				dismantleTable(data.seq[p].tick[ctick].cmd, {chan})
 
 			else -- If channel index doesn't exist to remove from, abort function

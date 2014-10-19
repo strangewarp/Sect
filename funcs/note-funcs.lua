@@ -104,29 +104,20 @@ return {
 		-- Find all overlapping notes, and all to-be-removed notes
 		for i = #notes, 1, -1 do
 
-			local n = notes[i]
+			local kind, n = unpack(notes[i])
 
-			-- Get all notes from within the comparison-note's tick-channel pair
-			local sn = getContents(
-				data.seq[p].tick,
-				{n[2][2] + 1, "note", n[2][4], pairs}
-			)
+			-- If an already-existing note matches the incoming note...
+			local sn = getIndex(data.seq[p].tick, {n[2] + 1, "note", n[4], n[5]})
+			if sn then
 
-			-- For every note that matches the comparison-note's tick and channel...
-			for k, v in pairs(sn) do
-
-				-- If the incoming setNote command is for removal,
-				-- and it matches the old note, then put old note into remove-table.
-				-- Else if the new note matches the old note, and Cmd Mode is inactive,
-				-- put old note into remove-table, and new note into add-table.
-				if (n[1] == 'remove') and checkNoteOverlap(n[2], sn) then
+				-- If the incoming setNote command is for removal, put old note into remove-table.
+				-- Else, put old note into remove-table, and new note into add-table.
+				if kind == 'remove' then
 					table.insert(removenotes, sn)
-					break
-				elseif (data.cmdmode ~= "cmd") and checkNoteOverlap(n, sn) then
+				else
 					table.insert(removenotes, sn)
-					local anote = table.remove(notes, i)
-					table.insert(addnotes, anote[2])
-					break
+					table.remove(notes, i)
+					table.insert(addnotes, n)
 				end
 
 			end
@@ -149,13 +140,9 @@ return {
 
 		-- Remove all removenotes, cull sparse tables, and shape undo tables
 		for k, v in pairs(removenotes) do
-			local t = v[2] + 1
-			if getIndex(data.seq[p].tick, {t, "note", v[4], v[5]}) then
-				local rnote = table.remove(data.seq[p].tick[t].note[v[4]], v[5])
-				dismantleTable(
-					data.seq[p].tick[t].note,
-					{v[4], v[5]}
-				)
+			local rnote = getIndex(data.seq[p].tick[v[2] + 1], {"note", v[4], v[5]})
+			if rnote then
+				seqUnsetCascade(p, 'note', rnote)
 				table.insert(undonotes, {'insert', rnote})
 				table.insert(redonotes, {'remove', rnote})
 			end
@@ -163,6 +150,7 @@ return {
 
 		-- Add all addnotes while building sparse tables, and shape undo tables accordingly
 		for k, v in pairs(addnotes) do
+			print("add! "..table.concat(v," "))--debugging
 			buildTable(data.seq[p].tick[v[2] + 1], {"note", v[4], v[5]}, v)
 			table.insert(undonotes, {'remove', deepCopy(v)})
 			table.insert(redonotes, {'insert', deepCopy(v)})
