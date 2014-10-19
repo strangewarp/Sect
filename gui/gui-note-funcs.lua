@@ -5,12 +5,12 @@ return {
 	-- apply highlights to its note and border colors.
 	applyNoteHighlight = function(n, c1, c2)
 
-		local nindex = n.note[data.acceptmidi[n.note[1]][1]]
+		local nindex = n[data.acceptmidi[n[1]][1]]
 		local linecolor = deepCopy(data.color.note.border)
 		local highlight = data.color.note.highlight
 
 		-- If the note is on both axes, highlight it distinctly
-		if (n.tick == data.tp) and (nindex == data.np) then
+		if ((n[2] + 1) == data.tp) and (nindex == data.np) then
 
 			c1, c2 = mixColors(c1, highlight, 0.6), mixColors(c2, highlight, 0.6)
 			linecolor = deepCopy(data.color.note.lightborder)
@@ -38,15 +38,15 @@ return {
 		-- If Cmd Mode is active, set all the active seq's NOTE commands to Shadow Mode
 		if data.cmdmode == "cmd" then
 			for i = 1, #notes do
-				if notes[i][3].note[1] == 'note' then
+				if notes[i][3][1] == 'note' then
 					if notes[i][2] == data.active then
-						notes[i][1] = "other-chan"
+						notes[i][1] = 'other-chan'
 					end
 				end
 			end
 		else -- If Cmd Mode is inactive, remove all non-NOTE commands from rendering
 			for i = #notes, 1, -1 do
-				if notes[i][3].note[1] ~= 'note' then
+				if notes[i][3][1] ~= 'note' then
 					table.remove(notes, i)
 				end
 			end
@@ -70,10 +70,10 @@ return {
 		end
 
 		-- Sort notes by tick position
-		table.sort(shadownotes, function(a, b) return a[3].tick < b[3].tick end)
-		table.sort(sbordernotes, function(a, b) return a[3].tick < b[3].tick end)
-		table.sort(sbselectnotes, function(a, b) return a[3].tick < b[3].tick end)
-		table.sort(othernotes, function(a, b) return a[3].tick < b[3].tick end)
+		table.sort(shadownotes, function(a, b) return a[3][2] < b[3][2] end)
+		table.sort(sbordernotes, function(a, b) return a[3][2] < b[3][2] end)
+		table.sort(sbselectnotes, function(a, b) return a[3][2] < b[3][2] end)
+		table.sort(othernotes, function(a, b) return a[3][2] < b[3][2] end)
 
 		-- Recombine the sorted tables, to render them in the order of:
 		-- shadow, other-chan, shadow-select, other.
@@ -129,7 +129,7 @@ return {
 					data.color.note.bar_quiet,
 					data.color.note.bar_loud
 				)
-				local bartop = ny - (ny * (n.note[data.acceptmidi[n.note[1]][2]] / data.bounds.velo[2]))
+				local bartop = ny - (ny * (n[data.acceptmidi[n[1]][2]] / data.bounds.velo[2]))
 				love.graphics.setColor(barcomp)
 				love.graphics.line(
 					nleft, ntop + bartop,
@@ -137,10 +137,10 @@ return {
 				)
 
 				-- If chanview mode is enabled, print the note's channel number.
-				if data.chanview and (n.note[1] == 'note') then
+				if data.chanview and (n[1] == 'note') then
 
-					local notename = tostring(n.note[4])
-					local textleft = (nleft + (nx / 2)) - (data.font.note.raster:getWidth(tostring(n.note[4])) / 2)
+					local notename = tostring(n[4])
+					local textleft = (nleft + (nx / 2)) - (data.font.note.raster:getWidth(tostring(n[4])) / 2)
 					local texttop = (ntop + (ny / 2)) - (fontheight / 2)
 
 					-- Draw the text's shadow
@@ -158,16 +158,16 @@ return {
 
 					local outstr = ""
 					for ck, cv in pairs(data.cmdtypes) do
-						if cv[3] == n.note[1] then
+						if cv[3] == n[1] then
 							outstr = cv[2]
 							break
 						end
 					end
-					outstr = outstr .. " " .. n.note[3]
-					if n.note[4] ~= nil then
-						outstr = outstr .. " " .. n.note[4]
-						if n.note[5] ~= nil then
-							outstr = outstr .. " " .. n.note[5]
+					outstr = outstr .. " " .. n[3]
+					if n[4] ~= nil then
+						outstr = outstr .. " " .. n[4]
+						if n[5] ~= nil then
+							outstr = outstr .. " " .. n[5]
 						end
 					end
 
@@ -199,7 +199,7 @@ return {
 	-- c1, c2: "quiet" and "loud" colors.
 	getVelocityColor = function(n, c1, c2)
 
-		local veloval = n.note[data.acceptmidi[n.note[1]][2]]
+		local veloval = n[data.acceptmidi[n[1]][2]]
 		local velomap = veloval / data.bounds.velo[2]
 		local velorev = (data.bounds.velo[2] - veloval) / data.bounds.velo[2]
 
@@ -210,7 +210,7 @@ return {
 	-- Build a render-table for a given sequence of notes, wrapped to the screen
 	makeNoteRenderTable = function(
 		kind,
-		seq, n,
+		seq, ntab,
 		left, top,
 		xfull, yfull,
 		xranges, yranges
@@ -218,82 +218,79 @@ return {
 
 		local notes = {}
 
-		for k, v in pairs(n) do
+		for nk, n in pairs(ntab) do
 
-			for kk, vv in ipairs(v) do
+			print(table.concat(n, " ")) -- debugging
 
-				-- Get the pitch-value, or pitch-corresponding value, of a given note
-				local vp = vv.note[data.acceptmidi[vv.note[1]][1]]
+			-- Get the pitch-value, or pitch-corresponding value, of a given note
+			local vp = n[data.acceptmidi[n[1]][1]]
 
-				-- Duplicate the kind-of-note val, in case of changes
-				local render = kind
+			-- Duplicate the kind-of-note val, in case of changes
+			local render = kind
 
-				-- Pick out selected notes, and other-chan notes, from within normal notes
-				if kind ~= 'shadow' then
+			-- Pick out selected notes, and other-chan notes, from within normal notes
+			if kind ~= 'shadow' then
 
-					-- If the note is within the select-tables, set it to render as selected
-					if (data.selindex[vv.tick] ~= nil)
-					and (data.selindex[vv.tick][vp] == true)
-					then
-						render = 'select'
-					end
-
-					-- If the note isn't on the active channel...
-					if (vv.note[1] == 'note')
-					and (vv.note[4] ~= data.chan)
-					then
-
-						-- If the note is selected, render as other-chan-select.
-						if render == 'select' then
-							render = 'other-chan-select'
-						else -- If the note isn't selected, render as other-chan.
-							render = 'other-chan'
-						end
-
-					end
-
+				-- If the note is within the select-table, set it to render as selected
+				if getIndex(data.seldat, {n[2] + 1, n[4], n[5]}) then
+					render = 'select'
 				end
 
-				-- For every combination of on-screen X-ranges and Y-ranges,
-				-- check the note's visibility there, and render if visible.
-				for _, xr in pairs(xranges) do
-					for _, yr in pairs(yranges) do
+				-- If the note isn't on the active channel...
+				if (n[1] == 'note')
+				and (n[4] ~= data.chan)
+				then
 
-						-- Get note's width, via duration, or default to 1 for non-note cmds
-						local xwidth = ((vv.note[1] == 'note') and (data.cellwidth * vv.note[3])) or data.cellwidth
-
-						-- Get note's inner-grid-concrete and absolute left offsets
-						local ol = xr.a + ((vv.tick - 1) * data.cellwidth)
-						local cl = left + ol
-						local ot
-
-						-- If Cmd Mode is active, render the note with a "stacked" top-offset
-						if data.cmdmode == "cmd" then
-							ot = yr.b - ((kk - data.cmdp) * data.cellheight)
-						else -- Else, render the note with a "wrapping grid" top-offset
-							ot = yr.b - ((vp - yr.o) * data.cellheight)
-						end
-						local ct = top + ot
-
-						-- If the note is onscreen in this chunk, display it
-						if collisionCheck(left, top, xfull, yfull, cl, ct, xwidth, data.cellheight) then
-
-							-- If the note's leftmost boundary falls outside of frame,
-							-- clip its left-position, and its width to match.
-							if cl < left then
-								xwidth = xwidth + ol
-								cl = left
-							end
-
-							-- Add the note to the draw-table
-							table.insert(notes, {render, seq, vv, cl, ct, xwidth, data.cellheight})
-
-						end
-
+					-- If the note is selected, render as other-chan-select.
+					if render == 'select' then
+						render = 'other-chan-select'
+					else -- If the note isn't selected, render as other-chan.
+						render = 'other-chan'
 					end
+
 				end
 
 			end
+
+			-- For every combination of on-screen X-ranges and Y-ranges,
+			-- check the note's visibility there, and render if visible.
+			for _, xr in pairs(xranges) do
+				for _, yr in pairs(yranges) do
+
+					-- Get note's width, via duration, or default to 1 for non-note cmds
+					local xwidth = ((n[1] == 'note') and (data.cellwidth * n[3])) or data.cellwidth
+
+					-- Get note's inner-grid-concrete and absolute left offsets
+					local ol = xr.a + (n[2] * data.cellwidth)
+					local cl = left + ol
+					local ot
+
+					-- If Cmd Mode is active, render the note with a "stacked" top-offset
+					if data.cmdmode == "cmd" then
+						ot = yr.b - ((tk - data.cmdp) * data.cellheight)
+					else -- Else, render the note with a "wrapping grid" top-offset
+						ot = yr.b - ((vp - yr.o) * data.cellheight)
+					end
+					local ct = top + ot
+
+					-- If the note is onscreen in this chunk, display it
+					if collisionCheck(left, top, xfull, yfull, cl, ct, xwidth, data.cellheight) then
+
+						-- If the note's leftmost boundary falls outside of frame,
+						-- clip its left-position, and its width to match.
+						if cl < left then
+							xwidth = xwidth + ol
+							cl = left
+						end
+
+						-- Add the note to the draw-table
+						table.insert(notes, {render, seq, n, cl, ct, xwidth, data.cellheight})
+
+					end
+
+				end
+			end
+
 		end
 
 		return notes

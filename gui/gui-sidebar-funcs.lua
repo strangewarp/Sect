@@ -214,11 +214,10 @@ return {
 			local ticks = #data.seq[i].tick
 
 			-- Increase color-strength for every note, weighted against ticks/duration
-			for _, v in pairs(data.seq[i].tick) do
-				for _, nv in pairs(v) do
-					if nv.note[1] == 'note' then
-						strength = strength + nv.note[3]
-					end
+			local strcheck = flattenNoteTab(data.seq[i].tick)
+			for _, v in pairs(strcheck) do
+				if v[1] == 'note' then
+					strength = strength + v[3]
 				end
 			end
 			strength = math.min(ticks, strength) / ticks

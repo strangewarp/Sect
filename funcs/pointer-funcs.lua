@@ -118,12 +118,12 @@ return {
 			tick = wrapNum(data.tp + offset, 1, ticks)
 
 			-- Populate the lower-notes and higher-notes tabs, based on the tick's notes
-			for k, v in pairs(data.seq[data.active].tick[tick]) do
-				local pitch = v.note[5]
-				if pitch < note then
-					table.insert(lower, pitch)
-				elseif pitch > note then
-					table.insert(higher, pitch)
+			local ntab = getContents(data.seq[data.active].tick[tick], {"note", pairs, pairs})
+			for _, n in pairs(n) do
+				if n[5] < note then
+					table.insert(lower, n[5])
+				elseif n[5] > note then
+					table.insert(higher, n[5])
 				end
 			end
 

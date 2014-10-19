@@ -134,45 +134,50 @@ return {
 		-- Figure out whether the mouse-position overlaps with a note
 		local closest = false
 		local modtick = newtick
-		for k, v in pairs(data.seq[data.active].tick) do
-			for kk, vv in pairs(v) do
+		for tk, t in pairs(data.seq[data.active].tick) do
 
-				-- Get the note's pitch or pitch-equivalent
-				local pitch = vv.note[5]
+			if t.note ~= nil then
+				for ck, c in pairs(t.note) do
+					for nk, n in pairs(c) do
 
-				-- If the pitch matches the new-note-position...
-				if (newnote == pitch) then
+						-- Get the note's pitch or pitch-equivalent
+						local pitch = n[5]
 
-					local low = vv.tick
-					local high = low
+						-- If the pitch matches the new-note-position...
+						if (newnote == pitch) then
 
-					-- If the note is a note-note, get and wrap its high-point
-					if vv.note[1] == 'note' then
-						high = vv.tick + vv.note[3] - 1
-						if high > ticks then
-							high = wrapNum(high + 1, 1, ticks)
+							local low = vv.tick
+							local high = low
+
+							-- If the note is a note-note, get and wrap its high-point
+							if n[1] == 'note' then
+								high = n[2] + n[3]
+								if high > ticks then
+									high = wrapNum(high + 1, 1, ticks)
+								end
+							end
+
+							-- If the note wrapped around, adjust its virtual bounds
+							if low > high then
+								if newtick < high then
+									low = low - ticks
+								else
+									high = high + ticks
+								end
+							end
+
+							-- If the note contains the clicked tick,
+							-- and starts later than other matching candidates,
+							-- set modtick to that note's first tick.
+							if rangeCheck(newtick, low, high) then
+								if (not closest) or (low > closest) then
+									closest = low
+									modtick = vv.tick
+								end
+							end
+
 						end
 					end
-
-					-- If the note wrapped around, adjust its virtual bounds
-					if low > high then
-						if newtick < high then
-							low = low - ticks
-						else
-							high = high + ticks
-						end
-					end
-
-					-- If the note contains the clicked tick,
-					-- and starts later than other matching candidates,
-					-- set modtick to that note's first tick.
-					if rangeCheck(newtick, low, high) then
-						if (not closest) or (low > closest) then
-							closest = low
-							modtick = vv.tick
-						end
-					end
-
 				end
 
 			end

@@ -67,6 +67,7 @@ function love.load()
 
 	socket = require('socket')
 
+	cmdfuncs = require('funcs/cmd-funcs')
 	datafuncs = require('funcs/data-funcs')
 	filefuncs = require('funcs/file-funcs')
 	generatorfuncs = require('funcs/generator-funcs')
@@ -75,8 +76,10 @@ function love.load()
 	guimiscfuncs = require('gui/gui-misc-funcs')
 	guinotefuncs = require('gui/gui-note-funcs')
 	guisidebarfuncs = require('gui/gui-sidebar-funcs')
+	indexfuncs = require('funcs/index-funcs')
 	keyfuncs = require('funcs/key-funcs')
 	modefuncs = require('funcs/mode-funcs')
+	modifyfuncs = require('funcs/modify-funcs')
 	mousefuncs = require('funcs/mouse-funcs')
 	notefuncs = require('funcs/note-funcs')
 	playfuncs = require('funcs/play-funcs')
@@ -91,6 +94,7 @@ function love.load()
 
 	utilfuncs.tableToNewContext(
 		_G,
+		cmdfuncs,
 		datafuncs,
 		filefuncs,
 		generatorfuncs,
@@ -99,8 +103,10 @@ function love.load()
 		guimiscfuncs,
 		guinotefuncs,
 		guisidebarfuncs,
+		indexfuncs,
 		keyfuncs,
 		modefuncs,
+		modifyfuncs,
 		mousefuncs,
 		notefuncs,
 		playfuncs,

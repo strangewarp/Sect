@@ -34,11 +34,16 @@ return {
 					-- If the seq is set as an overlay, or is the active seq...
 					if seq.overlay or (s == data.active) then
 
-						-- If the given tick in the given sequence exists,
-						-- then send its notes to the MIDI-listener via MIDI-over-UDP.
-						if seq.tick[data.tp] ~= nil then
-							for _, n in ipairs(seq.tick[data.tp]) do
-								sendMidiMessage(n.note)
+						-- Wrap the tick-pointer to the sequence's size
+						local twrap = wrapNum(data.tp, 1, #seq.tick)
+
+						-- Send the tick's items to the MIDI-listener via MIDI-over-UDP,
+						-- in the order of: cmds first, then notes.
+						local cmds = getContents(seq.tick[twrap], {'cmd', pairs, pairs})
+						local notes = getContents(seq.tick[twrap], {'note', pairs, pairs})
+						for _, kind in ipairs({cmds, notes}) do
+							for _, n in pairs(kind) do
+								sendMidiMessage(n)
 							end
 						end
 

@@ -12,38 +12,34 @@ return {
 		end
 
 		-- Split the incoming message into a command-table
-		local t = {}
+		local n = {}
 		for unit in string.gmatch(m, "%S+") do
-			t[#t + 1] = ((#t == 0) and unit) or tonumber(unit)
+			n[#n + 1] = ((#n == 0) and unit) or tonumber(unit)
 		end
 
-		-- Convert the Pd MIDI-command format into Sect's score-based format
-		local n = {
-			tick = data.tp,
-			note = deepCopy(t),
-		}
-		n.note[2] = data.tp - 1
+		-- Set the note's tick to the location of the tick-pointer
+		n[2] = data.tp - 1
 
 		-- Depending on command-type, trigger a setNotes or setCmds function
-		if n.note[1] == 'note' then
+		if n[1] == 'note' then
 
 			if data.cmdmode == 'entry' then
 
 				-- If velocity is 0, for silly Pd note-off command reasons, abort function
-				if n.note[6] == 0 then
+				if n[6] == 0 then
 					return nil
 				end
 
 				-- Replace the dummy duration value
-				n.note[3] = data.dur
+				n[3] = data.dur
 
 				-- Call setNotes from within executeFunction, to spawn a new undo chunk
-				executeFunction("setNotes", data.active, {n}, false)
+				executeFunction("setNotes", data.active, {'insert', n}, false)
 
 				moveTickPointer(1) -- Move ahead by one spacing unit
 
 				-- Set the note-pointer to the bottom of the incoming note's octave
-				data.np = n.note[5] - (n.note[5] % 12)
+				data.np = n[5] - (n[5] % 12)
 
 			end
 
@@ -51,8 +47,11 @@ return {
 
 			if data.cmdmode == "cmd" then
 
+				-- Get insertion-position for new command
+				local cmdpos = #data.seq[data.active].tick[data.tp][data.chan].cmd + 1
+
 				-- Call setCmd from within executeFunction, to spawn a new undo chunk
-				executeFunction("setCmd", data.active, {'insert', 1, n}, false)
+				executeFunction("setCmd", data.active, {'insert', cmdpos, n}, false)
 
 			end
 

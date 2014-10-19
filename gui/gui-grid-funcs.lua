@@ -121,8 +121,6 @@ return {
 	-- Draw a table of wrapped visible selection-positions
 	drawSelectionTable = function(sels)
 
-		love.graphics.setLineWidth(2)
-
 		for k, v in pairs(sels) do
 
 			local l, t, w, h = unpack(v)
@@ -134,8 +132,6 @@ return {
 			love.graphics.rectangle("line", l, t, w, h)
 
 		end
-
-		love.graphics.setLineWidth(1)
 
 	end,
 
@@ -327,7 +323,7 @@ return {
 					drawnotes,
 					makeNoteRenderTable(
 						render,
-						snum, s.tick,
+						snum, getContents(s.tick, {pairs, {'cmd', 'note'}, pairs, pairs}),
 						left, top, xfull, yfull,
 						tempxr, yranges
 					)

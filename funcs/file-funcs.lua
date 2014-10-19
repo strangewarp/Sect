@@ -83,6 +83,7 @@ return {
 		local stats = MIDI.score2stats(score)
 		tpq = table.remove(score, 1)
 
+		-- Set the active-sequence pointer to the new seq's location
 		data.active = ((data.active ~= false) and (data.active + 1)) or 1
 
 		-- Read every track in the MIDI file's score table
@@ -103,7 +104,7 @@ return {
 
 				-- Receive known commands, and change endpoint in incoming-notes accordingly
 				if v[1] == 'end_track' then
-					print("loadFile: End track: " .. v[2]) -- DEBUGGING
+					print("loadFile: End track: " .. v[2])
 				elseif v[1] == 'track_name' then
 					print("loadFile: Track name: " .. v[3])
 				elseif v[1] == 'text_event' then
@@ -114,7 +115,7 @@ return {
 					if v[1] == 'note' then -- Extend note by tick + dur
 						endpoint = math.max(endpoint, v[2] + v[3])
 					end
-					table.insert(newnotes, {tick = v[2] + 1, note = v})
+					table.insert(newnotes, {'insert', v})
 				else
 					print("loadFile: Discarded unsupported command: " .. v[1])
 				end
@@ -165,20 +166,24 @@ return {
 		local score = {}
 
 		-- Get save location
-		local saveloc = data.savepath .. data.hotseats[data.activeseat] .. ".mid"
+		local shortname = data.hotseats[data.activeseat] .. ".mid"
+		local saveloc = data.savepath .. shortname
 		print("saveFile: Now saving: " .. saveloc)
 
 		-- For every sequence, translate it to a valid score track
 		for tracknum, track in ipairs(data.seq) do
-			score[tracknum] = {}
-			for tick, notes in pairs(track.tick) do -- Copy over all notes to the score-track-table
-				for k, v in pairs(notes) do
-					table.insert(score[tracknum], v.note)
-					print("Save: track " .. tracknum .. ", tick " .. tick .. ", note " .. table.concat(v.note, " ")) -- debugging
-				end
-			end
+
+			-- Copy over all notes to the score-track-table
+			score[tracknum] = getContents(
+				track.tick,
+				{pairs, {'note', 'cmd'}, pairs, pairs}
+			)
+
+			-- Insert an end_track command, so MIDI.lua knows how long the sequence is.
 			table.insert(score[tracknum], {'end_track', #track.tick})
-			print("saveFile: copied sequence " .. tracknum .. " to save-table!")
+
+			print("saveFile: copied sequence " .. tracknum .. " to save-table: " .. #score[tracknum] .. " items!")
+
 		end
 
 		-- Insert tempo information in the first track,
@@ -197,7 +202,7 @@ return {
 		-- Toggle the rendering-flag, and set rendering info, for a visual save confirmation
 		data.savepopup = true
 		data.savedegrade = 90
-		data.savemsg = "Saved " .. (#score - 1) .. " track" .. (((#score ~= 2) and "s") or "") .. " to file: " .. saveloc
+		data.savemsg = "Saved " .. (#score - 1) .. " track" .. (((#score ~= 2) and "s") or "") .. " to file: " .. shortname
 
 		print("saveFile: saved " .. (#score - 1) .. " sequences to file \"" .. saveloc .. "\"!")
 

@@ -349,6 +349,7 @@ return {
 		PASTE_REPEATING = {"ctrl", "shift", "v"},
 
 		HUMANIZE = {"ctrl", "h"},
+		QUANTIZE = {"ctrl", "u"},
 
 		INSERT_NOTE = {"return"},
 		DELETE_NOTE = {"delete"},

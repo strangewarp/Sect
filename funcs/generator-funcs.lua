@@ -280,15 +280,15 @@ return {
 			local pitch = wrapNum(npoffset + sp - 1, data.bounds.np)
 
 			local note = {
-				tick = tick,
-				note = {
+				'insert',
+				{
 					'note',
 					tick - 1,
 					dur,
 					data.chan,
 					pitch,
 					data.velo,
-				}
+				},
 			}
 
 			table.insert(outnotes, note)

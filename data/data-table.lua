@@ -2,7 +2,7 @@
 local D = {}
 
 -- VERSIONING VARS --
-D.version = "1.1-a40" -- Holds Sect's current version-number
+D.version = "1.1-a41" -- Holds Sect's current version-number
 
 -- LOVE ENGINE VARS --
 D.updatespeed = 0.01 -- Speed at which to attempt to update program-state
@@ -79,9 +79,9 @@ D.sel = { -- Holds the boundaries of the currently selected area
 	t = false, -- Top
 	b = false, -- Bottom
 }
+D.copyoffset = 0 -- Tick-distance that copydat is offset from data.tp
 D.seldat = {} -- Holds the notes that were selected for commands
 D.copydat = {} -- Table for copied notes
-D.selindex = {} -- Selected notes, indexed by [tick][note]
 
 -- MOUSE VARS --
 D.dragging = false -- True if mouse is dragging across screen
@@ -153,7 +153,7 @@ D.bounds = {
 	cellheight = {2, 32, false}, -- Y-axis zoom (note axis)
 
 	-- Generator bounds --
-	kspecies = {1, 8, true}, -- Filled scale notes
+	kspecies = {1, 7, true}, -- Filled scale notes
 	scalenum = {1, math.huge, false}, -- Grab-scales in generator
 	wheelnum = {1, math.huge, false}, -- Grab-wheels in generator
 	consonance = {0, 100, true}, -- Target consonance for generator
@@ -166,6 +166,15 @@ D.bounds = {
 	beatbound = {1, math.huge, false}, -- Number of TPQ-beats to fill
 	notegrain = {1, math.huge, false}, -- Minimum note size
 
+}
+
+-- Note-bytes that correspond to modNote command names
+D.notebytes = {
+	tick = 2,
+	dur = 3,
+	chan = 4,
+	np = 5,
+	velo = 6,
 }
 
 -- Types of MIDI commands that are accepted in a sequence,
@@ -248,6 +257,7 @@ D.cmdfuncs = {
 	PASTE_REPEATING = {"pasteRepeating", false},
 
 	HUMANIZE = {"humanizeNotes", false},
+	QUANTIZE = {"quantizeNotes", false},
 
 	KSPECIES_UP = {"shiftInternalValue", "kspecies", false, 1},
 	KSPECIES_DOWN = {"shiftInternalValue", "kspecies", false, -1},
@@ -329,21 +339,21 @@ D.cmdfuncs = {
 	NOTE_GRAIN_UP_MULTI = {"shiftInternalValue", "notegrain", true, 2},
 	NOTE_GRAIN_DOWN_MULTI = {"shiftInternalValue", "notegrain", true, 0.5},
 
-	MOD_DUR_INCREASE = {"modNotes", "dur", 1, false},
-	MOD_DUR_DECREASE = {"modNotes", "dur", -1, false},
+	MOD_DUR_INCREASE = {"modSelectedNotes", "dur", 1, false},
+	MOD_DUR_DECREASE = {"modSelectedNotes", "dur", -1, false},
 
-	MOD_CHANNEL_UP = {"modNotes", "chan", 1, false},
-	MOD_CHANNEL_DOWN = {"modNotes", "chan", -1, false},
+	MOD_CHANNEL_UP = {"modSelectedNotes", "chan", 1, false},
+	MOD_CHANNEL_DOWN = {"modSelectedNotes", "chan", -1, false},
 
-	MOD_VELOCITY_UP = {"modNotes", "velo", 1, false},
-	MOD_VELOCITY_DOWN = {"modNotes", "velo", -1, false},
-	MOD_VELOCITY_UP_10 = {"modNotes", "velo", 10, false},
-	MOD_VELOCITY_DOWN_10 = {"modNotes", "velo", -10, false},
+	MOD_VELOCITY_UP = {"modSelectedNotes", "velo", 1, false},
+	MOD_VELOCITY_DOWN = {"modSelectedNotes", "velo", -1, false},
+	MOD_VELOCITY_UP_10 = {"modSelectedNotes", "velo", 10, false},
+	MOD_VELOCITY_DOWN_10 = {"modSelectedNotes", "velo", -10, false},
 
-	MOD_NOTE_UP = {"modNotes", "np", 1, false},
-	MOD_NOTE_DOWN = {"modNotes", "np", -1, false},
-	MOD_NOTE_LEFT = {"modNotes", "tp", -1, false},
-	MOD_NOTE_RIGHT = {"modNotes", "tp", 1, false},
+	MOD_NOTE_UP = {"modSelectedNotes", "np", 1, false},
+	MOD_NOTE_DOWN = {"modSelectedNotes", "np", -1, false},
+	MOD_NOTE_LEFT = {"modSelectedNotes", "tp", -1, false},
+	MOD_NOTE_RIGHT = {"modSelectedNotes", "tp", 1, false},
 
 	MOD_SEQ_UP = {"moveActiveSequence", -1, false},
 	MOD_SEQ_DOWN = {"moveActiveSequence", 1, false},
@@ -433,6 +443,7 @@ D.cmdgate = {
 	PASTE_REPEATING = {"entry", "gen"},
 
 	HUMANIZE = {"entry", "gen"},
+	QUANTIZE = {"entry", "gen"},
 
 	CHANNEL_UP = {"entry", "gen", "cmd"},
 	CHANNEL_DOWN = {"entry", "gen", "cmd"},
@@ -605,12 +616,15 @@ D.undocmds = {
 	["deletePitchNotes"] = true,
 	["deleteBeatNotes"] = true,
 	["humanizeNotes"] = true,
+	["quantizeNotes"] = true,
 
 	-- select-funcs.lua
 	["cutSelection"] = true,
 	["pasteSelection"] = true,
 	["pasteRepeating"] = true,
+	["modSelectedNotes"] = true,
 	["modNotes"] = true,
+	["modNote"] = true,
 
 }
 

@@ -6,7 +6,7 @@ return {
 		data.active = wrapNum(data.active + dir, 1, #data.seq)
 	end,
 
-	-- Insert a number ofticks at the end of a sequence
+	-- Insert a number of ticks at the end of a sequence
 	growSeq = function(seq, num, undo)
 
 		for i = 1, num do
@@ -50,7 +50,10 @@ return {
 		-- If there are any ticks to the right of the old top-tick, adjust their notes' positions
 		local sidenotes = getNotes(seq, data.tp, #data.seq[seq].tick, _, _)
 		if #sidenotes > 0 then
-			moveNotes(seq, sidenotes, addticks, _, undo)
+			for k, v in pairs(sidenotes) do
+				sidenotes[k] = {v, 'tick', addticks}
+			end
+			modNotes(seq, sidenotes, undo)
 		end
 
 	end,
@@ -63,14 +66,19 @@ return {
 		-- Get notes from the removal area, and remove them, into undo
 		local notes = getNotes(seq, tick, top, _, _)
 		if #notes > 0 then
-			removeNotes(seq, notes, undo)
+			local rem = notesToSetType(notes, 'remove')
+			setNotes(seq, rem, undo)
 		end
 
 		-- If there are any ticks to the right, adjust their notes' positions
 		if top < #data.seq[seq].tick then
 			local sidenotes = getNotes(seq, top + 1, #data.seq[seq].tick, _, _)
 			if #sidenotes > 0 then
-				moveNotes(seq, sidenotes, remticks * -1, _, undo)
+				local remrev = remticks * -1
+				for k, v in pairs(sidenotes) do
+					sidenotes[k] = {v, 'tick', remrev}
+				end
+				modNotes(seq, sidenotes, undo)
 			end
 		end
 
@@ -81,18 +89,13 @@ return {
 
 	-- Insert a number of ticks based on data.spacing, at the current position
 	insertSpacingTicks = function(undo)
-
 		insertTicks(data.active, data.tp, data.spacing, undo)
-
 	end,
 
 	-- Remove a number of ticks based on data.spacing, at the current position
 	removeSpacingTicks = function(undo)
-
 		local num = clampNum(data.spacing, 0, #data.seq[data.active].tick - data.tp)
-
 		removeTicks(data.active, data.tp, num, undo)
-
 	end,
 
 	-- Add a new sequence to the sequence-table at the current seq-pointer
@@ -131,15 +134,6 @@ return {
 
 		local removenotes = {}
 
-		-- If the seq-pointer is false or nil, or outside of the loaded sequences, then abort function
-		if not seq then
-			print("removeSequence: could not remove sequence: invalid seq pointer!")
-			return nil
-		elseif seq > #data.seq then
-			print("removeSequence: could not remove sequence: sequence pointer outside of loaded seqs!")
-			return nil
-		end
-
 		if #data.seq == 1 then -- If only one sequence remains, set the active pointer to false, to signify that none exist
 			data.active = false
 		elseif data.active == #data.seq then -- If the highest sequence is being removed, and is active, then move the activity pointer downward
@@ -149,8 +143,8 @@ return {
 		-- Gather all notes from the sequence, set them to false, and remove them
 		local removenotes = getNotes(seq, 1, #data.seq[seq].tick, _, _)
 		if #removenotes > 0 then
-			removenotes = notesToRemove(removenotes)
-			setNotes(seq, removenotes, ((undo == nil) and true) or undo)
+			removenotes = notesToSetType(removenotes, 'remove')
+			setNotes(seq, removenotes, undo)
 		end
 
 		-- Remove the sequence from the seqs-table
@@ -213,7 +207,6 @@ return {
 	sanitizeDataStructures = function()
 		normalizePointers()
 		removeOldSelectItems()
-		selectionDataToIndexes()
 	end,
 
 }

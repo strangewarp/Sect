@@ -1,16 +1,5 @@
 return {
 
-	-- Index the note-and-tick locations of all selected notes
-	selectionDataToIndexes = function()
-
-		data.selindex = {}
-		for k, v in pairs(data.seldat) do
-			data.selindex[v.tick] = data.selindex[v.tick] or {}
-			data.selindex[v.tick][v.note[5]] = true
-		end
-
-	end,
-
 	-- Toggle select-mode boundaries, which are dragged by the pointers
 	toggleSelect = function(cmd, tick, note)
 
@@ -85,16 +74,28 @@ return {
 				n = getNotes(data.active, data.sel.l, data.sel.r, data.sel.b, data.sel.t, _)
 			end
 
-			data.seldat = tableCombine(n, data.seldat, false)
-			data.seldat = removeDuplicates(data.seldat)
-			
-		end
+			populateSelTable(n)
 
-		selectionDataToIndexes()
+		end
 
 		-- If all notes were just selected, remove the selection-area
 		if cmd == "all" then
 			toggleSelect("clear")
+		end
+
+	end,
+
+	-- Shunt a table of unordered notes into seldat ordering
+	populateSelTable = function(n)
+
+		data.seldat = {}
+
+		if (not n) or (#n == 0) then
+			return nil
+		end
+
+		for k, v in pairs(n) do
+			buildTable(data.seldat, {n[2] + 1, n[4], n[5]}, n)
 		end
 
 	end,
@@ -105,79 +106,51 @@ return {
 		-- Clear the currently on-screen selection
 		toggleSelect("clear")
 
-		-- If something is selected, remove all non-selected notes from seldat
+		local n = {}
+
+		-- If a select-range still exists, get the notes fro within it
 		if data.sel.l ~= false then
-
-			-- Get a table of all currently-selected notes
-			local n = getNotes(data.active, data.sel.l, data.sel.r, data.sel.b, data.sel.t)
-
-			-- Match all seldat notes against the subset of selected notes
-			for i = #data.seldat, 1, -1 do
-
-				local keep = false
-
-				-- If a match is found, earmark the note as a keeper
-				for k, v in pairs(n) do
-					if checkNoteOverlap(data.seldat[i], v) then
-						table.remove(n, k)
-						keep = true
-						break
-					end
-				end
-
-				-- If the note is outside the selected-notes, remove it
-				if not keep then
-					table.remove(data.seldat, i)
-				end
-
-			end
-
-		else -- If nothing is selected, clear the selection table
-			data.seldat = {}
+			n = getNotes(data.active, data.sel.l, data.sel.r, data.sel.b, data.sel.t)
 		end
 
-		selectionDataToIndexes()
+		populateSelTable(n)
 
 	end,
 
 	-- Remove notes that no longer exist from the select-table
 	removeOldSelectItems = function()
 
-		for i = #data.seldat, 1, -1 do
+		if not data.active then
+			data.seldat = {}
+		else
 
-			local n = data.seldat[i]
-			local r = 0
+			for tk, t in pairs(data.seldat) do
 
-			-- If the corresponding tick doesn't exist anymore, remove the entry
-			if data.seq[data.active].tick[n.tick] == nil then
+				if data.seq[data.active].tick[tk] == nil then
+					data.seldat[tk] = nil
+				else
 
-				table.remove(data.seldat, i)
-				r = r + 1
+					for ck, c in pairs(t) do
 
-			else -- If the corresponding tick still exists...
+						for nk, n in pairs(n) do
+							if data.seq[data.active].tick[tk][ck].note[nk] == nil then
+								data.seldat[tk][ck][nk] = nil
+							end
+						end
 
-				local match = false
+						if #data.seldat[tk][ck] == 0 then
+							data.seldat[tk][ck] = nil
+						end
 
-				-- For every note in the seldat item's tick,
-				-- if there's a note overlap, replace selnote entry with seq entry.
-				for k, v in pairs(data.seq[data.active].tick[n.tick]) do
-					if checkNoteOverlap(n, v) then
-						data.seldat[i] = deepCopy(v)
-						match = true
-						break
 					end
+
 				end
 
-				-- If no matching notes were found, remove the seldat entry
-				if not match then
-					table.remove(data.seldat, i)
-					r = r + 1
+				if #data.seldat[tk] == 0 then
+					data.seldat[tk] = nil
 				end
 
 			end
-
-			-- Skip downwards by the number of entries removed
-			i = i - r
 
 		end
 
@@ -187,49 +160,42 @@ return {
 	copySelection = function(add)
 
 		-- Get duplicates of the notes in selection-memory
-		local n = deepCopy(data.seldat)
+		local s = deepCopy(data.seldat)
 
 		-- If there is no selection window, use tick-pointer for offset
-		local offset = data.sel.l or data.tp
+		local offpoint = data.sel.l or data.tp
 
-		-- Reduce tick values relative to the left selection-pointer's position
-		for i = 1, #n do
-			n[i].tick = (n[i].tick - offset) + 1
-			n[i].note[2] = n[i].tick - 1
+		-- If this isn't an additive copy, clear the copy-table
+		if not add then
+			data.copydat = {}
 		end
 
-		if add then -- On additive copy...
-
-			local newdat = {}
-
-			-- If any incoming notes overlap with notes in the copy-table,
-			-- replace those copy-table notes with the incoming notes.
-			for k, v in pairs(data.copydat) do
-
-				local onote = deepCopy(v)
-
-				for i = #n, 1, -1 do
-					if checkNoteOverlap(n, v, true) then
-						onote = table.remove(n, i)
-						break
-					end
+		-- Put the select-table's contents into the copy-table
+		for tk, t in pairs(s) do
+			for ck, c in pairs(t) do
+				for nk, n in pairs(c) do
+					buildTable(data.copydat, {tk, ck, nk}, deepCopy(n))
 				end
-
-				table.insert(newdat, onote)
-
 			end
-
-			-- Put remaining incoming notes into the combined copy-table
-			for k, v in pairs(n) do
-				table.insert(newdat, v)
-			end
-
-			n = newdat
-
 		end
 
-		-- Put the copied notes into the copy-table
-		data.copydat = n
+		-- If any notes have been copied, get a pointer-offset value
+		if #data.copydat > 0 then
+
+			-- Search for lowest tick, and create an offset value based on it
+			local offset = offpoint
+			local contents = getContents(s, {pairs, pairs, pairs})
+			for _, n in pairs(contents) do
+				local newoff = n[2] - data.tp
+				offset = math.min(offset, newoff)
+			end
+
+			-- Set the copy-table's corresponding offset value
+			data.copyoffset = offset
+
+		else -- Else, if copy-tab is empty, set copy-pointer-offset to 0
+			data.copyoffset = 0
+		end
 
 	end,
 
@@ -239,28 +205,42 @@ return {
 		-- Copy the selected notes
 		copySelection(add)
 
+		-- Put select-notes into a flat table, flagged for removal
+		local remnotes = getContents(data.seldat, {pairs, pairs, pairs})
+		for k, v in pairs(remnotes) do
+			remnotes[k] = {'remove', v}
+		end
+
 		-- Remove the selected notes from the seq
-		setNotes(data.active, notesToRemove(deepCopy(data.seldat)), undo)
+		setNotes(data.active, remnotes, undo)
+
+		-- Empty out the select-table, since its corresponding notes have been removed
+		data.seldat = {}
 
 	end,
 
-	-- Paste the selection-table's contents at the current pointer position
+	-- Paste the copy-table's contents at the current pointer position
 	pasteSelection = function(undo)
 
-		-- Duplicate the copy-table, to prevent reference bugs
-		local ptab = deepCopy(data.copydat)
+		-- Flatten the copy-table into a paste-table
+		local paste = getContents(data.copydat, {pairs, pairs, pairs})
 
-		-- Adjust the contents of the paste-table relative to the tick-pointer
-		for i = 1, #ptab do
-			ptab[i].tick = wrapNum(
-				ptab[i].tick + (data.tp - 1),
-				1, #data.seq[data.active].tick
+		-- Adjust the contents of the paste-table relative to the tick-pointer, using the offset
+		for i = 1, #paste do
+			paste[i][2] = wrapNum(
+				paste[i][2] + data.tp + data.copyoffset,
+				0,
+				#data.seq[data.active] - 1
 			)
-			ptab[i].note[2] = ptab[i].tick - 1
+		end
+
+		-- Format the paste-table into setNotes commands
+		for k, v in pairs(paste) do
+			paste[k] = {'insert', v}
 		end
 
 		-- Add the paste-notes to current seq, and create an undo command
-		setNotes(data.active, ptab, undo)
+		setNotes(data.active, paste, undo)
 
 	end,
 
@@ -273,20 +253,25 @@ return {
 		end
 
 		local ticks = #data.seq[data.active].tick
-		local outnotes = {}
 		local tleft = math.huge
 		local tright = -math.huge
 		local iter = 1
 
-		-- Get the copy-chunk's furthest left and right bounds
-		for k, v in pairs(data.copydat) do
-			local testright = v.note[2] + v.note[3]
-			if tleft > v.note[2] then
-				tleft = v.note[2]
+		-- Flatten the copy-table into a paste-table
+		local paste = getContents(data.copydat, {pairs, pairs, pairs})
+
+		-- For every flattened paste-note...
+		for _, n in pairs(paste) do
+
+			-- Get the copy-chunk's furthest left and right bounds
+			local testright = n[2] + n[3]
+			if tleft > n[2] then
+				tleft = n[2]
 			end
 			if tright < testright then
 				tright = testright
 			end
+
 		end
 
 		-- Get the copydat range's total size
@@ -298,116 +283,24 @@ return {
 
 			-- Adjust the contents of the paste-table relative to the tick-pointer,
 			-- increasing the paste-chunk multiplier on each iteration.
-			for i = 1, #data.copydat do
-
-				local outn = deepCopy(data.copydat[i])
-				outn.tick = wrapNum(
-					outn.tick + (data.tp - 1) + ((iter - 1) * size),
-					1, ticks
+			for k, v in pairs(paste) do
+				paste[k][2] = wrapNum(
+					v + data.tp + ((iter - 1) * size),
+					0, ticks - 1
 				)
-
-				outn.note[2] = outn.tick - 1
-
-				table.insert(outnotes, outn)
-
 			end
 
 			iter = iter + 1
 
 		end
 
+		-- Format the paste-table into setNotes commands
+		for k, v in pairs(paste) do
+			paste[k] = {'insert', v}
+		end
+
 		-- Add the paste-notes to current seq, and create an undo command
-		setNotes(data.active, outnotes, undo)
-
-	end,
-
-	-- Modify the selected notes
-	modNotes = function(cmd, dist, undo)
-
-		local notes = {}
-		if #data.seldat == 0 then
-			notes = getNotes(data.active, data.tp, data.tp, data.np, data.np)
-		else
-			notes = deepCopy(data.seldat)
-		end
-
-		-- If no notes were received, abort function
-		if #notes == 0 then
-			print("modNotes: no notes were sent to this function!")
-			return nil
-		end
-
-		local modtypes = {
-			tp = 2,
-			dur = 3,
-			chan = 4,
-			np = 5,
-			velo = 6,
-		}
-
-		-- If the command type is unknown, abort function
-		if modtypes[cmd] == nil then
-			print(cmd)
-			print("modNotes: warning: received unknown command type!")
-			return nil
-		end
-
-		local oldnotes = {}
-		local newnotes = {}
-		local index = modtypes[cmd]
-
-		-- For all incoming notes...
-		for k, v in pairs(notes) do
-
-			-- Only move note-commands
-			if v.note[1] == 'note' then
-
-				local temp = deepCopy(v)
-				local changed = false
-
-				-- Shift the temp-values
-				if data.bounds[cmd] then
-					temp.note[index] = wrapNum(temp.note[index] + dist, data.bounds[cmd])
-					changed = true
-				elseif index == 2 then
-					temp.tick = wrapNum(
-						temp.tick + (dist * data.spacing),
-						1,
-						#data.seq[data.active].tick
-					)
-					temp.note[2] = temp.tick - 1
-					changed = true
-				end
-
-				-- If duration was changed, keep it from overlapping sequence length
-				if index == 3 then
-					temp.note[index] = clampNum(
-						temp.note[index],
-						1,
-						#data.seq[data.active].tick - temp.note[2]
-					)
-				end
-
-				-- If the modification resulted in a change,
-				-- add the notes to the update-tables
-				if changed then
-					table.insert(oldnotes, v)
-					table.insert(newnotes, temp)
-				end
-
-			end
-
-		end
-
-		-- Turn the old notes into removal-commands
-		oldnotes = notesToRemove(oldnotes)
-
-		-- Remove the old notes, and add the modified notes
-		setNotes(data.active, oldnotes, undo)
-		setNotes(data.active, newnotes, undo)
-
-		-- Replace the selection-table with the newly-positioned notes
-		data.seldat = newnotes
+		setNotes(data.active, paste, undo)
 
 	end,
 

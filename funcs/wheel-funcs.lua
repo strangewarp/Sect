@@ -200,7 +200,7 @@ return {
 		for k, _ in pairs(data.scales) do
 
 			-- Limit wheel size to 7 notes, to quash exponential data requirements
-			if k > 8 then
+			if k > 7 then
 				do break end
 			end
 
