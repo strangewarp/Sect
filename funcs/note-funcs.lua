@@ -119,7 +119,7 @@ return {
 				-- and it matches the old note, then put old note into remove-table.
 				-- Else if the new note matches the old note, and Cmd Mode is inactive,
 				-- put old note into remove-table, and new note into add-table.
-				if (n[1] == 'remove') and checkNoteOverlap(n, sn) then
+				if (n[1] == 'remove') and checkNoteOverlap(n[2], sn) then
 					table.insert(removenotes, sn)
 					break
 				elseif (data.cmdmode ~= "cmd") and checkNoteOverlap(n, sn) then

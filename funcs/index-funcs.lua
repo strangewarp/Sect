@@ -6,13 +6,13 @@ return {
 	-- bool = buildTable(tab.stuff, {1, 5, "branch", 2}, "foo")
 	buildTable = function(context, indices, item)
 
-		if #indices > 0 then
+		if #indices > 1 then
 			local index = table.remove(indices, 1)
 			context[index] = context[index] or {}
 			buildTable(context[index], indices, item)
 		else
 			if item ~= nil then
-				context = item
+				context[indices[1]] = ((type(item) == 'table') and deepCopy(item)) or item
 			end
 		end
 
