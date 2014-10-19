@@ -53,7 +53,7 @@ return {
 		end
 
 		-- Make a copy of the keychain, to prevent sticky-reference errors
-		keychain = deepCopy(keychain)
+		local modkeys = deepCopy(keychain)
 
 		-- If history is to be returned, then start tracking history
 		if gethist then
@@ -61,10 +61,10 @@ return {
 		end
 
 		-- If any meta-keys remain...
-		if #keychain > 0 then
+		if #modkeys > 0 then
 
 			-- Get the bottommost key or iterator
-			local token = table.remove(keychain, 1)
+			local token = table.remove(modkeys, 1)
 			local tokentype = type(token)
 
 			-- If the token is a function, assume it's an iterator, and treat it as such
@@ -81,7 +81,7 @@ return {
 					end
 
 					-- Run a new getContents command on each sub-value.
-					out = getContents(context[k], keychain, dismantle, gethist, histnew, out)
+					out = getContents(context[k], modkeys, dismantle, gethist, histnew, out)
 
 				end
 
@@ -100,7 +100,7 @@ return {
 						end
 
 						-- Run a new getContents command on each index-value.
-						out = getContents(context[v], keychain, dismantle, gethist, histnew, out)
+						out = getContents(context[v], modkeys, dismantle, gethist, histnew, out)
 
 					end
 				end
@@ -115,22 +115,32 @@ return {
 				end
 
 				-- Run a new getContents command on the table signified by the token.
-				out = getContents(context[token], keychain, dismantle, gethist, histnew, out)
+				out = getContents(context[token], modkeys, dismantle, gethist, histnew, out)
 
 			end
 
 		else -- If no meta-keys remain...
 
-			-- Get a copy of the top context-item we've arrived at
-			local item = ((type(context) == 'table') and deepCopy(context)) or context
+			-- If the context isn't an empty table or nil...
+			local contexttype = type(context)
+			if not (
+				((contexttype == 'table') and (#context == 0))
+				or ((contexttype ~= 'table') and (context == nil))
+			)
+			then
 
-			-- If we were tracking key-history, put the item and history into a table
-			if gethist then
-				item = {history, item}
+				-- Get a copy of the top context-item we've arrived at
+				local item = ((type(context) == 'table') and deepCopy(context)) or context
+
+				-- If we were tracking key-history, put the item and history into a table
+				if gethist then
+					item = {history, item}
+				end
+
+				-- Put the item (and the history, if we grabbed it) into the out-table.
+				table.insert(out, item)
+
 			end
-
-			-- Put the item (and the history, if we grabbed it) into the out-table.
-			table.insert(out, item)
 
 		end
 

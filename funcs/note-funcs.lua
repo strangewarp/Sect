@@ -109,7 +109,7 @@ return {
 			-- Get all notes from within the comparison-note's tick-channel pair
 			local sn = getContents(
 				data.seq[p].tick,
-				{n[2] + 1, "note", n[4], pairs}
+				{n[2][2] + 1, "note", n[2][4], pairs}
 			)
 
 			-- For every note that matches the comparison-note's tick and channel...
@@ -164,7 +164,6 @@ return {
 		-- Add all addnotes while building sparse tables, and shape undo tables accordingly
 		for k, v in pairs(addnotes) do
 			buildTable(data.seq[p].tick[v[2] + 1], {"note", v[4], v[5]}, v)
-			data.seq[p].tick[v[2] + 1][v[4]].note[v[5]] = deepCopy(v)
 			table.insert(undonotes, {'remove', deepCopy(v)})
 			table.insert(redonotes, {'insert', deepCopy(v)})
 		end

@@ -218,7 +218,9 @@ return {
 
 		local notes = {}
 
-		for nk, n in pairs(ntab) do
+		for _, n in pairs(ntab) do
+
+			print(table.concat(n, " "))--debugging
 
 			-- Get the pitch-value, or pitch-corresponding value, of a given note
 			local vp = n[data.acceptmidi[n[1]][1]]
