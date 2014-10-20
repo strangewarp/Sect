@@ -3,7 +3,7 @@ return {
 	
 	-- Modify the selected notes by a given amount
 	modSelectedNotes = function(byte, dist, undo)
-		local seldup = deepopy(data.seldat)
+		local seldup = getContents(data.seldat, {pairs, pairs, pairs})
 		for k, v in pairs(seldup) do
 			seldup[k] = {v, byte, dist}
 		end
@@ -24,19 +24,15 @@ return {
 			if getIndex(data.seq[p].tick[n[2] + 1], {"note", n[4], n[5]}) then
 
 				-- Build a new note via the modByte command
-				local modnote = modByte(p, deepCopy(n), byte, dist)
+				local m = modByte(p, deepCopy(n), byte, dist)
 
 				-- Add commands to the snotes table, to remove old note and insert new note
 				table.insert(snotes, {'remove', n})
-				table.insert(snotes, {'insert', modnote})
+				table.insert(snotes, {'insert', m})
 
-				-- If the mod-note matches a selected note, replace selnote with a copy of mod-note
-				for k, v in pairs(data.seldat) do
-					if strictCompare(v, n) then
-						data.seldat[k] = deepCopy(modnote)
-						break
-					end
-				end
+				-- Unset the note's old selection-data entry, and build a new entry reflecting its changes
+				copyUnsetCascade('seldat', n)
+				buildTable(data.seldat, {m[2] + 1, m[4], m[5]}, m)
 
 			end
 
@@ -65,14 +61,13 @@ return {
 		-- Get the byte-key that corresponds to the byte-command
 		local bk = data.notebytes[byte]
 
-		-- Apply the offset-distance to the given byte of the note
-		n[bk] = n[bk] + dist
-
-		-- Wrap the changed byte-value to its proper boundaries
-		if byte == "tick" then
-			n[bk] = wrapNum(n[bk], 0, #data.seq[p].tick - 1)
+		-- Change the byte-value, and wrap it to its proper boundaries
+		if byte == "tp" then
+			n[bk] = wrapNum(n[bk] + (dist * math.max(1, data.spacing)), 0, #data.seq[p].tick - 1)
+		elseif byte == "dur" then
+			n[bk] = clampNum(n[bk] + (dist * math.max(1, data.spacing)), 1, #data.seq[p].tick - n[2])
 		else
-			n[bk] = wrapNum(n[bk], data.bounds[byte])
+			n[bk] = wrapNum(n[bk] + dist, data.bounds[byte])
 		end
 
 		return n

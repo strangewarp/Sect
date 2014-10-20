@@ -170,7 +170,7 @@ D.bounds = {
 
 -- Note-bytes that correspond to modNote command names
 D.notebytes = {
-	tick = 2,
+	tp = 2,
 	dur = 3,
 	chan = 4,
 	np = 5,
