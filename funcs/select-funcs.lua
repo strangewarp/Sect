@@ -95,7 +95,7 @@ return {
 		end
 
 		for k, v in pairs(n) do
-			buildTable(data.seldat, {n[2] + 1, n[4], n[5]}, n)
+			buildTable(data.seldat, {v[2] + 1, v[4], v[5]}, v)
 		end
 
 	end,
@@ -105,6 +105,9 @@ return {
 
 		-- Clear the currently on-screen selection
 		toggleSelect("clear")
+
+		-- Clear all selected notes
+		data.seldat = {}
 
 		local n = {}
 
@@ -124,32 +127,13 @@ return {
 			data.seldat = {}
 		else
 
-			for tk, t in pairs(data.seldat) do
+			local selnotes = getContents(data.seldat, {pairs, pairs, pairs})
 
-				if data.seq[data.active].tick[tk] == nil then
-					data.seldat[tk] = nil
-				else
-
-					for ck, c in pairs(t) do
-
-						for nk, n in pairs(n) do
-							if data.seq[data.active].tick[tk][ck].note[nk] == nil then
-								data.seldat[tk][ck][nk] = nil
-							end
-						end
-
-						if #data.seldat[tk][ck] == 0 then
-							data.seldat[tk][ck] = nil
-						end
-
-					end
-
+			for nk, n in ripairs(selnotes) do
+				local exists = getIndex(data.seq[data.active].tick, {n[2] + 1, 'note', n[4], n[5]})
+				if not exists then
+					copyUnsetCascade('seldat', n)
 				end
-
-				if #data.seldat[tk] == 0 then
-					data.seldat[tk] = nil
-				end
-
 			end
 
 		end
