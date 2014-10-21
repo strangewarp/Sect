@@ -6,35 +6,16 @@
 
 1.1.1
 
--- TODO: Extend sparse-table data-structures to individual ticks within the sequence; keep track of a sequence's total ticks with a "total" var instead.
--- TODO: Remove unnecessary 'undo' vars from function-calls and undo-funcs.
+-- TODO: Extend sparse-table data-structures to individual ticks within the sequence; keep track of a sequence's total ticks with a "total" var instead. This will greatly reduce lag when dealing with many sequences.
+-- TODO: Remove unnecessary 'undo-suppression' vars from function-calls and undo-funcs.
 
 1.1
 
--- TODO: Add a "CMD mode", where a sequence's non-NOTE commands are held and modified.
----- Added Cmd Mode versions of deleteTickNotes and deleteBeatNotes.
----- sub-task: In Cmd Mode, render item-text after/above cmd-rectangles.
----- sub-task: Show the active sequence's Cmd Mode commands as Shadow Mode notes, with unique coloration, when Cmd Mode isn't active.
----- sub-task: Check whether saveFile and loadFile are truly compatible with non-NOTE commands.
----- sub-task: Change how Shadow Mode is applied to a seq's NOTE cmds while Cmd Mode is active.
+-- TODO: Make insertTicks and removeTicks affect the tick-values of Cmd Mode items.
 
--- TODO: Simplify the selection data-structures to only use data.seldat.
----- sub-task: Similarly simplify the data.copydat structures, to hold concretely indexed chan-notes with relative tick-indexing, signified by the offset-value in data.copyoffset.
--- sub-task: Rewrite every function that used "data.selindex"
+-- TODO: Check whether saveFile and loadFile are truly compatible with non-NOTE commands.
 
--- TODO: Change seq data structures
-
--- TODO: Convert all data.seq manipulations to use buildTable/buildTable/getContents/dismantleTable/dismantleIndex, rather than touching the tables directly
-
--- REMINDER: Data structures:
----- data.seq[a].tick[b].note[c][d] = a single unique note (c=chan, d=pitch)
----- data.seq[a].tick[b].cmd[c] = {... that channel's non-note cmds}
-
--- REMINDER: Selection data structures:
----- data.seloffset = distance that seldat tick 1 is offset from tick-pointer
----- data.seldat[tick][chan][pitch] = a single unique note
-
--- REMINDER: Use SPARSE TABLES: a channel table should only exist if that channel is populated by something
+-- TODO: Test all commands thoroughly again, to check for bugs caused by refactoring / new features.
 
 -- TODO: Add "Stretch" and "Squash" commands, which multiply or divide both the duration and the starting tick of every selected note, based on spacing value, and rounded to the nearest tick-value.
 ---- sub-task: construct undo-table at end of function
@@ -46,29 +27,43 @@
 
 -- TODO: Add user-toggleable "Play-Quantize" flag, which will make incoming notes and cmds in Play Mode (from both keyboard-piano and MIDI IN) stick to the nearest metro-tick.
 
--- TODO: Test all commands thoroughly again, to check for bugs caused by refactoring
+-- TODO: Fix deletion of dummy-file used to test user-directory's validity.
 
--- TODO: Fix deletion of dummy-file used to test user-directory's validity
+-- TODO: Make hotseat-toggling and loadFile commands available when no sequences are loaded
 
--- TODO: Make hotseat and loadFile commands available when no sequences are loaded
+-- REMINDER: Data structures:
+---- data.seq[a].tick[b].note[c][d] = a single unique note (c=chan, d=pitch)
+---- data.seq[a].tick[b].cmd[c] = {... that channel's non-note cmds}
 
--- TODO: Remove all "debugging" lines
--- TODO: comment out console again
+-- REMINDER: Selection data structures:
+---- data.seloffset = distance that seldat tick 1 is offset from tick-pointer
+---- data.seldat[tick][chan][pitch] = a single unique note
+
+-- REMINDER: Use SPARSE TABLES: a channel table should only exist if that channel is populated by something
+
 -- TODO: remove "debugging" messages
+-- TODO: comment out console again
 -- TODO: change data.version back to "1.1"
 
 -- Added full MIDI-IN, for composition via external MIDI devices. Due to how Spacing and Play Mode interact with note-entry, there doesn't need to be any explicit tabbing between input-types.
 -- Created a two-way MIDI-over-UDP communications system, designed to send MIDI between Sect and user devices, via SectMidiClient.
 -- Added "Quantize" command, which snaps all selected notes in the active sequence to ticks that are multiples of data.spacing.
 -- Added "Select Chan" command, a version of Select-All that only applies to notes in the active seq's active channel.
--- Bounded Generator Mode wheel-size to 7 (used to be 8), to make active data tables more sane.
+-- Added "CMD mode", where a sequence's non-NOTE commands are held and modified.
+-- Added Cmd Mode versions of various editor commands.
+-- Started showing the active sequence's Cmd Mode commands as Shadow Mode notes, with unique coloration, when Cmd Mode isn't active; and also when a sequence with non-NOTE commands is a Shadow Mode sequence.
+-- Changed how Shadow Mode is applied to a sequence's NOTE commands while Cmd Mode is active.
+-- Wrote buildTable, getIndex, getContents, seqUnsetCascade, and copyUnsetCascade, which manipulate strictly-defined sparse tables within the new data-structure-space. This allows notes to be stored explicitly, rather than in unordered tables; and yet also prevents said storage from incurring massive lag.
+-- Converted all manipulations within the space of "data.seq[n].tick" to use the new functions in index-funcs.lua, rather than touching the tables directly.
+-- Changed data-structures to be in the format of "data.seq[a].tick[b].note[c][d]", "data.seq[a].tick[b].cmd[c][d]", "data.seldat[a][b][c]", and "data.copydat[a][b][c]".
+-- Bounded Generator Mode scale-size and wheel-size to 7 (used to be 8), to make active data tables more sane.
 -- Changed Play Mode behavior, to repeat the contents of smaller sequences across larger sequences.
 -- Removed moveNotes, and rewrote modNotes to make more sense.
 -- Fixed an old function-call inside of removeTicks that was likely causing buggy behavior in certain situations.
 -- Fixed a potentially fatal bug in the interaction of deleteBeatNotes and getNotes.
 -- normalizePointers will now halt Play Mode if all sequences are deleted.
 -- Added a "funcgate" mechanism to executeFunction, so that undo commands stay functional during the proper times, due to changes incurred by its command-blocking mechanism.
--- Modified executeFunction to start blocking commands that try to access or modify the data.seq table, whenever data.active is false. Also removed more primitive versions of this functionality from some commands.
+-- Modified executeFunction to start blocking commands that try to access or modify the data.seq table, whenever data.active is false. Also removed more primitive versions of this functionality from some individual commands.
 -- Changed all data-structures and data-handling involved with mode-based interpretation of key-commands.
 -- Added a visual confirmation on file-save.
 -- Removed old OSC and Extrovert-API code, which was clunky and extraneous.

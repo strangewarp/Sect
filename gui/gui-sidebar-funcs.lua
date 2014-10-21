@@ -181,7 +181,7 @@ return {
 
 	end,
 
-	-- Build a series of flat lines that summarize all currently-loaded sequences
+	-- Build a series of boxes that summarize all currently-loaded sequences
 	buildTrackBar = function(left, top, width, height)
 
 		love.graphics.setColor(data.color.window.dark)

@@ -44,21 +44,24 @@ return {
 					end
 				end
 			end
-		else -- If Cmd Mode is inactive, remove all non-NOTE commands from rendering
+		else -- If Cmd Mode is inactive, de-prioritize the rendering of all non-NOTE commands
 			for i = #notes, 1, -1 do
 				if notes[i][3][1] ~= 'note' then
-					table.remove(notes, i)
+					notes[i][1] = 'cmd-shadow'
 				end
 			end
 		end
 
 		-- Seperate notes into tables, which will be used to divide render ordering
 		local shadownotes = {}
+		local cmdnotes = {}
 		local sbordernotes = {}
 		local sbselectnotes = {}
 		local othernotes = {}
 		for _, v in pairs(notes) do
-			if v[1] == 'shadow' then
+			if v[1] == 'cmd-shadow' then
+				table.insert(cmdnotes, v)
+			elseif v[1] == 'shadow' then
 				table.insert(shadownotes, v)
 			elseif v[1] == 'other-chan' then
 				table.insert(sbordernotes, v)
@@ -71,13 +74,15 @@ return {
 
 		-- Sort notes by tick position
 		table.sort(shadownotes, function(a, b) return a[3][2] < b[3][2] end)
+		table.sort(cmdnotes, function(a, b) return a[3][2] < b[3][2] end)
 		table.sort(sbordernotes, function(a, b) return a[3][2] < b[3][2] end)
 		table.sort(sbselectnotes, function(a, b) return a[3][2] < b[3][2] end)
 		table.sort(othernotes, function(a, b) return a[3][2] < b[3][2] end)
 
 		-- Recombine the sorted tables, to render them in the order of:
 		-- shadow, other-chan, shadow-select, other.
-		notes = tableCombine(shadownotes, sbordernotes)
+		notes = tableCombine(cmdnotes, shadownotes)
+		notes = tableCombine(notes, sbordernotes)
 		notes = tableCombine(notes, sbselectnotes)
 		notes = tableCombine(notes, othernotes)
 
@@ -93,6 +98,9 @@ return {
 			if (kind == 'shadow') or (kind == 'other-chan') then
 				c1 = deepCopy(data.color.note.overlay_quiet)
 				c2 = deepCopy(data.color.note.overlay_loud)
+			elseif kind == 'cmd-shadow' then
+				c1 = deepCopy(data.color.note.cmd_bg1)
+				c2 = deepCopy(data.color.note.cmd_bg2)
 			elseif kind == 'select' then
 				c1 = deepCopy(data.color.note.select_quiet)
 				c2 = deepCopy(data.color.note.select_loud)
@@ -117,8 +125,10 @@ return {
 			-- If the note isn't to be rendered in shadow mode...
 			if kind ~= 'shadow' then
 
-				-- If the note isn't other-chan, draw a border around the note
-				if kind ~= 'other-chan' then
+				-- If the note isn't other-chan, or cmd in non-cmd-mode, then draw a border around the note
+				if (kind ~= 'other-chan')
+				and (not ((data.cmdmode ~= 'cmd') and (kind == 'cmd-shadow')))
+				then
 					love.graphics.setColor(linecolor)
 					love.graphics.rectangle("line", nleft, ntop, nx, ny)
 				end
@@ -217,6 +227,7 @@ return {
 	)
 
 		local notes = {}
+		local tally = {}
 
 		for _, two in pairs(ntab) do
 
@@ -252,6 +263,12 @@ return {
 
 			end
 
+			if ((data.cmdmode == 'cmd') and (n[1] == 'note'))
+			or ((data.cmdmode ~= 'cmd') and (n[1] ~= 'note'))
+			then
+				tally[n[2] + 1] = (tally[n[2] + 1] and (tally[n[2] + 1] + 1)) or 0
+			end
+
 			-- For every combination of on-screen X-ranges and Y-ranges,
 			-- check the note's visibility there, and render if visible.
 			for _, xr in pairs(xranges) do
@@ -266,11 +283,18 @@ return {
 					local ot
 
 					-- If Cmd Mode is active, render the note with a "stacked" top-offset
-					if data.cmdmode == "cmd" then
-						--print(data.cmdp .. " " .. hist[#hist])--debugging
-						ot = yr.b - ((hist[#hist] - data.cmdp) * data.cellheight)
+					if data.cmdmode == 'cmd' then
+						if n[1] == 'note' then
+							ot = yr.b + ((tally[n[2] + 1] + 1) * data.cellheight)
+						else
+							ot = yr.b - ((hist[#hist] - data.cmdp) * data.cellheight)
+						end
 					else -- Else, render the note with a "wrapping grid" top-offset
-						ot = yr.b - ((vp - yr.o) * data.cellheight)
+						if n[1] == 'note' then
+							ot = yr.b - ((vp - yr.o) * data.cellheight)
+						else
+							ot = yr.b - ((tally[n[2] + 1] + data.np - yr.o) * data.cellheight)
+						end
 					end
 					local ct = top + ot
 

@@ -99,6 +99,8 @@ return {
 			highlight = {230, 240, 240, 255},
 			select_quiet = {200, 200, 200, 255},
 			select_loud = {225, 20, 225, 255},
+			cmd_bg1 = {8, 255, 2, 175},
+			cmd_bg2 = {0, 255, 10, 175},
 			overlay_quiet = {6, 10, 160, 210},
 			overlay_loud = {160, 10, 10, 210},
 			overlay_select_quiet = {103, 105, 180, 210},
