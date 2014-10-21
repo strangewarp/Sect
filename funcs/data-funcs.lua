@@ -53,7 +53,7 @@ return {
 			for k, v in pairs(sidenotes) do
 				sidenotes[k] = {v, 'tp', 1}
 			end
-			modNotes(seq, sidenotes, undo)
+			modNotes(seq, sidenotes, false, undo)
 		end
 
 	end,
@@ -77,7 +77,7 @@ return {
 				for k, v in pairs(sidenotes) do
 					sidenotes[k] = {v, 'tp', -1}
 				end
-				modNotes(seq, sidenotes, undo)
+				modNotes(seq, sidenotes, false, undo)
 			end
 		end
 

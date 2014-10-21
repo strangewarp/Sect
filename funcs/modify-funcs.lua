@@ -7,11 +7,11 @@ return {
 		for k, v in pairs(seldup) do
 			seldup[k] = {v, byte, dist}
 		end
-		modNotes(data.active, seldup, undo)
+		modNotes(data.active, seldup, true, undo)
 	end,
 
 	-- Modify a collection of various notes, according to their given mod-commands
-	modNotes = function(p, ntab, undo)
+	modNotes = function(p, ntab, isselect, undo)
 
 		local snotes = {}
 
@@ -31,8 +31,10 @@ return {
 				table.insert(snotes, {'insert', m})
 
 				-- Unset the note's old selection-data entry, and build a new entry reflecting its changes
-				copyUnsetCascade('seldat', n)
-				buildTable(data.seldat, {m[2] + 1, m[4], m[5]}, m)
+				if isselect then
+					copyUnsetCascade('seldat', n)
+					buildTable(data.seldat, {m[2] + 1, m[4], m[5]}, m)
+				end
 
 			end
 

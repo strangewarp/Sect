@@ -428,7 +428,7 @@ return {
 		end
 
 		-- Send the movement-command tables to modNotes
-		modNotes(data.active, modtab, undo)
+		modNotes(data.active, modtab, true, undo)
 
 	end,
 
