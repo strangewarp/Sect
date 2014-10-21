@@ -51,7 +51,7 @@ return {
 		local sidenotes = getNotes(seq, data.tp, #data.seq[seq].tick, _, _)
 		if #sidenotes > 0 then
 			for k, v in pairs(sidenotes) do
-				sidenotes[k] = {v, 'tick', addticks}
+				sidenotes[k] = {v, 'tp', 1}
 			end
 			modNotes(seq, sidenotes, undo)
 		end
@@ -74,9 +74,8 @@ return {
 		if top < #data.seq[seq].tick then
 			local sidenotes = getNotes(seq, top + 1, #data.seq[seq].tick, _, _)
 			if #sidenotes > 0 then
-				local remrev = remticks * -1
 				for k, v in pairs(sidenotes) do
-					sidenotes[k] = {v, 'tick', remrev}
+					sidenotes[k] = {v, 'tp', -1}
 				end
 				modNotes(seq, sidenotes, undo)
 			end
