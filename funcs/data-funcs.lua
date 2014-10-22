@@ -38,7 +38,7 @@ return {
 
 	end,
 
-	-- Insert a given chunk of ticks and notes, in a given sequence, at a given point
+	-- Insert a given chunk of ticks into a given sequence, at a given point
 	insertTicks = function(seq, tick, addticks, undo)
 
 		local top = tick + (addticks - 1)
@@ -47,13 +47,18 @@ return {
 		-- Add ticks to the top of the sequence
 		growSeq(seq, addticks, undo)
 
-		-- If there are any ticks to the right of the old top-tick, adjust their notes' positions
+		-- If there are any ticks to the right of the old top-tick, adjust their contents' positions
 		local sidenotes = getNotes(seq, data.tp, #data.seq[seq].tick, _, _)
-		if #sidenotes > 0 then
+		local sidecmds = getCmds(seq, data.tp, #data.seq[seq].tick, _, 'modify')
+		if (#sidenotes > 0) or (#sidecmds > 0) then
 			for k, v in pairs(sidenotes) do
 				sidenotes[k] = {v, 'tp', 1}
 			end
+			for k, v in pairs(sidecmds) do
+				sidecmds[k] = {v[3], v[2], 'tp', 1}
+			end
 			modNotes(seq, sidenotes, false, undo)
+			modCmds(seq, sidecmds, undo)
 		end
 
 	end,
@@ -63,22 +68,44 @@ return {
 
 		local top = tick + (remticks - 1)
 
-		-- Get notes from the removal area, and remove them, into undo
+		-- Get commands from the removal area
 		local notes = getNotes(seq, tick, top, _, _)
+		local cmds = getCmds(seq, tick, top, _, 'remove')
+
+		-- Remove note-commands
 		if #notes > 0 then
 			local rem = notesToSetType(notes, 'remove')
 			setNotes(seq, rem, undo)
 		end
 
-		-- If there are any ticks to the right, adjust their notes' positions
+		-- Remove non-note commands
+		if #cmds > 0 then
+			setCmds(seq, cmds, undo)
+		end
+
+		-- If there are any ticks to the right, adjust their contents' positions
 		if top < #data.seq[seq].tick then
+
+			-- Get commands from between the removal area and the end of the sequence
 			local sidenotes = getNotes(seq, top + 1, #data.seq[seq].tick, _, _)
+			local sidecmds = getCmds(seq, top + 1, #data.seq[seq].tick, _, 'modify')
+
+			-- Move all note-commands
 			if #sidenotes > 0 then
 				for k, v in pairs(sidenotes) do
 					sidenotes[k] = {v, 'tp', -1}
 				end
 				modNotes(seq, sidenotes, false, undo)
 			end
+
+			-- Move all non-note commands
+			if #sidecmds > 0 then
+				for k, v in pairs(sidecmds) do
+					sidecmds[k] = {v[3], v[2], 'tp', -1}
+				end
+				modCmds(seq, sidecmds, undo)
+			end
+
 		end
 
 		-- Remove ticks from the now-empty top of the sequence

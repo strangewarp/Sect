@@ -33,7 +33,6 @@ return {
 			local ctab = getContents(
 				data.seq[p].tick[t],
 				{"cmd", chan or pairs, pairs},
-				false,
 				true
 			)
 
@@ -53,7 +52,7 @@ return {
 
 	-- Insert a given table of command values into a sequence
 	setCmds = function(p, cmds, undo)
-		for k, v in ipairs(cmds) do
+		for k, v in ripairs(cmds) do
 			setCmd(p, v, undo)
 		end
 	end,

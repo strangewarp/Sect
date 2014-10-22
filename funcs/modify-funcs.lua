@@ -10,6 +10,32 @@ return {
 		modNotes(data.active, seldup, true, undo)
 	end,
 
+	-- Modify a collection of various cmds, according to their given mod-commands
+	modCmds = function(p, cmds, undo)
+
+		-- Get the given commands' positions in the given sequence, and remove them
+		for ck, ctab in ripairs(cmds) do
+			local c, key, byte, dist = unpack(ctab)
+			if getIndex(data.seq[p].tick[c[2] + 1], {"cmd", c[4], key}) then
+				setCmd(p, {'remove', key, c}, undo)
+			else
+				table.remove(cmds, ck)
+			end
+		end
+
+		-- Take the given commands, modify their position, and put them on unclaimed keys
+		for ck, ctab in pairs(cmds) do
+			local c, key, byte, dist = unpack(ctab)
+			local m = modByte(p, deepCopy(c), byte, dist)
+			local newcheck = getIndex(data.seq[p].tick[m[2] + 1], {"cmd", m[4]})
+			local newkey = (newcheck and (#newcheck + 1)) or 1
+			cmds[ck] = {'insert', newkey, m}
+		end
+
+		setCmds(p, cmds, undo)
+
+	end,
+
 	-- Modify a collection of various notes, according to their given mod-commands
 	modNotes = function(p, ntab, isselect, undo)
 
