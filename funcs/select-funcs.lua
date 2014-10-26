@@ -214,7 +214,7 @@ return {
 			paste[i][2] = wrapNum(
 				paste[i][2] + data.tp + data.copyoffset,
 				0,
-				#data.seq[data.active] - 1
+				#data.seq[data.active].tick - 1
 			)
 		end
 

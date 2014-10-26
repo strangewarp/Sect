@@ -11,9 +11,9 @@
 
 1.1
 
--- TODO: Fix fatal error on cut/paste.
+-- TODO: Fix fatal error on moveTickPointerByNote.
 
--- TODO: Fix mouse's left-click note-selection.
+-- TODO: Fix fatal error on mouse's left-click note-selection.
 
 -- TODO: Check whether saveFile and loadFile are truly compatible with non-NOTE commands.
 
