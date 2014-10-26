@@ -122,7 +122,7 @@ return {
 
 			-- Populate the lower-notes and higher-notes tabs, based on the tick's notes
 			local ntab = getContents(data.seq[data.active].tick[tick], {"note", pairs, pairs})
-			for _, n in pairs(n) do
+			for _, n in pairs(ntab) do
 				if n[5] < note then
 					table.insert(lower, n[5])
 				elseif n[5] > note then
