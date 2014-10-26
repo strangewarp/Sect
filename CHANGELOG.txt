@@ -11,7 +11,7 @@
 
 1.1
 
--- TODO: Fix fatal error on mouse's left-click note-selection.
+-- TODO: Render other-channel-notes in channel order, with highest channels underneath, and lowest channels on top.
 
 -- TODO: Check whether saveFile and loadFile are truly compatible with non-NOTE commands.
 
@@ -22,6 +22,9 @@
 ---- sub-task: add these func-names to data.undocmds
 
 -- TODO: Add a "Quantize" value, which will make incoming notes and cmds in Play Mode (from both keyboard-piano and MIDI IN) stick to the nearest Quantize-tick.
+
+-- TODO: Add a "Factor-Display" option, which toggles highlighting of factor-ticks of the overall beat, with "all" as its default setting.
+---- sub-task: recalculate these values on every TPQ-modifying command
 
 -- TODO: Add a simple metronome in Play Mode, which plays a tick on every multiple of the Quantize value.
 ---- sub-task: Make metronome toggleable to any number lower than TPQ*4.

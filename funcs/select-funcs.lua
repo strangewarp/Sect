@@ -67,14 +67,19 @@ return {
 		-- Merge selected notes from the active seq's active channel into selection-memory table
 		if cmd ~= "clear" then
 
-			local n
+			local ntab
 			if cmd == "chan" then -- If chan-command, select notes from active channel only
-				n = getNotes(data.active, data.sel.l, data.sel.r, data.sel.b, data.sel.t, data.chan)
+				ntab = getNotes(data.active, data.sel.l, data.sel.r, data.sel.b, data.sel.t, data.chan)
 			else -- Else, select all notes
-				n = getNotes(data.active, data.sel.l, data.sel.r, data.sel.b, data.sel.t, _)
+				ntab = getNotes(data.active, data.sel.l, data.sel.r, data.sel.b, data.sel.t, _)
 			end
 
-			populateSelTable(n)
+			local seltab = getContents(data.seldat, {pairs, pairs, pairs})
+
+			ntab = tableCombine(ntab, seltab)
+			ntab = removeDuplicates(ntab)
+
+			populateSelTable(ntab)
 
 		end
 

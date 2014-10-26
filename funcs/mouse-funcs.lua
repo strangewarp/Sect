@@ -131,64 +131,53 @@ return {
 		-- Get the cursor's tick and note coordinates
 		local newtick, newnote = getCursorCell(xanchor, yanchor, x, y)
 
+		local bestmatch = false
+
 		-- Figure out whether the mouse-position overlaps with a note
-		local closest = false
-		local modtick = newtick
-		for tk, t in pairs(data.seq[data.active].tick) do
+		local ntab = getContents(data.seq[data.active].tick, {pairs, 'note', pairs, pairs})
+		for _, n in pairs(ntab) do
 
-			if t.note ~= nil then
-				for ck, c in pairs(t.note) do
-					for nk, n in pairs(c) do
+			-- If the pitch matches the new-note-position...
+			if newnote == n[5] then
 
-						-- Get the note's pitch or pitch-equivalent
-						local pitch = n[5]
+				local low = n[2] + 1
+				local high = n[2] + n[3]
 
-						-- If the pitch matches the new-note-position...
-						if (newnote == pitch) then
-
-							local low = vv.tick
-							local high = low
-
-							-- If the note is a note-note, get and wrap its high-point
-							if n[1] == 'note' then
-								high = n[2] + n[3]
-								if high > ticks then
-									high = wrapNum(high + 1, 1, ticks)
+				-- If the note contains the clicked tick, check it against other candidates
+				if rangeCheck(newtick, low, high) then
+					if bestmatch then
+						if bestmatch[4] == data.chan then
+							if n[4] == data.chan then
+								if n[3] < bestmatch[3] then
+									bestmatch = n
 								end
 							end
-
-							-- If the note wrapped around, adjust its virtual bounds
-							if low > high then
-								if newtick < high then
-									low = low - ticks
-								else
-									high = high + ticks
-								end
+						else
+							if n[4] == data.chan then
+								bestmatch = n
+							elseif n[4] < bestmatch[4] then
+								bestmatch = n
 							end
-
-							-- If the note contains the clicked tick,
-							-- and starts later than other matching candidates,
-							-- set modtick to that note's first tick.
-							if rangeCheck(newtick, low, high) then
-								if (not closest) or (low > closest) then
-									closest = low
-									modtick = vv.tick
-								end
-							end
-
 						end
+					else
+						bestmatch = n
 					end
 				end
 
 			end
+
 		end
+
+		-- Modify the target tick and note, based on the presence or absence of a clicked note
+		local modtick = (bestmatch and (bestmatch[2] + 1)) or newtick
+		local modnote = (bestmatch and bestmatch[5]) or newnote
 
 		-- If the right button was clicked...
 		if button == 'r' then
 
 			-- Set tick and note pointers to new positions
 			data.tp = modtick
-			data.np = newnote
+			data.np = modnote
 
 			-- Set mouse-position to the anchor point
 			if data.mousetocenter then
@@ -197,24 +186,59 @@ return {
 
 		else -- Else, if the left button was clicked...
 
+			-- Check whether the Shift key is being held down
+			local shiftheld = entryExists(data.keys, "shift")
+
 			-- If a note overlapped the mouse-click...
-			if closest then
+			if bestmatch then
 
 				-- Clear any selection-window that might be active
 				toggleSelect("clear")
 
-				-- If shift isn't being held, clear the select-memory
-				if not entryExists(data.keys, "shift") then
-					clearSelectMemory()
+				-- Check whether the clicked note is already within the select-table
+				local exists = getIndex(data.seldat, {modtick, bestmatch[4], modnote})
+
+				if exists then -- If the selection-index exists...
+
+					if shiftheld then -- If shift is held...
+
+						-- Unset the individual note's index
+						copyUnsetCascade('seldat', bestmatch)
+
+					else -- If shift isn't being held...
+
+						-- Get currently-existing select items
+						local selitems = getContents(data.seldat, {pairs, pairs, pairs})
+
+						-- Clear the select memory
+						toggleSelect("clear")
+						clearSelectMemory()
+
+						-- If the matching note wasn't the only active select note,
+						-- then build a select-index for it.
+						if #selitems ~= 1 then
+							buildTable(data.seldat, {modtick, bestmatch[4], modnote}, bestmatch)
+						end
+
+					end
+
+				else -- If the selection-index doesn't exist...
+
+					-- If shift isn't held, clear the old select data
+					if not shiftheld then
+						toggleSelect("clear")
+						clearSelectMemory()
+					end
+
+					-- Build the note's selection-index
+					buildTable(data.seldat, {modtick, bestmatch[4], modnote}, bestmatch)
+
 				end
 
-				-- Select the note at the click location, and clear the select-window.
-				toggleSelect("top", modtick, newnote)
-				toggleSelect("clear")
+			else -- If no note was clicked...
 
-			else -- If no note was clicked, and shift isn't held, clear select-memory
-
-				if not entryExists(data.keys, "shift") then
+				-- If shift isn't held, clear select-memory
+				if not shiftheld then
 					toggleSelect("clear")
 					clearSelectMemory()
 				end
