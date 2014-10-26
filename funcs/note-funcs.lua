@@ -150,7 +150,6 @@ return {
 
 		-- Add all addnotes while building sparse tables, and shape undo tables accordingly
 		for k, v in pairs(addnotes) do
-			print("add! "..table.concat(v," "))--debugging
 			buildTable(data.seq[p].tick[v[2] + 1], {"note", v[4], v[5]}, v)
 			table.insert(undonotes, {'remove', deepCopy(v)})
 			table.insert(redonotes, {'insert', deepCopy(v)})
@@ -269,15 +268,15 @@ return {
 		else -- Else, delete the active note
 
 			-- If any notes are selected, slate them for deletion
-			if #data.seldat > 0 then
-				delnotes = notesToSetType(data.seldat, 'remove')
+			if next(data.seldat) ~= nil then
+				delnotes = getContents(data.seldat, {pairs, pairs, pairs})
 			else -- Else, if no notes are selected, slate the current pointer-pos's note for deletion
 				delnotes = getNotes(data.active, data.tp, data.tp, data.np, data.np, data.chan)
-				delnotes = notesToSetType(delnotes, 'remove')
 			end
 
 			-- If any matching notes were found, remove them
 			if #delnotes > 0 then
+				delnotes = notesToSetType(delnotes, 'remove')
 				setNotes(data.active, delnotes, undo)
 			end
 

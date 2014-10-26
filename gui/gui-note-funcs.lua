@@ -113,7 +113,13 @@ return {
 			end
 
 			-- Highlight note-colors for notes on the tp/np axes
-			c1, c2, linecolor = applyNoteHighlight(n, c1, c2)
+			if (data.cmdmode ~= 'cmd') and (n[1] == 'note') then
+				c1, c2, linecolor = applyNoteHighlight(n, c1, c2)
+			else
+				c1 = deepCopy(data.color.note.cmd_bg1)
+				c2 = deepCopy(data.color.note.cmd_bg2)
+				linecolor = deepCopy(data.color.note.cmd_border)
+			end
 
 			-- Get the note's velocity-color
 			local notecolor = getVelocityColor(n, c1, c2)

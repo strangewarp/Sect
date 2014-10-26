@@ -2,7 +2,7 @@
 local D = {}
 
 -- VERSIONING VARS --
-D.version = "1.1-a47" -- Holds Sect's current version-number
+D.version = "1.1-a50" -- Holds Sect's current version-number
 
 -- LOVE ENGINE VARS --
 D.updatespeed = 0.01 -- Speed at which to attempt to update program-state
@@ -115,7 +115,7 @@ D.playoffset = 0 -- Holds the sub-delta time offset for tick-playing
 D.modenames = { -- Full names of the various mode types
 	entry = "entry",
 	gen = "generator",
-	cmd = "midi-cmd",
+	cmd = "cmd",
 }
 D.cmdmode = "entry" -- Mode flag, for accepting certain command types
 D.loading = true -- True while loading; false after loading is done

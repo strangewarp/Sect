@@ -110,13 +110,14 @@ return {
 			local addtab4 = {
 				"velo " .. data.velo,
 				"duration " .. data.dur,
-				"spacing " .. data.spacing,
 				"",
 			}
 			outtab = tableCombine(outtab, addtab4)
 		end
 
 		local addtab5 = {
+			"spacing " .. data.spacing,
+			"",
 			"bpm " .. data.bpm,
 			"tpq " .. data.tpq,
 			"",

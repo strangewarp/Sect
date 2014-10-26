@@ -11,8 +11,9 @@
 
 1.1
 
--- TODO: Show "spacing" value in Cmd Mode's sidebar.
--- TODO: Stop brightening color of Cmd Mode notes based on tick-pointer.
+-- TODO: Fix fatal error on cut/paste.
+
+-- TODO: Fix mouse's left-click note-selection.
 
 -- TODO: Check whether saveFile and loadFile are truly compatible with non-NOTE commands.
 
@@ -22,15 +23,19 @@
 ---- sub-task: construct undo-table at end of function
 ---- sub-task: add these func-names to data.undocmds
 
--- TODO: Add a simple metronome in Play Mode, and a flag-command to toggle its activity.
+-- TODO: Add a "Quantize" value, which will make incoming notes and cmds in Play Mode (from both keyboard-piano and MIDI IN) stick to the nearest Quantize-tick.
+
+-- TODO: Add a simple metronome in Play Mode, which plays a tick on every multiple of the Quantize value.
 ---- sub-task: Make metronome toggleable to any number lower than TPQ*4.
 ---- sub-task: On TPQ-change, reset metro value to TPQ value.
-
--- TODO: Add user-toggleable "Play-Quantize" flag, which will make incoming notes and cmds in Play Mode (from both keyboard-piano and MIDI IN) stick to the nearest metro-tick.
 
 -- TODO: Fix deletion of dummy-file used to test user-directory's validity.
 
 -- TODO: Make hotseat-toggling and loadFile commands available when no sequences are loaded
+
+-- TODO: remove "debugging" messages
+-- TODO: comment out console again
+-- TODO: change data.version back to "1.1"
 
 -- REMINDER: Data structures:
 ---- data.seq[a].tick[b].note[c][d] = a single unique note (c=chan, d=pitch)
@@ -41,10 +46,6 @@
 ---- data.seldat[tick][chan][pitch] = a single unique note
 
 -- REMINDER: Use SPARSE TABLES: a channel table should only exist if that channel is populated by something
-
--- TODO: remove "debugging" messages
--- TODO: comment out console again
--- TODO: change data.version back to "1.1"
 
 -- Added full MIDI-IN, for composition via external MIDI devices. Due to how Spacing and Play Mode interact with note-entry, there doesn't need to be any explicit tabbing between input-types.
 -- Created a two-way MIDI-over-UDP communications system, designed to send MIDI between Sect and user devices, via SectMidiClient.
