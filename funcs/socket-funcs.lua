@@ -4,7 +4,7 @@ return {
 	-- Parse an incoming MIDI-over-UDP command
 	getMidiMessage = function(m)
 
-		print("UDP-MIDI IN: " .. m)
+		--print("UDP-MIDI IN: " .. m)
 
 		-- If there's no active sequence, or recording is off, then abort function
 		if (not data.active) or (not data.recording) then
@@ -48,7 +48,8 @@ return {
 			if data.cmdmode == "cmd" then
 
 				-- Get insertion-position for new command
-				local cmdpos = #data.seq[data.active].tick[data.tp][data.chan].cmd + 1
+				local exists = getIndex(data.seq[data.active].tick, {data.tp, 'cmd'})
+				local cmdpos = (exists and (#exists + 1)) or 1
 
 				-- Call setCmd from within executeFunction, to spawn a new undo chunk
 				executeFunction("setCmd", data.active, {'insert', cmdpos, n}, false)
@@ -64,7 +65,7 @@ return {
 
 		local d = data.bpm .. " " .. data.tpq .. " " .. table.concat(n, " ")
 
-		print("UDP-MIDI OUT: " .. d)
+		--print("UDP-MIDI OUT: " .. d)
 
 		data.udpout:send(d)
 

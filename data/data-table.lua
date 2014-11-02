@@ -2,7 +2,7 @@
 local D = {}
 
 -- VERSIONING VARS --
-D.version = "1.1-a51" -- Holds Sect's current version-number
+D.version = "1.1-a52" -- Holds Sect's current version-number
 
 -- LOVE ENGINE VARS --
 D.updatespeed = 0.01 -- Speed at which to attempt to update program-state
@@ -127,7 +127,8 @@ D.chanview = true -- Toggles rendering chan-nums on notes
 -- Baseline contents for new sequences
 D.baseseq = {
 	overlay = false, -- Toggles whether the seq shadows other seqs
-	tick = {}, -- Table that holds all ticks (each holds its own notes)
+	tick = {}, -- Holds all populated ticks (each holds its own notes)
+	total = 0, -- Tracks the total size of the sequence, in ticks
 }
 
 -- Boundaries for user-shiftable control vars

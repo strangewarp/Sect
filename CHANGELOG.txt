@@ -6,22 +6,22 @@
 
 1.1.1
 
--- TODO: Extend sparse-table data-structures to individual ticks within the sequence; keep track of a sequence's total ticks with a "total" var instead. This will greatly reduce lag when dealing with many sequences.
 -- TODO: Remove unnecessary 'undo-suppression' vars from function-calls and undo-funcs.
+-- TODO: Refactor GUI rendering pathway to reduce lag.
+-- TODO: Change data.seldat to be purely key-based.
 
 1.1
 
--- TODO: Render other-channel-notes in channel order, with highest channels underneath, and lowest channels on top.
-
--- TODO: Check whether saveFile and loadFile are truly compatible with non-NOTE commands.
+-- TODO: Change Cmd Mode, and all cmd-handling routines, to have no seperation between channels of cmds.
+---- sub-task: change all setCmd/setCmds calls, and all getCmds calls that use 'channel' or 'kind'.
+---- sub-task: change seqUnsetCascade to adhere to the new cmd data structure.
 
 -- TODO: Test all commands thoroughly again, to check for bugs caused by refactoring / new features.
 
 -- TODO: Add "Stretch" and "Squash" commands, which multiply or divide both the duration and the starting tick of every selected note, based on spacing value, and rounded to the nearest tick-value.
+---- sub-task: make compatible with Cmd Mode (it should modify start-tick position)
 ---- sub-task: construct undo-table at end of function
 ---- sub-task: add these func-names to data.undocmds
-
--- TODO: Add a "Quantize" value, which will make incoming notes and cmds in Play Mode (from both keyboard-piano and MIDI IN) stick to the nearest Quantize-tick.
 
 -- TODO: Add a "Factor-Display" option, which toggles highlighting of factor-ticks of the overall beat, with "all" as its default setting.
 ---- sub-task: recalculate these values on every TPQ-modifying command
@@ -30,7 +30,8 @@
 ---- sub-task: Make metronome toggleable to any number lower than TPQ*4.
 ---- sub-task: On TPQ-change, reset metro value to TPQ value.
 
--- TODO: Fix deletion of dummy-file used to test user-directory's validity.
+-- TODO: Add a "Quantize" value, which will make incoming notes and cmds in Play Mode (from both keyboard-piano and MIDI IN) stick to the nearest Quantize-tick.
+---- sub-task: make compatible with Cmd Mode
 
 -- TODO: Make hotseat-toggling and loadFile commands available when no sequences are loaded
 
@@ -54,11 +55,13 @@
 -- Added "Select Chan" command, a version of Select-All that only applies to notes in the active seq's active channel.
 -- Added "CMD mode", where a sequence's non-NOTE commands are held and modified.
 -- Added Cmd Mode versions of various editor commands.
+-- Started rendering notes on non-active channels in reverse channel order, with highest channels underneath, and lowest channels on top. Active channel's notes are rendered on top of that.
 -- Started showing the active sequence's Cmd Mode commands as Shadow Mode notes, with unique coloration, when Cmd Mode isn't active; and also when a sequence with non-NOTE commands is a Shadow Mode sequence.
 -- Changed how Shadow Mode is applied to a sequence's NOTE commands while Cmd Mode is active.
+-- Refactored data-structures so that tick tables themselves are also sparse; and added a "total" variable to each seq table to keep track of how many ticks are in a sequence.
 -- Wrote buildTable, getIndex, getContents, seqUnsetCascade, and copyUnsetCascade, which manipulate strictly-defined sparse tables within the new data-structure-space. This allows notes to be stored explicitly, rather than in unordered tables; and yet also prevents said storage from incurring massive lag.
 -- Converted all manipulations within the space of "data.seq[n].tick" to use the new functions in index-funcs.lua, rather than touching the tables directly.
--- Changed data-structures to be in the format of "data.seq[a].tick[b].note[c][d]", "data.seq[a].tick[b].cmd[c][d]", "data.seldat[a][b][c]", and "data.copydat[a][b][c]".
+-- Changed data-structures to be in the format of "data.seq[a].tick[b].note[c][d]", "data.seq[a].tick[b].cmd[c]", "data.seldat[a][b][c]", and "data.copydat[a][b][c]".
 -- Bounded Generator Mode scale-size and wheel-size to 7 (used to be 8), to make active data tables more sane.
 -- Changed Play Mode behavior, to repeat the contents of smaller sequences across larger sequences.
 -- Removed moveNotes, and rewrote modNotes to make more sense.

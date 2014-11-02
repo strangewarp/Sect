@@ -108,7 +108,7 @@ return {
 		local genwheels = {}
 		local putticks = {}
 
-		local ticks = #data.seq[data.active].tick
+		local ticks = data.seq[data.active].total
 
 		local npoffset = dist + (data.np - (data.np % 12))
 

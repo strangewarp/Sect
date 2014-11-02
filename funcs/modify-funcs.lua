@@ -16,7 +16,7 @@ return {
 		-- Get the given commands' positions in the given sequence, and remove them
 		for ck, ctab in ripairs(cmds) do
 			local c, key, byte, dist = unpack(ctab)
-			if getIndex(data.seq[p].tick[c[2] + 1], {"cmd", c[4], key}) then
+			if getIndex(data.seq[p].tick, {c[2] + 1, "cmd", c[4], key}) then
 				setCmd(p, {'remove', key, c}, undo)
 			else
 				table.remove(cmds, ck)
@@ -27,7 +27,7 @@ return {
 		for ck, ctab in pairs(cmds) do
 			local c, key, byte, dist = unpack(ctab)
 			local m = modByte(p, deepCopy(c), byte, dist)
-			local newcheck = getIndex(data.seq[p].tick[m[2] + 1], {"cmd", m[4]})
+			local newcheck = getIndex(data.seq[p].tick, {m[2] + 1, "cmd"})
 			local newkey = (newcheck and (#newcheck + 1)) or 1
 			cmds[ck] = {'insert', newkey, m}
 		end
@@ -47,7 +47,7 @@ return {
 			local n, byte, dist = unpack(ntab)
 
 			-- If the note exists in the given sequence...
-			if getIndex(data.seq[p].tick[n[2] + 1], {"note", n[4], n[5]}) then
+			if getIndex(data.seq[p].tick, {n[2] + 1, "note", n[4], n[5]}) then
 
 				-- Build a new note via the modByte command
 				local m = modByte(p, deepCopy(n), byte, dist)
@@ -91,14 +91,89 @@ return {
 
 		-- Change the byte-value, and wrap it to its proper boundaries
 		if byte == "tp" then
-			n[bk] = wrapNum(n[bk] + (dist * math.max(1, data.spacing)), 0, #data.seq[p].tick - 1)
+			n[bk] = wrapNum(n[bk] + (dist * math.max(1, data.spacing)), 0, data.seq[p].total - 1)
 		elseif byte == "dur" then
-			n[bk] = clampNum(n[bk] + (dist * math.max(1, data.spacing)), 1, #data.seq[p].tick - n[2])
+			n[bk] = clampNum(n[bk] + (dist * math.max(1, data.spacing)), 1, data.seq[p].total - n[2])
 		else
 			n[bk] = wrapNum(n[bk] + dist, data.bounds[byte])
 		end
 
 		return n
+
+	end,
+
+	-- Humanize the volumes of the currently selected notes
+	humanizeNotes = function(undo)
+
+		-- If no notes are selected, abort function
+		if next(data.seldat) == nil then
+			return nil
+		end
+
+		-- Get a flattened table of all selected notes
+		local notes = getContents(data.seldat, {pairs, pairs, pairs})
+
+		-- If no notes are selected, abort function
+		if #notes == 0 then
+			return nil
+		end
+
+		-- For every applicable note...
+		for k, v in pairs(notes) do
+
+			-- Change its velocity randomly, bounded by data.velo value
+			local rand = math.random(0, data.velo)
+			local newvelo = clampNum(v[6] + (roundNum(data.velo / 2) - rand), data.bounds.velo)
+			notes[k][6] = newvelo
+
+			-- Update selected notes with their new velocities
+			data.seldat[v[2] + 1][v[4]][v[5]] = deepCopy(notes[k])
+
+			-- Convert modified notes into setNotes commands
+			notes[k] = {'insert', notes[k]}
+
+		end
+
+		-- Use setNotes to replace the seq-notes with corresponding selection-tab notes
+		setNotes(data.active, notes, undo)
+
+	end,
+
+	-- Quantize the tick-positions of the currently selected notes, based on current spacing
+	quantizeNotes = function(undo)
+
+		-- If no notes are selected, abort function
+		if next(data.seldat) == nil then
+			return nil
+		end
+
+		-- If spacing is too slim for quantization to have any effect, abort function
+		if data.spacing < 2 then
+			return nil
+		end
+
+		local modtab = {}
+
+		local ticks = data.seq[data.active].total
+
+		-- For every currently-selected note, prioritizing the most recently selected first...
+		for k, v in ripairs(data.seldat) do
+
+			-- Get the note's left and right distances from the spacing value
+			local ldist = -1 * wrapNum(v[2], 0, data.spacing - 1)
+			local rdist = ldist + data.spacing
+			local shift = ldist
+			if rdist < math.abs(ldist) then
+				shift = rdist
+			end
+
+			-- Build the note's section of the movement-command table
+			table.insert(modtab, {v, "tick", shift})
+
+		end
+
+		-- Send the movement-command tables to modNotes
+		modNotes(data.active, modtab, true, undo)
 
 	end,
 

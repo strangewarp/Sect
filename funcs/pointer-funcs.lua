@@ -3,7 +3,7 @@ return {
 	-- Normalize all pointers (e.g. after a command that changes seq length)
 	normalizePointers = function()
 	
-		local tlimit = (data.active and #data.seq[data.active].tick) or 1
+		local tlimit = (data.active and data.seq[data.active].total) or 1
 
 		-- Normalize tick and note pointers
 		data.tp = (rangeCheck(data.tp, 1, tlimit) and data.tp) or 1
@@ -11,7 +11,7 @@ return {
 
 		-- Normalize Cmd Mode pointer
 		if data.active and (data.cmdmode == 'cmd') then
-			local allcmds = getContents(data.seq[data.active].tick[data.tp], {'cmd', pairs, pairs})
+			local allcmds = getContents(data.seq[data.active].tick, {data.tp, 'cmd', pairs})
 			data.cmdp = (rangeCheck(data.cmdp, 1, #allcmds) and data.cmdp) or 1
 		end
 
@@ -39,7 +39,7 @@ return {
 			return nil
 		end
 
-		local allcmds = getContents(data.seq[data.active].tick[data.tp], {"cmd", pairs, pairs})
+		local allcmds = getContents(data.seq[data.active].tick, {data.tp, "cmd", pairs})
 
 		data.cmdp = wrapNum(data.cmdp + dist, 1, math.max(1, #allcmds))
 
@@ -56,7 +56,7 @@ return {
 			return nil
 		end
 
-		data.tp = wrapNum(data.tp + (dist * data.spacing), 1, #data.seq[data.active].tick)
+		data.tp = wrapNum(data.tp + (dist * data.spacing), 1, data.seq[data.active].total)
 
 		print("moveTickPointer: moved to tick " .. data.tp)
 
@@ -79,7 +79,7 @@ return {
 		-- for a number of repetitions equal to the given dist's absoute value.
 		repeat
 			repeat
-				pos = wrapNum(pos + dir, 1, #data.seq[data.active].tick)
+				pos = wrapNum(pos + dir, 1, data.seq[data.active].total)
 			until ((pos - 1) % (data.tpq * 4)) == 0
 			dist = dist - dir
 		until dist == 0
@@ -102,7 +102,7 @@ return {
 		local tick = data.tp
 		local note = data.np
 
-		local ticks = #data.seq[data.active].tick
+		local ticks = data.seq[data.active].total
 		local dir = math.max(-1, math.min(1, dist)) 
 		local goal = math.abs(dist)
 
@@ -121,7 +121,7 @@ return {
 			tick = wrapNum(data.tp + offset, 1, ticks)
 
 			-- Populate the lower-notes and higher-notes tabs, based on the tick's notes
-			local ntab = getContents(data.seq[data.active].tick[tick], {"note", pairs, pairs})
+			local ntab = getContents(data.seq[data.active].tick, {tick, "note", pairs, pairs})
 			for _, n in pairs(ntab) do
 				if n[5] < note then
 					table.insert(lower, n[5])

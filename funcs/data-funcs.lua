@@ -9,9 +9,7 @@ return {
 	-- Insert a number of ticks at the end of a sequence
 	growSeq = function(seq, num, undo)
 
-		for i = 1, num do
-			table.insert(data.seq[seq].tick, {})
-		end
+		data.seq[i].total = data.seq[i].total + num
 
 		-- Build undo tables
 		addUndoStep(
@@ -25,9 +23,7 @@ return {
 	-- Remove a number of ticks from the end of a sequence
 	shrinkSeq = function(seq, num, undo)
 
-		for i = 1, num do
-			table.remove(data.seq[seq].tick, #data.seq[seq].tick)
-		end
+		data.seq[i].total = data.seq[i].total - num
 
 		-- Build undo tables
 		addUndoStep(
@@ -41,15 +37,12 @@ return {
 	-- Insert a given chunk of ticks into a given sequence, at a given point
 	insertTicks = function(seq, tick, addticks, undo)
 
-		local top = tick + (addticks - 1)
-		local oldsize = #data.seq[seq].tick
-
 		-- Add ticks to the top of the sequence
 		growSeq(seq, addticks, undo)
 
 		-- If there are any ticks to the right of the old top-tick, adjust their contents' positions
-		local sidenotes = getNotes(seq, data.tp, #data.seq[seq].tick, _, _)
-		local sidecmds = getCmds(seq, data.tp, #data.seq[seq].tick, _, 'modify')
+		local sidenotes = getNotes(seq, data.tp, data.seq[seq].total, _, _)
+		local sidecmds = getCmds(seq, data.tp, data.seq[seq].total, _, 'modify')
 		if (#sidenotes > 0) or (#sidecmds > 0) then
 			for k, v in pairs(sidenotes) do
 				sidenotes[k] = {v, 'tp', 1}
@@ -84,11 +77,11 @@ return {
 		end
 
 		-- If there are any ticks to the right, adjust their contents' positions
-		if top < #data.seq[seq].tick then
+		if top < data.seq[seq].total then
 
 			-- Get commands from between the removal area and the end of the sequence
-			local sidenotes = getNotes(seq, top + 1, #data.seq[seq].tick, _, _)
-			local sidecmds = getCmds(seq, top + 1, #data.seq[seq].tick, _, 'modify')
+			local sidenotes = getNotes(seq, top + 1, data.seq[seq].total, _, _)
+			local sidecmds = getCmds(seq, top + 1, data.seq[seq].total, _, 'modify')
 
 			-- Move all note-commands
 			if #sidenotes > 0 then
@@ -120,7 +113,7 @@ return {
 
 	-- Remove a number of ticks based on data.spacing, at the current position
 	removeSpacingTicks = function(undo)
-		local num = clampNum(data.spacing, 0, #data.seq[data.active].tick - data.tp)
+		local num = clampNum(data.spacing, 0, data.seq[data.active].total - data.tp)
 		removeTicks(data.active, data.tp, num, undo)
 	end,
 
@@ -129,10 +122,8 @@ return {
 
 		local newseq = deepCopy(data.baseseq)
 
-		-- Add dummy-ticks to the sequence, to prevent errors
-		for i = 1, data.tpq * 4 do
-			newseq.tick[i] = {}
-		end
+		-- Add dummy-ticks to the sequence's tick-total, to prevent errors
+		newseq.total = data.tpq * 4
 
 		-- If no sequences exist, set the active pointer and insert-point to 1
 		if data.active == false then
@@ -167,7 +158,7 @@ return {
 		end
 
 		-- Gather all notes from the sequence, set them to false, and remove them
-		local removenotes = getNotes(seq, 1, #data.seq[seq].tick, _, _)
+		local removenotes = getNotes(seq, 1, data.seq[seq].total, _, _)
 		if #removenotes > 0 then
 			removenotes = notesToSetType(removenotes, 'remove')
 			setNotes(seq, removenotes, undo)

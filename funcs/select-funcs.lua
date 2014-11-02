@@ -45,7 +45,7 @@ return {
 		elseif cmd == "all" then -- Select all
 
 			data.selbot = {
-				x = #data.seq[data.active].tick,
+				x = data.seq[data.active].total,
 				y = data.bounds.np[1],
 			}
 
@@ -135,8 +135,7 @@ return {
 			local selnotes = getContents(data.seldat, {pairs, pairs, pairs})
 
 			for nk, n in ripairs(selnotes) do
-				local exists = getIndex(data.seq[data.active].tick, {n[2] + 1, 'note', n[4], n[5]})
-				if not exists then
+				if not getIndex(data.seq[data.active].tick, {n[2] + 1, 'note', n[4], n[5]}) then
 					copyUnsetCascade('seldat', n)
 				end
 			end
@@ -148,9 +147,6 @@ return {
 	-- Copy the currently selected chunk of notes and ticks
 	copySelection = function(add)
 
-		-- Get duplicates of the notes in selection-memory
-		local s = deepCopy(data.seldat)
-
 		-- If there is no selection window, use tick-pointer for offset
 		local offpoint = data.sel.l or data.tp
 
@@ -159,13 +155,12 @@ return {
 			data.copydat = {}
 		end
 
+		-- Get the contents of the selection-table
+		local selitems = getContents(data.seldat, {pairs, pairs, pairs})
+
 		-- Put the select-table's contents into the copy-table
-		for tk, t in pairs(s) do
-			for ck, c in pairs(t) do
-				for nk, n in pairs(c) do
-					buildTable(data.copydat, {tk, ck, nk}, deepCopy(n))
-				end
-			end
+		for _, n in pairs(c) do
+			buildTable(data.copydat, {n[2] + 1, n[4], n[5]}, deepCopy(n))
 		end
 
 		-- If any notes have been copied, get a pointer-offset value
@@ -173,8 +168,7 @@ return {
 
 			-- Search for lowest tick, and create an offset value based on it
 			local offset = offpoint
-			local contents = getContents(s, {pairs, pairs, pairs})
-			for _, n in pairs(contents) do
+			for _, n in pairs(selitems) do
 				local newoff = n[2] - data.tp
 				offset = math.min(offset, newoff)
 			end
@@ -196,9 +190,7 @@ return {
 
 		-- Put select-notes into a flat table, flagged for removal
 		local remnotes = getContents(data.seldat, {pairs, pairs, pairs})
-		for k, v in pairs(remnotes) do
-			remnotes[k] = {'remove', v}
-		end
+		remnotes = notesToSetType(remnotes, 'remove')
 
 		-- Remove the selected notes from the seq
 		setNotes(data.active, remnotes, undo)
@@ -219,7 +211,7 @@ return {
 			paste[i][2] = wrapNum(
 				paste[i][2] + data.tp + data.copyoffset,
 				0,
-				#data.seq[data.active].tick - 1
+				data.seq[data.active].total - 1
 			)
 		end
 
@@ -241,7 +233,7 @@ return {
 			return nil
 		end
 
-		local ticks = #data.seq[data.active].tick
+		local ticks = #ata.seq[data.active].total
 		local tleft = math.huge
 		local tright = -math.huge
 		local iter = 1
@@ -273,10 +265,7 @@ return {
 			-- Adjust the contents of the paste-table relative to the tick-pointer,
 			-- increasing the paste-chunk multiplier on each iteration.
 			for k, v in pairs(paste) do
-				paste[k][2] = wrapNum(
-					v + data.tp + ((iter - 1) * size),
-					0, ticks - 1
-				)
+				paste[k][2] = wrapNum(v + data.tp + ((iter - 1) * size), 0, ticks - 1)
 			end
 
 			iter = iter + 1

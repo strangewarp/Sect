@@ -146,7 +146,7 @@ return {
 		local beatthresh = data.tpq / 2
 
 		-- Get the number of ticks in the active sequence, and global notes
-		local ticks = #data.seq[data.active].tick
+		local ticks = data.seq[data.active].total
 		local notes = data.bounds.np[2] - data.bounds.np[1]
 
 		-- Get visible/invisible versions of the beat-color, for mixing
@@ -305,8 +305,8 @@ return {
 			-- wrap the shadow-seq onto the active-seq accordingly.
 			local tempxr = deepCopy(xranges)
 			if snum ~= data.active then
-				if #s.tick ~= ticks then
-					tempxr = getTileAxisBounds(0, xfull, tboundary, data.cellwidth * #s.tick)
+				if s.total ~= ticks then
+					tempxr = getTileAxisBounds(0, xfull, tboundary, data.cellwidth * s.total)
 				end
 			end
 
@@ -323,7 +323,16 @@ return {
 					drawnotes,
 					makeNoteRenderTable(
 						render,
-						snum, getContents(s.tick, {pairs, {'cmd', 'note'}, pairs, pairs}, true),
+						snum, getContents(s.tick, {pairs, 'note', pairs, pairs}, true),
+						left, top, xfull, yfull,
+						tempxr, yranges
+					)
+				)
+				drawnotes = tableCombine(
+					drawnotes,
+					makeNoteRenderTable(
+						render,
+						snum, getContents(s.tick, {pairs, 'cmd', pairs}, true),
 						left, top, xfull, yfull,
 						tempxr, yranges
 					)

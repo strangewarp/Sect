@@ -55,7 +55,7 @@ return {
 		local yoffset = roundNum((yanchor - y) / data.cellheight, 0)
 
 		-- Get new tick and note positions
-		local newtick = wrapNum(data.tp + xoffset, 1, #data.seq[data.active].tick)
+		local newtick = wrapNum(data.tp + xoffset, 1, data.seq[data.active].total)
 		local newnote = wrapNum(data.np + yoffset, data.bounds.np)
 
 		return newtick, newnote
@@ -126,7 +126,7 @@ return {
 		local yanchor = yfull * data.size.anchor.y
 
 		-- Get total number of ticks
-		local ticks = #data.seq[data.active].tick
+		local ticks = data.seq[data.active].total
 
 		-- Get the cursor's tick and note coordinates
 		local newtick, newnote = getCursorCell(xanchor, yanchor, x, y)

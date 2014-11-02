@@ -10,7 +10,7 @@ return {
 		end
 
 		-- Get number of ticks in sequence
-		local ticks = #data.seq[data.active].tick
+		local ticks = data.seq[data.active].total
 
 		-- Adjust delta-time by remainder-time-offset from previous iteration
 		local dtadj = data.playoffset + dt
@@ -35,17 +35,14 @@ return {
 					if seq.overlay or (s == data.active) then
 
 						-- Wrap the tick-pointer to the sequence's size
-						local twrap = wrapNum(data.tp, 1, #seq.tick)
+						local twrap = wrapNum(data.tp, 1, seq.total)
 
 						-- Send the tick's items to the MIDI-listener via MIDI-over-UDP,
 						-- in the order of: cmds first, then notes.
-						local cmds = getContents(seq.tick[twrap], {'cmd', pairs, pairs})
-						local notes = getContents(seq.tick[twrap], {'note', pairs, pairs})
-						for _, kind in ipairs({cmds, notes}) do
-							for _, n in pairs(kind) do
-								sendMidiMessage(n)
-							end
-						end
+						local cmds = getContents(seq.tick, {twrap, 'cmd', pairs})
+						local notes = getContents(seq.tick, {twrap, 'note', pairs, pairs})
+						for _, n in pairs(cmds) do sendMidiMessage(n) end
+						for _, n in pairs(notes) do sendMidiMessage(n) end
 
 					end
 

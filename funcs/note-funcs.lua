@@ -51,7 +51,7 @@ return {
 
 		-- Set parameters to default if any are empty
 		tbot = tbot or 1
-		ttop = ttop or #data.seq[p].tick
+		ttop = ttop or data.seq[p].total
 		nbot = nbot or data.bounds.np[1]
 		ntop = ntop or data.bounds.np[2]
 		chan = chan or false
@@ -62,21 +62,14 @@ return {
 
 		-- Grab all notes within the given range, bounded to a single channel if applicble,
 		-- and put them into a notes-table.
-		local tindexes = {}
+		local tindexes, nindexes = {}, {}
 		for t = tbot, ttop do
 			table.insert(tindexes, t)
 		end
-		local notes = getContents(
-			data.seq[p].tick,
-			{tindexes, "note", chan or pairs, pairs}
-		)
-
-		-- Exclude notes that fall outside the note-range
-		for i = #notes, 1, -1 do
-			if not rangeCheck(notes[i][5], nbot, ntop) then
-				table.remove(notes, i)
-			end
+		for n = nbot, ntop do
+			table.insert(nindexes, n)
 		end
+		local notes = getContents(data.seq[p].tick, {tindexes, "note", chan or pairs, nindexes})
 
 		return notes
 
@@ -99,7 +92,7 @@ return {
 		local removenotes = {}
 		local addnotes = {}
 
-		local ticks = #data.seq[p].tick
+		local ticks = data.seq[p].total
 
 		-- Find all overlapping notes, and all to-be-removed notes
 		for i = #notes, 1, -1 do
@@ -140,7 +133,7 @@ return {
 
 		-- Remove all removenotes, cull sparse tables, and shape undo tables
 		for k, v in pairs(removenotes) do
-			local rnote = getIndex(data.seq[p].tick[v[2] + 1], {"note", v[4], v[5]})
+			local rnote = getIndex(data.seq[p].tick, {v[2] + 1, "note", v[4], v[5]})
 			if rnote then
 				seqUnsetCascade(p, 'note', rnote)
 				table.insert(undonotes, {'insert', rnote})
@@ -150,7 +143,7 @@ return {
 
 		-- Add all addnotes while building sparse tables, and shape undo tables accordingly
 		for k, v in pairs(addnotes) do
-			buildTable(data.seq[p].tick[v[2] + 1], {"note", v[4], v[5]}, v)
+			buildTable(data.seq[p].tick, {v[2] + 1, "note", v[4], v[5]}, v)
 			table.insert(undonotes, {'remove', deepCopy(v)})
 			table.insert(redonotes, {'insert', deepCopy(v)})
 		end
@@ -251,18 +244,10 @@ return {
 		-- If Cmd Mode is active, delete the active Non-Note
 		if data.cmdmode == "cmd" then
 
-			local t = data.seq[data.active].tick[data.tp]
-
 			-- If the command-pointer corresponds to a cmd on the active tick,
 			-- create a "remove" cmd, and send that cmd to setCmd.
-			local cmdtab = getIndex(t, {"cmd", data.chan, data.cmdp})
-			local allcmds = getContents(t, {"cmd", data.chan, pairs})
-			if cmdtab and (#allcmds >= data.cmdp) then
-				setCmd(
-					data.active,
-					{'remove', data.cmdp, cmdtab},
-					undo
-				)
+			if getIndex(data.seq[data.active].tick, {data.tp, "cmd", data.cmdp}) then
+				setCmd(data.active, {'remove', data.cmdp}, undo)
 			end
 
 		else -- Else, delete the active note
@@ -335,13 +320,12 @@ return {
 		while wrapNum(ltick, 1, data.tpq * 4) ~= 1 do
 			ltick = ltick - 1
 		end
-		local rtick = clampNum((ltick + (data.tpq * 4)) - 1, 1, #data.seq[data.active].tick)
+		local rtick = clampNum((ltick + (data.tpq * 4)) - 1, 1, data.seq[data.active].total)
 
 		-- If Cmd Mode is active, delete all non-note commands within the beat
 		if data.cmdmode == "cmd" then
 
-			local delcmds = getCmds(data.active, ltick, rtick, _, 'remove')
-			delcmds = cmdsToSetType(delcmds, 'remove')
+			local delcmds = getCmds(data.active, ltick, rtick, 'remove')
 
 			-- If any matching cmds were found, send them through setCmd individually
 			if #delcmds > 0 then
@@ -361,73 +345,6 @@ return {
 			end
 
 		end
-
-	end,
-
-	-- Humanize the volumes of the currently selected notes
-	humanizeNotes = function(undo)
-
-		-- If no notes are selected, abort function
-		if #data.seldat == 0 then
-			return nil
-		end
-
-		-- For every currently-selected note...
-		for k, v in pairs(data.seldat) do
-
-			-- Change the velocities in the selection-table
-			local rand = math.random(0, data.velo)
-			local newvelo = clampNum(v[6] + (roundNum(data.velo / 2) - rand), data.bounds.velo)
-			data.seldat[k][6] = newvelo
-
-		end
-
-		-- Convert copies of the selected notes into setNotes commands
-		local selset = deepCopy(data.seldat)
-		for k, v in pairs(selset) do
-			selset[k] = {'insert', selset[k]}
-		end
-
-		-- Use setNotes to replace the seq-notes with corresponding selection-tab notes
-		setNotes(data.active, data.seldat, undo)
-
-	end,
-
-	-- Quantize the tick-positions of the currently selected notes, based on current spacing
-	quantizeNotes = function(undo)
-
-		-- If no notes are selected, abort function
-		if #data.seldat == 0 then
-			return nil
-		end
-
-		-- If spacing is too slim for quantization to have any effect, abort function
-		if data.spacing < 2 then
-			return nil
-		end
-
-		local modtab = {}
-
-		local ticks = #data.seq[data.active].tick 
-
-		-- For every currently-selected note, prioritizing the most recently selected first...
-		for k, v in ripairs(data.seldat) do
-
-			-- Get the note's left and right distances from the spacing value
-			local ldist = -1 * wrapNum(v[2], 0, data.spacing - 1)
-			local rdist = ldist + data.spacing
-			local shift = ldist
-			if rdist < math.abs(ldist) then
-				shift = rdist
-			end
-
-			-- Build the note's section of the movement-command table
-			table.insert(modtab, {v, "tick", shift})
-
-		end
-
-		-- Send the movement-command tables to modNotes
-		modNotes(data.active, modtab, true, undo)
 
 	end,
 

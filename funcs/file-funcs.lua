@@ -89,7 +89,8 @@ return {
 		-- Read every track in the MIDI file's score table
 		for tracknum, track in ipairs(score) do
 
-			local newnotes = {}
+			local newnotes, newcmds = {}, {}
+			local cmdcount = {}
 			local endpoint = 0
 			local inseq = data.active + (tracknum - 1)
 
@@ -97,7 +98,7 @@ return {
 			addSequence(inseq, undo)
 
 			-- Get new sequence's default length
-			local newseqlen = #data.seq[inseq].tick
+			local newseqlen = data.seq[inseq].total
 
 			-- Read every note in a given track, and prepare known commands for insertion
 			for k, v in pairs(track) do
@@ -114,8 +115,12 @@ return {
 				elseif data.acceptmidi[v[1]] then
 					if v[1] == 'note' then -- Extend note by tick + dur
 						endpoint = math.max(endpoint, v[2] + v[3])
+						table.insert(newnotes, {'insert', v})
+					else
+						cmdcount[v[2]] = (cmdcount[v[2]] and (cmdcount[v[2]] + 1)) or 1
+						table.insert(newcmds, {'insert', cmdcount[v[2]], v})
+						print(cmdcount[v[2]])--debugging
 					end
-					table.insert(newnotes, {'insert', v})
 				else
 					print("loadFile: Discarded unsupported command: " .. v[1])
 				end
@@ -134,8 +139,10 @@ return {
 
 			-- Insert all known commands into the new sequence
 			setNotes(inseq, newnotes, undo)
+			newcmds = cmdsToSetType(newcmds, 'insert')
+			setCmds(inseq, newcmds, undo)
 
-			print("loadFile: loaded track " .. tracknum .. " into sequence " .. inseq .. " :: " .. #data.seq[inseq].tick .. " ticks")
+			print("loadFile: loaded track " .. tracknum .. " into sequence " .. inseq .. " :: " .. data.seq[inseq].total .. " ticks")
 
 		end
 
@@ -173,16 +180,15 @@ return {
 		-- For every sequence, translate it to a valid score track
 		for tracknum, track in ipairs(data.seq) do
 
-			-- Copy over all notes to the score-track-table
-			score[tracknum] = getContents(
-				track.tick,
-				{pairs, {'note', 'cmd'}, pairs, pairs}
-			)
+			-- Copy over all notes and cmds to the score-track-table
+			local cmdtrack = getContents(track, {'tick', pairs, 'cmd', pairs})
+			local notetrack = getContents(track, {'tick', pairs, 'note', pairs, pairs})
+			score[tracknum] = tableCombine(cmdtrack, notetrack)
 
 			-- Insert an end_track command, so MIDI.lua knows how long the sequence is.
-			table.insert(score[tracknum], {'end_track', #track.tick})
+			table.insert(score[tracknum], {'end_track', track.total})
 
-			print("saveFile: copied sequence " .. tracknum .. " to save-table: " .. #score[tracknum] .. " items!")
+			print("saveFile: copied sequence " .. tracknum .. " to save-table. " .. #score[tracknum] .. " items!")
 
 		end
 

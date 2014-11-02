@@ -15,12 +15,11 @@ return {
 	end,
 
 	-- Get the non-note commands from a given slice of a sequence, bounded to a channel
-	getCmds = function(p, tbot, ttop, chan, kind)
+	getCmds = function(p, tbot, ttop, kind)
 
 		-- Set parameters to default if any are empty
 		tbot = tbot or 1
-		ttop = ttop or #data.seq[p].tick
-		chan = chan or false
+		ttop = ttop or data.seq[p].total
 		kind = kind or 'insert'
 
 		local cmds = {}
@@ -28,13 +27,8 @@ return {
 		-- Grab all cmds within the given range, and put them in the cmds-table
 		for t = tbot, ttop do
 
-			-- For all cmds within the tick, if a channel was given, only grab that chan's cmds;
-			-- else grab all existing chans' cmds.
-			local ctab = getContents(
-				data.seq[p].tick[t],
-				{"cmd", chan or pairs, pairs},
-				true
-			)
+			-- Grab all cmds within the tick.
+			local ctab = getContents(data.seq[p].tick, {t, "cmd", pairs}, true)
 
 			-- Format the cmd tables properly
 			for k, v in pairs(ctab) do
@@ -64,11 +58,10 @@ return {
 		local undocmd, redocmd = deepCopy(cmd), deepCopy(cmd)
 
 		local ctick = cmd[3][2] + 1
-		local chan = cmd[3][3]
 
 		-- Check whether the index is already filled
 		local filled = false
-		if getIndex(data.seq[p].tick[ctick], {"cmd", chan, cmd[2]}) then
+		if getIndex(data.seq[p].tick, {ctick, "cmd", cmd[2]}) then
 			filled = true
 		end
 
@@ -86,9 +79,9 @@ return {
 
 		else -- Else, insert cmd
 			if filled then
-				table.insert(data.seq[p].tick[ctick].cmd[chan], cmd[2], cmd[3])
+				table.insert(data.seq[p].tick[ctick].cmd, cmd[2], cmd[3])
 			else
-				buildTable(data.seq[p].tick[ctick], {"cmd", chan, cmd[2]}, cmd[3])
+				buildTable(data.seq[p].tick, {ctick, "cmd", cmd[2]}, cmd[3])
 			end
 			undocmd[1] = 'remove'
 		end

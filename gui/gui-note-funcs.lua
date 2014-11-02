@@ -27,6 +27,15 @@ return {
 
 	end,
 
+	-- Sort two items based first upon channel, and second upon tick position
+	drawChanTickSort = function(a, b)
+		if a[3][4] == b[3][4] then
+			return a[3][2] < b[3][2]
+		else
+			return a[3][4] > b[3][4]
+		end
+	end,
+
 	-- Draw a given table of render-notes
 	drawNoteTable = function(notes)
 
@@ -72,12 +81,12 @@ return {
 			end
 		end
 
-		-- Sort notes by tick position
-		table.sort(shadownotes, function(a, b) return a[3][2] < b[3][2] end)
-		table.sort(cmdnotes, function(a, b) return a[3][2] < b[3][2] end)
-		table.sort(sbordernotes, function(a, b) return a[3][2] < b[3][2] end)
-		table.sort(sbselectnotes, function(a, b) return a[3][2] < b[3][2] end)
-		table.sort(othernotes, function(a, b) return a[3][2] < b[3][2] end)
+		-- Sort notes by channel and tick position
+		table.sort(shadownotes, drawChanTickSort)
+		table.sort(cmdnotes, drawChanTickSort)
+		table.sort(sbordernotes, drawChanTickSort)
+		table.sort(sbselectnotes, drawChanTickSort)
+		table.sort(othernotes, drawChanTickSort)
 
 		-- Recombine the sorted tables, to render them in the order of:
 		-- shadow, other-chan, shadow-select, other.
@@ -234,6 +243,7 @@ return {
 
 		local notes = {}
 		local tally = {}
+		local cmdtally = {}
 
 		for _, two in pairs(ntab) do
 
@@ -269,10 +279,10 @@ return {
 
 			end
 
-			if ((data.cmdmode == 'cmd') and (n[1] == 'note'))
-			or ((data.cmdmode ~= 'cmd') and (n[1] ~= 'note'))
-			then
+			if n[1] == 'note' then
 				tally[n[2] + 1] = (tally[n[2] + 1] and (tally[n[2] + 1] + 1)) or 0
+			else
+				cmdtally[n[2] + 1] = (cmdtally[n[2] + 1] and (cmdtally[n[2] + 1] + 1)) or 0
 			end
 
 			-- For every combination of on-screen X-ranges and Y-ranges,
@@ -293,7 +303,7 @@ return {
 						if n[1] == 'note' then
 							ot = yr.b + ((tally[n[2] + 1] + 1) * data.cellheight)
 						else
-							ot = yr.b - ((hist[#hist] - data.cmdp) * data.cellheight)
+							ot = yr.b - (((cmdtally[n[2] + 1] + 1) - data.cmdp) * data.cellheight)
 						end
 					else -- Else, render the note with a "wrapping grid" top-offset
 						if n[1] == 'note' then
