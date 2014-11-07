@@ -9,7 +9,7 @@ return {
 	-- Insert a number of ticks at the end of a sequence
 	growSeq = function(seq, num, undo)
 
-		data.seq[i].total = data.seq[i].total + num
+		data.seq[seq].total = data.seq[seq].total + num
 
 		-- Build undo tables
 		addUndoStep(
@@ -23,7 +23,7 @@ return {
 	-- Remove a number of ticks from the end of a sequence
 	shrinkSeq = function(seq, num, undo)
 
-		data.seq[i].total = data.seq[i].total - num
+		data.seq[seq].total = data.seq[seq].total - num
 
 		-- Build undo tables
 		addUndoStep(

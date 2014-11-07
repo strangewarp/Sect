@@ -52,8 +52,6 @@ return {
 				-- Build a new note via the modByte command
 				local m = modByte(p, deepCopy(n), byte, dist, multiply)
 
-				print(n[2] .. " " .. m[2])--debugging
-
 				-- Add commands to the snotes table, to remove old note and insert new note
 				table.insert(snotes, {'remove', n})
 				table.insert(snotes, {'insert', m})
@@ -112,18 +110,23 @@ return {
 	-- Stretch all selected items or all seq items, by a given stretch value
 	dynamicStretch = function(undo)
 
-		local furthest = 0
-		local cmds = {}
-
 		-- Get the amount by which every note should be stretched (spacing divided by duration)
 		local amt = math.max(1, data.spacing) / data.dur
+
+		-- If the stretch ratio is 1/1, it would do nothing, so abort function
+		if amt == 1 then
+			return nil
+		end
+
+		local furthest = 0
+		local cmds = {}
 
 		-- Get the currently-selected notes
 		local oldnotes = getContents(data.seldat, {pairs, pairs, pairs})
 		local newnotes = deepCopy(oldnotes)
 
 		-- If any notes are selected...
-		if #sel > 0 then
+		if #oldnotes > 0 then
 
 			-- Clear the selection-table
 			data.seldat = {}
@@ -132,7 +135,7 @@ return {
 			for k, v in pairs(oldnotes) do
 
 				-- Get the new start-tick, rounded off
-				local newstart = roundNum((v[2] + 1) * amt)
+				local newstart = roundNum((v[2] + 1) * amt) - 1
 
 				-- Change the newnote's start and duration values
 				newnotes[k][2] = newstart - 1
@@ -157,7 +160,7 @@ return {
 
 			-- Adjust every command's start-tick based on the stretch amount,
 			-- and check their positions against the furthest-value.
-			for k, v in pairs(oldcmds) do
+			for k, v in pairs(cmds) do
 				local adjtick = v[3][2] + 1
 				local newstart = roundNum(adjtick * amt)
 				cmds[k] = {v[3], v[2], 2, newstart - adjtick}
@@ -167,10 +170,10 @@ return {
 			-- Adjust every note's start-tick and duration based on the stretch amount,
 			-- and check their positions against the furthest-value.
 			for k, v in pairs(oldnotes) do
-				local newstart = roundNum((v[2] + 1) * amt)
-				newnotes[k][2] = newstart - 1
+				local newstart = roundNum((v[2] + 1) * amt) - 1
+				newnotes[k][2] = newstart
 				newnotes[k][3] = math.max(1, roundNum(v[3] * amt))
-				furthest = math.max(furthest, newnotes[k][2] + newnotes[k][3])
+				furthest = math.max(furthest, newstart + (newnotes[k][3] - 1))
 			end
 
 		end
@@ -262,7 +265,6 @@ return {
 			end
 
 			-- Build the note's section of the movement-command table
-			print(shift)--debugging
 			table.insert(modtab, {v, "tp", shift})
 
 		end
