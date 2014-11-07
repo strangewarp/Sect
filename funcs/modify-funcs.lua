@@ -7,11 +7,11 @@ return {
 		for k, v in pairs(seldup) do
 			seldup[k] = {v, byte, dist}
 		end
-		modNotes(data.active, seldup, true, undo)
+		modNotes(data.active, seldup, true, true, undo)
 	end,
 
 	-- Modify a collection of various cmds, according to their given mod-commands
-	modCmds = function(p, cmds, undo)
+	modCmds = function(p, cmds, multiply, undo)
 
 		-- Get the given commands' positions in the given sequence, and remove them
 		for ck, ctab in ripairs(cmds) do
@@ -26,7 +26,7 @@ return {
 		-- Take the given commands, modify their position, and put them on unclaimed keys
 		for ck, ctab in pairs(cmds) do
 			local c, key, byte, dist = unpack(ctab)
-			local m = modByte(p, deepCopy(c), byte, dist)
+			local m = modByte(p, deepCopy(c), byte, dist, multiply)
 			local newcheck = getIndex(data.seq[p].tick, {m[2] + 1, "cmd"})
 			local newkey = (newcheck and (#newcheck + 1)) or 1
 			cmds[ck] = {'insert', newkey, m}
@@ -37,7 +37,7 @@ return {
 	end,
 
 	-- Modify a collection of various notes, according to their given mod-commands
-	modNotes = function(p, ntab, isselect, undo)
+	modNotes = function(p, ntab, isselect, multiply, undo)
 
 		local snotes = {}
 
@@ -50,7 +50,9 @@ return {
 			if getIndex(data.seq[p].tick, {n[2] + 1, "note", n[4], n[5]}) then
 
 				-- Build a new note via the modByte command
-				local m = modByte(p, deepCopy(n), byte, dist)
+				local m = modByte(p, deepCopy(n), byte, dist, multiply)
+
+				print(n[2] .. " " .. m[2])--debugging
 
 				-- Add commands to the snotes table, to remove old note and insert new note
 				table.insert(snotes, {'remove', n})
@@ -72,13 +74,13 @@ return {
 	end,
 
 	-- Take a note, modify a given byte within that note by a given amount, and return it
-	modByte = function(p, note, byte, dist)
+	modByte = function(p, note, byte, dist, multiply)
 
 		-- If no default seq-pointer was given, set it to the active sequence,
 		-- or to false if there is no active sequence.
 		p = p or data.active
 
-		-- Take a deepCopy of the note, to prevent reference bugs
+		-- Take a deepCopy of the note, to prevent sticky-reference bugs
 		local n = deepCopy(note)
 
 		-- If no seq-pointer was given, and no active seq exists, then return the copy of note.
@@ -86,19 +88,109 @@ return {
 			return n
 		end
 
+		-- If multiply-var exists and is true, multiply distance by data.spacing
+		if multiply == true then
+			dist = dist * math.max(1, data.spacing)
+		end
+
 		-- Get the byte-key that corresponds to the byte-command
 		local bk = data.notebytes[byte]
 
 		-- Change the byte-value, and wrap it to its proper boundaries
 		if byte == "tp" then
-			n[bk] = wrapNum(n[bk] + (dist * math.max(1, data.spacing)), 0, data.seq[p].total - 1)
+			n[bk] = wrapNum(n[bk] + dist, 0, data.seq[p].total - 1)
 		elseif byte == "dur" then
-			n[bk] = clampNum(n[bk] + (dist * math.max(1, data.spacing)), 1, data.seq[p].total - n[2])
+			n[bk] = clampNum(n[bk] + dist, 1, data.seq[p].total - n[2])
 		else
 			n[bk] = wrapNum(n[bk] + dist, data.bounds[byte])
 		end
 
 		return n
+
+	end,
+
+	-- Stretch all selected items or all seq items, by a given stretch value
+	dynamicStretch = function(undo)
+
+		local furthest = 0
+		local cmds = {}
+
+		-- Get the amount by which every note should be stretched (spacing divided by duration)
+		local amt = math.max(1, data.spacing) / data.dur
+
+		-- Get the currently-selected notes
+		local oldnotes = getContents(data.seldat, {pairs, pairs, pairs})
+		local newnotes = deepCopy(oldnotes)
+
+		-- If any notes are selected...
+		if #sel > 0 then
+
+			-- Clear the selection-table
+			data.seldat = {}
+
+			-- For every previously-selected note...
+			for k, v in pairs(oldnotes) do
+
+				-- Get the new start-tick, rounded off
+				local newstart = roundNum((v[2] + 1) * amt)
+
+				-- Change the newnote's start and duration values
+				newnotes[k][2] = newstart - 1
+				newnotes[k][3] = math.max(1, roundNum(v[3] * amt))
+
+				-- Check the note against the furthest-val, for possible seq expansion
+				furthest = math.max(furthest, newnotes[k][2] + newnotes[k][3])
+
+				-- Build a new sparse index in seldat for the adjusted note, thus keeping it selected
+				buildTable(data.seldat, {newstart, v[4], v[5]}, newnotes[k])
+
+			end
+
+		else -- Else, if no notes are selected...
+
+			-- Get all notes from within the active sequence
+			oldnotes = getContents(data.seq[data.active].tick, {pairs, 'note', pairs, pairs})
+			newnotes = deepCopy(oldnotes)
+
+			-- Get all non-note commands from within the active sequence
+			cmds = getCmds(data.active, _, _, 'modify')
+
+			-- Adjust every command's start-tick based on the stretch amount,
+			-- and check their positions against the furthest-value.
+			for k, v in pairs(oldcmds) do
+				local adjtick = v[3][2] + 1
+				local newstart = roundNum(adjtick * amt)
+				cmds[k] = {v[3], v[2], 2, newstart - adjtick}
+				furthest = math.max(furthest, newstart)
+			end
+
+			-- Adjust every note's start-tick and duration based on the stretch amount,
+			-- and check their positions against the furthest-value.
+			for k, v in pairs(oldnotes) do
+				local newstart = roundNum((v[2] + 1) * amt)
+				newnotes[k][2] = newstart - 1
+				newnotes[k][3] = math.max(1, roundNum(v[3] * amt))
+				furthest = math.max(furthest, newnotes[k][2] + newnotes[k][3])
+			end
+
+		end
+
+		-- If the furthest-stretched note is greater than the sequence-length,
+		-- expand the sequence to compensate.
+		if furthest > data.seq[data.active].total then
+			growSeq(data.active, furthest - data.seq[data.active].total, undo)
+		end
+
+		-- If any cmds were grabbed, send their modified values to modCmds
+		if #cmds > 0 then
+			modCmds(data.active, cmds, false, undo)
+		end
+
+		-- Send the stretched note-values to setNotes in two batches
+		local remove = notesToSetType(oldnotes, 'remove')
+		local insert = notesToSetType(newnotes, 'insert')
+		setNotes(data.active, remove, undo)
+		setNotes(data.active, insert, undo)
 
 	end,
 
@@ -156,8 +248,10 @@ return {
 
 		local ticks = data.seq[data.active].total
 
+		local selnotes = getContents(data.seldat, {pairs, pairs, pairs})
+
 		-- For every currently-selected note, prioritizing the most recently selected first...
-		for k, v in ripairs(data.seldat) do
+		for k, v in ripairs(selnotes) do
 
 			-- Get the note's left and right distances from the spacing value
 			local ldist = -1 * wrapNum(v[2], 0, data.spacing - 1)
@@ -168,12 +262,13 @@ return {
 			end
 
 			-- Build the note's section of the movement-command table
-			table.insert(modtab, {v, "tick", shift})
+			print(shift)--debugging
+			table.insert(modtab, {v, "tp", shift})
 
 		end
 
 		-- Send the movement-command tables to modNotes
-		modNotes(data.active, modtab, true, undo)
+		modNotes(data.active, modtab, true, false, undo)
 
 	end,
 

@@ -353,6 +353,7 @@ return {
 
 		HUMANIZE = {"ctrl", "h"},
 		QUANTIZE = {"ctrl", "u"},
+		STRETCH = {"ctrl", "t"},
 
 		INSERT_NOTE = {"return"},
 		DELETE_NOTE = {"delete"},

@@ -7,7 +7,11 @@ return {
 		kind = kind or 'insert'
 
 		for k, v in pairs(cmds) do
-			v[1] = kind
+			if type(v[2]) == 'table' then
+				v[1] = kind
+			else
+				v = {kind, v}
+			end
 		end
 
 		return cmds

@@ -2,7 +2,7 @@
 local D = {}
 
 -- VERSIONING VARS --
-D.version = "1.1-a52" -- Holds Sect's current version-number
+D.version = "1.1-a55" -- Holds Sect's current version-number
 
 -- LOVE ENGINE VARS --
 D.updatespeed = 0.01 -- Speed at which to attempt to update program-state
@@ -259,6 +259,7 @@ D.cmdfuncs = {
 
 	HUMANIZE = {"humanizeNotes", false},
 	QUANTIZE = {"quantizeNotes", false},
+	STRETCH = {"dynamicStretch", false},
 
 	KSPECIES_UP = {"shiftInternalValue", "kspecies", false, 1},
 	KSPECIES_DOWN = {"shiftInternalValue", "kspecies", false, -1},
@@ -445,6 +446,7 @@ D.cmdgate = {
 
 	HUMANIZE = {"entry", "gen"},
 	QUANTIZE = {"entry", "gen"},
+	STRETCH = {"entry", "gen"},
 
 	CHANNEL_UP = {"entry", "gen", "cmd"},
 	CHANNEL_DOWN = {"entry", "gen", "cmd"},
@@ -587,6 +589,10 @@ D.cmdgate = {
 -- Functions that incur undo-block formation when called by keystrokes
 D.undocmds = {
 
+	-- cmd-funcs.lua
+	["setCmd"] = true,
+	["setCmds"] = true,
+
 	-- data-funcs.lua
 	["growSeq"] = true,
 	["shrinkSeq"] = true,
@@ -607,25 +613,27 @@ D.undocmds = {
 	-- generator-funcs.lua
 	["generateSeqNotes"] = true,
 
+	-- modify-funcs.lua
+	["modSelectedNotes"] = true,
+	["modCmds"] = true,
+	["modNotes"] = true,
+	["modByte"] = true,
+	["humanizeNotes"] = true,
+	["quantizeNotes"] = true,
+	["dynamicStretch"] = true,
+
 	-- note-funcs.lua
-	["setCmd"] = true,
 	["setNotes"] = true,
-	["moveNotes"] = true,
 	["insertNote"] = true,
 	["deleteNote"] = true,
 	["deleteTickNotes"] = true,
 	["deletePitchNotes"] = true,
 	["deleteBeatNotes"] = true,
-	["humanizeNotes"] = true,
-	["quantizeNotes"] = true,
 
 	-- select-funcs.lua
 	["cutSelection"] = true,
 	["pasteSelection"] = true,
 	["pasteRepeating"] = true,
-	["modSelectedNotes"] = true,
-	["modNotes"] = true,
-	["modNote"] = true,
 
 }
 
@@ -635,6 +643,7 @@ D.inactivecmds = {
 	["addActiveSequence"] = true,
 	["loadFile"] = true,
 	["shiftInternalValue"] = true,
+	["tabToHotseat"] = true,
 	["traverseUndo"] = true,
 
 }

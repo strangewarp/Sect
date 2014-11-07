@@ -50,8 +50,8 @@ return {
 			for k, v in pairs(sidecmds) do
 				sidecmds[k] = {v[3], v[2], 'tp', 1}
 			end
-			modNotes(seq, sidenotes, false, undo)
-			modCmds(seq, sidecmds, undo)
+			modNotes(seq, sidenotes, false, true, undo)
+			modCmds(seq, sidecmds, true, undo)
 		end
 
 	end,
@@ -88,7 +88,7 @@ return {
 				for k, v in pairs(sidenotes) do
 					sidenotes[k] = {v, 'tp', -1}
 				end
-				modNotes(seq, sidenotes, false, undo)
+				modNotes(seq, sidenotes, false, true, undo)
 			end
 
 			-- Move all non-note commands
@@ -96,7 +96,7 @@ return {
 				for k, v in pairs(sidecmds) do
 					sidecmds[k] = {v[3], v[2], 'tp', -1}
 				end
-				modCmds(seq, sidecmds, undo)
+				modCmds(seq, sidecmds, true, undo)
 			end
 
 		end
