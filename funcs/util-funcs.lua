@@ -234,31 +234,6 @@ return {
 		return ((n > 0) and (n * getFactorial(n - 1))) or 1
 	end,
 
-	-- Get a table of all factors of a given integer
-	getFactors = function(n)
-
-		local factors = {}
-
-		for i = 1, math.sqrt(n) do
-
-			local rem = n % i
-		
-			if rem == 0 then
-				local pair = n / i
-				table.insert(factors, i)
-				if i ~= pair then
-					table.insert(factors, pair)
-				end
-			end
-
-		end
-		
-		table.sort(factors)
-
-		return factors
-
-	end,
-
 	-- Get all boundaries of a repeating 1D range,
 	-- as tiled inside a larger range, starting at an origin point.
 	getTileAxisBounds = function(base, size, origin, extent)

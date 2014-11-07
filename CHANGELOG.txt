@@ -14,10 +14,7 @@
 
 1.1
 
--- TODO: Add a "Factor-Display" option, which toggles highlighting of factor-ticks of the overall beat, with "all" as its default setting.
----- sub-task: recalculate these values on every TPQ-modifying command
-
--- TODO: Add an "Entry-Quantize" value, which will make incoming notes and cmds from both keyboard-piano and MIDI IN, in both Play Mode and regular non-playing Entry Mode, stick to the nearest Quantize-tick. (This could be used with a differing spacing value, in regular Entry Mode, for easy entry of interesting polyrhythms.)
+-- TODO: Add an "Entry-Quantize" toggle, which will make incoming notes and cmds from both keyboard-piano and MIDI IN, in both Play Mode and regular non-playing Entry Mode, stick to the nearest Factor-Display-tick. (This could be used with a differing spacing value, in regular Entry Mode, for easy entry of interesting polyrhythms.)
 ---- sub-task: make compatible with Cmd Mode
 
 -- TODO: Add a simple metronome in Play Mode, which plays a tick on every multiple of the Quantize value.
@@ -43,6 +40,7 @@
 ---- data.seldat[tick][chan][pitch] = a single unique note
 
 * New features:
+-- Added "Factor" commands, which toggle highlighting of factor-ticks within the current beat-value, with TPQ*4 as its default setting.
 -- Added "Stretch" command, which multiplies the duration and the starting tick of every selected note (or every note in the sequence, if none are selected), by global spacing/duration, rounded to the nearest tick-value.
 -- Added "Quantize" command, which snaps all selected notes in the active sequence to ticks that are multiples of data.spacing.
 -- Added "Select Chan" command, a version of Select-All that only applies to notes in the active seq's active channel.

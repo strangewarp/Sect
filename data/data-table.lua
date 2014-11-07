@@ -2,7 +2,7 @@
 local D = {}
 
 -- VERSIONING VARS --
-D.version = "1.1-a55" -- Holds Sect's current version-number
+D.version = "1.1-a56" -- Holds Sect's current version-number
 
 -- LOVE ENGINE VARS --
 D.updatespeed = 0.01 -- Speed at which to attempt to update program-state
@@ -10,7 +10,6 @@ D.updatespeed = 0.01 -- Speed at which to attempt to update program-state
 -- DATA VARS --
 D.seq = {} -- Sequence-data table
 D.keys = {} -- Keystroke-tracking table
-D.overlay = {} -- Overlay-render tracking table
 D.active = false -- Currently active sequence (false if nothing loaded)
 D.tp = 0 -- Current tick-pointer position
 D.np = 0 -- Current note-pointer position
@@ -62,6 +61,10 @@ D.pianowidth = 0 -- Holds updated width of piano-bar
 -- UNDO VARS --
 D.dostack = {} -- Holds all undo and redo command-blocks
 D.undotarget = 0 -- Currently targeted undo-block
+
+-- BEAT-FACTOR VARS --
+D.factors = {} -- Factors of the current TPQ*4 value
+D.fp = 1 -- Current factor-pointer position
 
 -- SELECTION VARS --
 D.selbool = false -- Toggles whether a selection is active
@@ -292,6 +295,9 @@ D.cmdfuncs = {
 	TPQ_UP_MULTI = {"shiftInternalValue", "tpq", false, 10},
 	TPQ_DOWN_MULTI = {"shiftInternalValue", "tpq", false, -10},
 
+	FACTOR_UP = {"shiftFactorKey", 1},
+	FACTOR_DOWN = {"shiftFactorKey", -1},
+
 	SCALENUM_UP = {"shiftInternalValue", "scalenum", false, 1},
 	SCALENUM_DOWN = {"shiftInternalValue", "scalenum", false, -1},
 
@@ -475,6 +481,9 @@ D.cmdgate = {
 	TPQ_DOWN = {"entry", "gen", "cmd"},
 	TPQ_UP_MULTI = {"entry", "gen", "cmd"},
 	TPQ_DOWN_MULTI = {"entry", "gen", "cmd"},
+
+	FACTOR_UP = {"entry", "gen", "cmd"},
+	FACTOR_DOWN = {"entry", "gen", "cmd"},
 
 	KSPECIES_UP = {"gen"},
 	KSPECIES_DOWN = {"gen"},

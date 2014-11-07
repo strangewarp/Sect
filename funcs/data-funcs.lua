@@ -224,6 +224,7 @@ return {
 	sanitizeDataStructures = function()
 		normalizePointers()
 		removeOldSelectItems()
+		getBeatFactors()
 	end,
 
 }

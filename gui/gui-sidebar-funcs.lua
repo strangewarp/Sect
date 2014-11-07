@@ -109,14 +109,15 @@ return {
 		if data.cmdmode ~= "cmd" then
 			local addtab4 = {
 				"velo " .. data.velo,
-				"duration " .. data.dur,
 				"",
+				"duration " .. data.dur,
 			}
 			outtab = tableCombine(outtab, addtab4)
 		end
 
 		local addtab5 = {
 			"spacing " .. data.spacing,
+			"factor " .. data.factors[data.fp] .. "(" .. data.factors[#data.factors] .. ")",
 			"",
 			"bpm " .. data.bpm,
 			"tpq " .. data.tpq,

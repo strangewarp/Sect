@@ -69,6 +69,7 @@ function love.load()
 
 	cmdfuncs = require('funcs/cmd-funcs')
 	datafuncs = require('funcs/data-funcs')
+	factorfuncs = require('funcs/factor-funcs')
 	filefuncs = require('funcs/file-funcs')
 	generatorfuncs = require('funcs/generator-funcs')
 	guigridfuncs = require('gui/gui-grid-funcs')
@@ -96,6 +97,7 @@ function love.load()
 		_G,
 		cmdfuncs,
 		datafuncs,
+		factorfuncs,
 		filefuncs,
 		generatorfuncs,
 		guigridfuncs,

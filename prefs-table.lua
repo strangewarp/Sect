@@ -395,6 +395,9 @@ return {
 		TPQ_UP_MULTI = {"shift", "tab", "/"},
 		TPQ_DOWN_MULTI = {"shift", "tab", "."},
 
+		FACTOR_UP = {"tab", "'"},
+		FACTOR_DOWN = {"tab", ";"},
+
 		MOD_DUR_INCREASE = {"shift", "tab", "right"},
 		MOD_DUR_DECREASE = {"shift", "tab", "left"},
 

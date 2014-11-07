@@ -142,9 +142,6 @@ return {
 		local beatsize = data.tpq * 4
 		local factors = getFactors(beatsize)
 
-		-- Get the threshold for which sub-beat columns should be colorized
-		local beatthresh = data.tpq / 2
-
 		-- Get the number of ticks in the active sequence, and global notes
 		local ticks = data.seq[data.active].total
 		local notes = data.bounds.np[2] - data.bounds.np[1]
@@ -252,19 +249,12 @@ return {
 			-- Get the row's corresponding tick
 			local tick = wrapNum(lefttick + x, 1, ticks)
 
-			-- See whether the current column is a factor of the beat
-			local adjtick = wrapNum(tick, 1, beatsize)
-			local afactor = 1
-			for i = #factors, 1, -1 do
-				if wrapNum(adjtick - 1, 0, factors[i] - 1) == 0 then
-					afactor = factors[i]
-					break
-				end
-			end
-
 			-- If factor-column, table for later rendering
-			if afactor >= beatthresh then
-				local color = mixColors(beatcolor, invis, 1 - (1 / (beatsize / afactor)))
+			if ((tick - 1) % (data.tpq * 4)) == 0 then
+				local color = mixColors(beatcolor, invis, 0.1)
+				table.insert(tintcolumns, {tick, left + xleft, top, colwidth, yfull, color})
+			elseif ((tick - 1) % data.factors[data.fp]) == 0 then
+				local color = mixColors(beatcolor, invis, 0.5)
 				table.insert(tintcolumns, {tick, left + xleft, top, colwidth, yfull, color})
 			end
 
