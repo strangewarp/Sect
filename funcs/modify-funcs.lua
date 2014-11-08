@@ -256,13 +256,7 @@ return {
 		-- For every currently-selected note, prioritizing the most recently selected first...
 		for k, v in ripairs(selnotes) do
 
-			-- Get the note's left and right distances from the spacing value
-			local ldist = -1 * wrapNum(v[2], 0, data.spacing - 1)
-			local rdist = ldist + data.spacing
-			local shift = ldist
-			if rdist < math.abs(ldist) then
-				shift = rdist
-			end
+			local shift = getSnapDistance(v[2], data.spacing)
 
 			-- Build the note's section of the movement-command table
 			table.insert(modtab, {v, "tp", shift})

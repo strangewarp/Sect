@@ -330,6 +330,8 @@ return {
 
 		TOGGLE_RECORDING = {"escape"},
 
+		TOGGLE_ENTRY_QUANTIZE = {"ctrl", " "},
+
 		TOGGLE_PLAY_MODE = {" "},
 		TOGGLE_GENERATOR_MODE = {"shift", " "},
 		TOGGLE_CMD_MODE = {"tab", " "},

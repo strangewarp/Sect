@@ -46,6 +46,7 @@ return {
 		local addtab = {
 			"mode: " .. data.modenames[data.cmdmode],
 			"recording: " .. ((data.recording and "on") or "off"),
+			"e-quant: " .. ((data.entryquant and "on") or "off"),
 			"notes: " .. ((data.drawnotes and "visible") or "hidden"),
 			"chans: " .. ((data.chanview and "visible") or "hidden"),
 			"",
@@ -117,7 +118,7 @@ return {
 
 		local addtab5 = {
 			"spacing " .. data.spacing,
-			"factor " .. data.factors[data.fp] .. "(" .. data.factors[#data.factors] .. ")",
+			"factor " .. data.factors[data.fp] .. " (" .. data.factors[#data.factors] .. "/" .. (data.factors[#data.factors] / data.factors[data.fp]) .. ")",
 			"",
 			"bpm " .. data.bpm,
 			"tpq " .. data.tpq,

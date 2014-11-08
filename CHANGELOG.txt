@@ -2,20 +2,21 @@
 1.2
 
 -- TODO: Add cross-platform native MIDI I/O.
--- TODO: Add a "custom MIDI command" entry box, for non-note commands of arbitrary value and length (e.g. SYSEX), and change Cmd Mode to compensate for them.
 
 1.1.1
 
 -- TODO: Remove unnecessary 'undo-suppression' vars from function-calls and undo-funcs.
 -- TODO: Refactor GUI rendering pathway to reduce lag.
--- TODO: Change data.seldat to be purely key-based.
 -- TODO: Allow Quantize to affect non-note commands.
 -- TODO: Allow item-movement to affect non-note commands.
 
 1.1
 
--- TODO: Add an "Entry-Quantize" toggle, which will make incoming notes and cmds from both keyboard-piano and MIDI IN, in both Play Mode and regular non-playing Entry Mode, stick to the nearest Factor-Display-tick. (This could be used with a differing spacing value, in regular Entry Mode, for easy entry of interesting polyrhythms.)
----- sub-task: make compatible with Cmd Mode
+-- TODO: Fix Stretch's tendency to shift notes one tick lower on squash-type commands
+
+-- TODO: Fix out-of-bounds rendering of reticules and factor-columns on left edge of grid-panel
+
+-- TODO: Fix the colorization of backgrounds of cells in the track-panel
 
 -- TODO: Add a simple metronome in Play Mode, which plays a tick on every multiple of the Quantize value.
 ---- sub-task: Sync metronome with Entry-Quantize value.
@@ -25,7 +26,7 @@
 
 -- TODO: Remove 'if not data.active then return nil end' checks from all functions, because on-keycommand seq checking makes them extraneous.
 
--- TODO: Make hotseat-toggling and loadFile commands available when no sequences are loaded
+-- TODO: Make hotseat-toggling and loadFile commands available when no sequences are loaded.
 
 -- TODO: remove "debugging" messages
 -- TODO: comment out console again
@@ -40,14 +41,15 @@
 ---- data.seldat[tick][chan][pitch] = a single unique note
 
 * New features:
+-- Added "CMD mode", where a sequence's non-NOTE commands are held and modified.
 -- Added "Factor" commands, which toggle highlighting of factor-ticks within the current beat-value, with TPQ*4 as its default setting.
+-- Added an "Entry-Quantize" toggle, which makes incoming notes and cmds stick to the nearest Factor-Display-tick.
 -- Added "Stretch" command, which multiplies the duration and the starting tick of every selected note (or every note in the sequence, if none are selected), by global spacing/duration, rounded to the nearest tick-value.
 -- Added "Quantize" command, which snaps all selected notes in the active sequence to ticks that are multiples of data.spacing.
 -- Added "Select Chan" command, a version of Select-All that only applies to notes in the active seq's active channel.
+-- Added Cmd Mode versions of various editor commands.
 -- Added full MIDI-IN, for composition via external MIDI devices. Due to how Spacing and Play Mode interact with note-entry, there doesn't need to be any explicit tabbing between input-types.
 -- Created a two-way MIDI-over-UDP communications system, designed to send MIDI between Sect and user devices, via SectMidiClient.
--- Added "CMD mode", where a sequence's non-NOTE commands are held and modified.
--- Added Cmd Mode versions of various editor commands.
 
 * GUI changes:
 -- Started rendering notes on non-active channels in reverse channel order, with highest channels underneath, and lowest channels on top. Active channel's notes are rendered on top of that.

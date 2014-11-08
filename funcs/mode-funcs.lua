@@ -20,6 +20,11 @@ return {
 
 	end,
 
+	-- Toggle the entry-quantize flag, which controls whether note-entry snaps to global factor values
+	toggleEntryQuantize = function()
+		data.entryquant = not data.entryquant
+	end,
+
 	-- Toggle between Generator Mode and Entry Mode
 	toggleGeneratorMode = function()
 		if data.cmdmode == "gen" then

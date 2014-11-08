@@ -234,6 +234,21 @@ return {
 		return ((n > 0) and (n * getFactorial(n - 1))) or 1
 	end,
 
+	-- Get the least-drastic distance to snap a given integer to a given interval
+	getSnapDistance = function(n, snap)
+
+		local ldist = -1 * wrapNum(n, 0, snap - 1)
+		local rdist = ldist + snap
+		local shift = ldist
+
+		if rdist < math.abs(ldist) then
+			shift = rdist
+		end
+
+		return shift
+
+	end,
+
 	-- Get all boundaries of a repeating 1D range,
 	-- as tiled inside a larger range, starting at an origin point.
 	getTileAxisBounds = function(base, size, origin, extent)

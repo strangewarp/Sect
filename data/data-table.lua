@@ -2,7 +2,7 @@
 local D = {}
 
 -- VERSIONING VARS --
-D.version = "1.1-a56" -- Holds Sect's current version-number
+D.version = "1.1-a57" -- Holds Sect's current version-number
 
 -- LOVE ENGINE VARS --
 D.updatespeed = 0.01 -- Speed at which to attempt to update program-state
@@ -126,6 +126,7 @@ D.recording = true -- Toggles whether note-recording is enabled
 D.playing = false -- Toggles whether to play through the seq's contents
 D.drawnotes = true -- Toggles whether to draw notes
 D.chanview = true -- Toggles rendering chan-nums on notes
+D.entryquant = false -- Toggles auto-quantization of note-entry
 
 -- Baseline contents for new sequences
 D.baseseq = {
@@ -226,6 +227,8 @@ D.cmdfuncs = {
 	TOGGLE_CHAN_NUM_VIEW = {"toggleChanNumView"},
 
 	TOGGLE_RECORDING = {"toggleRecording"},
+
+	TOGGLE_ENTRY_QUANTIZE = {"toggleEntryQuantize"},
 
 	TOGGLE_GENERATOR_MODE = {"toggleGeneratorMode"},
 	TOGGLE_PLAY_MODE = {"togglePlayMode"},
@@ -416,6 +419,8 @@ D.cmdgate = {
 	TOGGLE_CHAN_NUM_VIEW = {"entry", "gen", "cmd"},
 
 	TOGGLE_RECORDING = {"entry", "gen", "cmd"},
+
+	TOGGLE_ENTRY_QUANTIZE = {"entry", "gen", "cmd"},
 
 	TOGGLE_GENERATOR_MODE = {"entry", "gen", "cmd"},
 	TOGGLE_PLAY_MODE = {"entry", "gen", "cmd"},

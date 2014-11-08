@@ -166,6 +166,11 @@ return {
 		local tempnp = data.np or 0
 		local temptp = data.tp or 1
 
+		-- If Entry-Quantize is active, snap the insert-point to the nearest factor-tick
+		if data.entryquant then
+			temptp = wrapNum(temptp + getSnapDistance(temptp, data.factors[data.fp]) + 1, 1, data.seq[data.active].total)
+		end
+
 		-- If Cmd Mode isn't active...
 		if data.cmdmode ~= "cmd" then
 
