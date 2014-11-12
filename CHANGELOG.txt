@@ -12,8 +12,6 @@
 
 1.1
 
--- TODO: Fix Stretch's tendency to shift notes one tick lower on squash-type commands
-
 -- TODO: Fix out-of-bounds rendering of reticules and factor-columns on left edge of grid-panel
 
 -- TODO: Fix the colorization of backgrounds of cells in the track-panel

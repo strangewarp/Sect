@@ -121,6 +121,9 @@ return {
 		local furthest = 0
 		local cmds = {}
 
+		-- Get the rounding type
+		local round = ((amt < 1) and math.ceil) or roundNum
+
 		-- Get the currently-selected notes
 		local oldnotes = getContents(data.seldat, {pairs, pairs, pairs})
 		local newnotes = deepCopy(oldnotes)
@@ -135,17 +138,17 @@ return {
 			for k, v in pairs(oldnotes) do
 
 				-- Get the new start-tick, rounded off
-				local newstart = roundNum((v[2] + 1) * amt) - 1
+				local newstart = math.max(1, round((v[2] + 1) * amt)) - math.max(1, round(amt))
 
 				-- Change the newnote's start and duration values
-				newnotes[k][2] = newstart - 1
-				newnotes[k][3] = math.max(1, roundNum(v[3] * amt))
+				newnotes[k][2] = newstart
+				newnotes[k][3] = math.max(1, round(v[3] * amt))
 
 				-- Check the note against the furthest-val, for possible seq expansion
 				furthest = math.max(furthest, newnotes[k][2] + newnotes[k][3])
 
 				-- Build a new sparse index in seldat for the adjusted note, thus keeping it selected
-				buildTable(data.seldat, {newstart, v[4], v[5]}, newnotes[k])
+				buildTable(data.seldat, {newstart + 1, v[4], v[5]}, newnotes[k])
 
 			end
 
@@ -162,7 +165,7 @@ return {
 			-- and check their positions against the furthest-value.
 			for k, v in pairs(cmds) do
 				local adjtick = v[3][2] + 1
-				local newstart = roundNum(adjtick * amt)
+				local newstart = math.max(1, round(adjtick * amt)) - round(amt)
 				cmds[k] = {v[3], v[2], 2, newstart - adjtick}
 				furthest = math.max(furthest, newstart)
 			end
@@ -170,9 +173,9 @@ return {
 			-- Adjust every note's start-tick and duration based on the stretch amount,
 			-- and check their positions against the furthest-value.
 			for k, v in pairs(oldnotes) do
-				local newstart = roundNum((v[2] + 1) * amt) - 1
+				local newstart = math.max(1, round((v[2] + 1) * amt)) - round(amt)
 				newnotes[k][2] = newstart
-				newnotes[k][3] = math.max(1, roundNum(v[3] * amt))
+				newnotes[k][3] = math.max(1, round(v[3] * amt))
 				furthest = math.max(furthest, newstart + (newnotes[k][3] - 1))
 			end
 
