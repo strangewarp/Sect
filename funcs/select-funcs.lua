@@ -159,7 +159,7 @@ return {
 		local selitems = getContents(data.seldat, {pairs, pairs, pairs})
 
 		-- Put the select-table's contents into the copy-table
-		for _, n in pairs(c) do
+		for _, n in pairs(selitems) do
 			buildTable(data.copydat, {n[2] + 1, n[4], n[5]}, deepCopy(n))
 		end
 
@@ -169,8 +169,8 @@ return {
 			-- Search for lowest tick, and create an offset value based on it
 			local offset = offpoint
 			for _, n in pairs(selitems) do
-				local newoff = n[2] - data.tp
-				offset = math.min(offset, newoff)
+				local newoff = data.tp - (n[2] + 1)
+				offset = math.max(offset, newoff)
 			end
 
 			-- Set the copy-table's corresponding offset value
@@ -209,7 +209,7 @@ return {
 		-- Adjust the contents of the paste-table relative to the tick-pointer, using the offset
 		for i = 1, #paste do
 			paste[i][2] = wrapNum(
-				paste[i][2] + data.tp + data.copyoffset,
+				(paste[i][2] + data.tp) - data.copyoffset,
 				0,
 				data.seq[data.active].total - 1
 			)
@@ -233,13 +233,14 @@ return {
 			return nil
 		end
 
-		local ticks = #ata.seq[data.active].total
+		local ticks = data.seq[data.active].total
 		local tleft = math.huge
 		local tright = -math.huge
 		local iter = 1
 
 		-- Flatten the copy-table into a paste-table
 		local paste = getContents(data.copydat, {pairs, pairs, pairs})
+		local pasteout = {}
 
 		-- For every flattened paste-note...
 		for _, n in pairs(paste) do
@@ -265,20 +266,27 @@ return {
 			-- Adjust the contents of the paste-table relative to the tick-pointer,
 			-- increasing the paste-chunk multiplier on each iteration.
 			for k, v in pairs(paste) do
-				paste[k][2] = wrapNum(v + data.tp + ((iter - 1) * size), 0, ticks - 1)
+				table.insert(pasteout, #pasteout + 1, deepCopy(v))
+				pasteout[#pasteout][2] = wrapNum(
+					(v[2] + data.tp + ((iter - 1) * size)) - data.copyoffset,
+					0,
+					ticks - 1
+				)
 			end
+
+			print("ping! " .. #pasteout)--debugging
 
 			iter = iter + 1
 
 		end
 
 		-- Format the paste-table into setNotes commands
-		for k, v in pairs(paste) do
-			paste[k] = {'insert', v}
+		for k, v in pairs(pasteout) do
+			pasteout[k] = {'insert', v}
 		end
 
 		-- Add the paste-notes to current seq, and create an undo command
-		setNotes(data.active, paste, undo)
+		setNotes(data.active, pasteout, undo)
 
 	end,
 

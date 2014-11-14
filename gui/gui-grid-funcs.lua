@@ -5,9 +5,23 @@ return {
 	drawBeatColumns = function(tintcolumns)
 
 		for k, v in ipairs(tintcolumns) do
+
 			local tick, colleft, coltop, colwidth, colheight, color = unpack(v)
-			love.graphics.setColor(color)
-			love.graphics.rectangle("fill", colleft, coltop, colwidth, colheight)
+
+			-- If any portion of the column is within the seq-panel...
+			if (colleft + colwidth) >= data.size.sidebar.width then
+
+				-- Crop the tinted column to the seq-panel's left border
+				if colleft < data.size.sidebar.width then
+					colwidth = colwidth - (data.size.sidebar.width - colleft)
+					colleft = data.size.sidebar.width
+				end
+
+				love.graphics.setColor(color)
+				love.graphics.rectangle("fill", colleft, coltop, colwidth, colheight)
+
+			end
+
 		end
 
 	end,
