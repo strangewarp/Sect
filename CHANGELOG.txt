@@ -12,10 +12,6 @@
 
 1.1
 
--- TODO: Simplify screwy rendering of beat-triangles at edges of seq-panel
-
--- TODO: Fix the colorization of backgrounds of cells in the track-panel
-
 -- TODO: Rename original loadFile to additiveLoadFile, and create a new destructive loadFile function.
 
 -- TODO: Add a simple metronome in Play Mode, which plays a tick on every multiple of the Quantize value.

@@ -12,15 +12,16 @@ return {
 
 		buildBackground(width, height)
 
+		buildSeqFrame(
+			data.size.sidebar.width, 0,
+			width, height - data.size.botbar.height
+		)
+
+		-- Build sidebar after assembling the seq-frame, to cover all outlying elements
 		buildSidebar(
 			0, 5,
 			data.size.sidebar.width, height - 10,
 			width, height
-		)
-
-		buildSeqFrame(
-			data.size.sidebar.width, 0,
-			width, height - data.size.botbar.height
 		)
 
 		-- Draw a line that compensates for a dangling border on the piano-roll,
@@ -34,7 +35,7 @@ return {
 		love.graphics.setLineWidth(1)
 
 		buildTrackBar(
-			data.size.sidebar.width, height - data.size.botbar.height,
+			data.size.sidebar.width + 1, height - data.size.botbar.height,
 			width - data.size.sidebar.width, data.size.botbar.height
 		)
 

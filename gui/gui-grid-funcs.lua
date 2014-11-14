@@ -39,18 +39,9 @@ return {
 
 			love.graphics.setColor(data.color.triangle.fill)
 
-			if (xpos - bhalfout) < data.size.sidebar.width then
-				local xleft = data.size.sidebar.width
-				local yshort = tritop + (xpos - xleft)
-				love.graphics.polygon("fill", xleft, yshort, xleft, yfull, xpos + bhalf, yfull, xpos, tritop)
-				love.graphics.setColor(data.color.triangle.line)
-				love.graphics.line(xleft, yshort, xpos, tritop, xpos + bhalfout, yfull + 2)
-			else
-				love.graphics.polygon("fill", xpos - bhalf, yfull, xpos + bhalf, yfull, xpos, tritop)
-				love.graphics.setColor(data.color.triangle.line)
-				love.graphics.line(xpos - bhalfout, yfull + 1, xpos, tritop, xpos + bhalfout, yfull + 1)
-			end
-
+			love.graphics.polygon("fill", xpos - bhalf, yfull, xpos + bhalf, yfull, xpos, tritop)
+			love.graphics.setColor(data.color.triangle.line)
+			love.graphics.line(xpos - bhalfout, yfull + 1, xpos, tritop, xpos + bhalfout, yfull + 1)
 			love.graphics.setColor(data.color.triangle.text)
 			love.graphics.setFont(data.font.beat.raster)
 			love.graphics.printf(beat, xpos - bhalf, trifonttop, breadth, "center")

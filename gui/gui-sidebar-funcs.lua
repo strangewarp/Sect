@@ -214,7 +214,7 @@ return {
 			local boxtop = (boxheight * (row - 1)) + (row - 1)
 
 			local strength = 0
-			local ticks = #data.seq[i].tick
+			local ticks = data.seq[i].total
 
 			-- Increase color-strength for every note, weighted against ticks/duration
 			local strcheck = getContents(data.seq[i].tick, {pairs, 'note', pairs, pairs})
