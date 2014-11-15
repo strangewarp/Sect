@@ -2,7 +2,7 @@
 local D = {}
 
 -- VERSIONING VARS --
-D.version = "1.1-a57" -- Holds Sect's current version-number
+D.version = "1.1-a62" -- Holds Sect's current version-number
 
 -- LOVE ENGINE VARS --
 D.updatespeed = 0.01 -- Speed at which to attempt to update program-state
@@ -15,7 +15,6 @@ D.tp = 0 -- Current tick-pointer position
 D.np = 0 -- Current note-pointer position
 D.cmdp = 1 -- Current Cmd Mode non-note-command pointer position
 D.tick = 1 -- Current tick occupied by the play-line position
-D.playing = false -- Toggles whether the tickline is playing or not
 
 -- LOADING SCREEN VARS --
 D.loadcmds = {} -- Holds all loading-screen messages
@@ -112,6 +111,7 @@ D.beatgrain = 12 -- Smallest beatlength factor to which notes will stick
 D.notegrain = 4 -- Minimum note size, in ticks
 
 -- SEQ-PLAY VARS --
+D.playing = false -- Toggles whether the tickline is playing or not
 D.playoffset = 0 -- Holds the sub-delta time offset for tick-playing
 
 -- MODE VARS --
@@ -219,7 +219,8 @@ D.pianometa = {
 -- Links between command-names and functions (with args as needed)
 D.cmdfuncs = {
 
-	LOAD_FILE = {"loadFile", false},
+	LOAD_FILE = {"loadFile", true, false},
+	LOAD_FILE_OVERWRITE = {"loadFile", false, false},
 	SAVE_FILE = {"saveFile"},
 
 	TOGGLE_SEQ_OVERLAY = {"toggleSeqOverlay"},
@@ -230,8 +231,8 @@ D.cmdfuncs = {
 
 	TOGGLE_ENTRY_QUANTIZE = {"toggleEntryQuantize"},
 
-	TOGGLE_GENERATOR_MODE = {"toggleGeneratorMode"},
 	TOGGLE_PLAY_MODE = {"togglePlayMode"},
+	TOGGLE_GENERATOR_MODE = {"toggleGeneratorMode"},
 	TOGGLE_CMD_MODE = {"toggleCmdMode"},
 
 	UNDO = {"traverseUndo", true},
@@ -412,6 +413,7 @@ D.cmdfuncs = {
 D.cmdgate = {
 
 	LOAD_FILE = {"entry", "gen", "cmd"},
+	LOAD_FILE_OVERWRITE = {"entry", "gen", "cmd"},
 	SAVE_FILE = {"entry", "gen", "cmd"},
 
 	TOGGLE_SEQ_OVERLAY = {"entry", "gen", "cmd"},
@@ -422,8 +424,8 @@ D.cmdgate = {
 
 	TOGGLE_ENTRY_QUANTIZE = {"entry", "gen", "cmd"},
 
-	TOGGLE_GENERATOR_MODE = {"entry", "gen", "cmd"},
 	TOGGLE_PLAY_MODE = {"entry", "gen", "cmd"},
+	TOGGLE_GENERATOR_MODE = {"entry", "gen", "cmd"},
 	TOGGLE_CMD_MODE = {"entry", "gen", "cmd"},
 
 	UNDO = {"entry", "gen", "cmd"},

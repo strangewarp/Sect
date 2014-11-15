@@ -12,17 +12,9 @@
 
 1.1
 
--- TODO: Rename original loadFile to additiveLoadFile, and create a new destructive loadFile function.
-
--- TODO: Add a simple metronome in Play Mode, which plays a tick on every multiple of the Quantize value.
----- sub-task: Sync metronome with Entry-Quantize value.
----- sub-task: On TPQ-change, reset metro value to TPQ value.
-
 -- TODO: Test all commands thoroughly again, to check for bugs caused by refactoring / new features.
 
 -- TODO: Remove 'if not data.active then return nil end' checks from all functions, because on-keycommand seq checking makes them extraneous.
-
--- TODO: Make hotseat-toggling and loadFile commands available when no sequences are loaded.
 
 -- TODO: remove "debugging" messages
 -- TODO: comment out console again
@@ -43,6 +35,7 @@
 -- Added "Stretch" command, which multiplies the duration and the starting tick of every selected note (or every note in the sequence, if none are selected), by global spacing/duration, rounded to the nearest tick-value.
 -- Added "Quantize" command, which snaps all selected notes in the active sequence to ticks that are multiples of data.spacing.
 -- Added "Select Chan" command, a version of Select-All that only applies to notes in the active seq's active channel.
+-- Added a "Destructive Load" command, to overwrite all currently-existing sequences and load a given hotseat file.
 -- Added Cmd Mode versions of various editor commands.
 -- Added full MIDI-IN, for composition via external MIDI devices. Due to how Spacing and Play Mode interact with note-entry, there doesn't need to be any explicit tabbing between input-types.
 -- Created a two-way MIDI-over-UDP communications system, designed to send MIDI between Sect and user devices, via SectMidiClient.
@@ -62,6 +55,7 @@
 -- Changed the rendering properties of the notes within a sequence's non-active channels, both in their default state and while selected.
 
 * Logic changes:
+-- Made hotseat-toggling and loadFile commands available when no sequences are loaded.
 -- Changed all modNotes/modCmds calls to use a "multiply" value, as some calls need to multiply the shift-value by data.spacing, while others don't.
 -- Refactored data-structures so that tick tables themselves are also sparse; and added a "total" variable to each seq table to keep track of how many ticks are in a sequence.
 -- Wrote buildTable, getIndex, getContents, seqUnsetCascade, and copyUnsetCascade, which manipulate strictly-defined sparse tables within the new data-structure-space. This allows notes to be stored explicitly, rather than in unordered tables; and yet also prevents said storage from incurring massive lag.

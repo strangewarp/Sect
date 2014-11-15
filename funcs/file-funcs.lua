@@ -56,7 +56,7 @@ return {
 	end,
 
 	-- Load the current active savefile in the hotseats list
-	loadFile = function(undo)
+	loadFile = function(add, undo)
 
 		-- If the save-directory doesn't exist, abort function
 		if not data.saveok then
@@ -77,6 +77,13 @@ return {
 		end
 		local rawmidi = midifile:read('*all')
 		midifile:close()
+
+		-- If this isn't an additive-load, unset all currently existing seqs
+		if add == false then
+			while data.active do
+				removeActiveSequence(undo)
+			end
+		end
 
 		-- Get the score, stats, and TPQ
 		local score = MIDI.midi2score(rawmidi)

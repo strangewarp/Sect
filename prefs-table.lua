@@ -322,6 +322,7 @@ return {
 	cmds = { -- Links between command-names and keychords
 
 		LOAD_FILE = {"ctrl", "o"},
+		LOAD_FILE_OVERWRITE = {"ctrl", "shift", "o"},
 		SAVE_FILE = {"ctrl", "s"},
 
 		TOGGLE_SEQ_OVERLAY = {"backspace"},
