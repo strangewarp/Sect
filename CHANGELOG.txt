@@ -16,17 +16,9 @@
 
 -- TODO: Remove 'if not data.active then return nil end' checks from all functions, because on-keycommand seq checking makes them extraneous.
 
--- TODO: remove "debugging" messages
--- TODO: comment out console again
--- TODO: change data.version back to "1.1"
-
--- REMINDER: Data structures:
----- data.seq[a].tick[b].note[c][d] = a single unique note (c=chan, d=pitch)
----- data.seq[a].tick[b].cmd[c] = {... that channel's non-note cmds}
-
--- REMINDER: Selection data structures:
----- data.seloffset = distance that seldat tick 1 is offset from tick-pointer
----- data.seldat[tick][chan][pitch] = a single unique note
+-- TODO: Remove "debugging" messages
+-- TODO: Comment out console again
+-- TODO: Change data.version back to "1.1" in data-table.lua!
 
 * New features:
 -- Added "CMD mode", where a sequence's non-NOTE commands are held and modified.

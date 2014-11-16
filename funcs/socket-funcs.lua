@@ -34,7 +34,7 @@ return {
 				n[3] = data.dur
 
 				-- Call setNotes from within executeFunction, to spawn a new undo chunk
-				executeFunction("setNotes", data.active, {'insert', n}, false)
+				executeFunction("setNotes", data.active, {{'insert', n}}, false)
 
 				moveTickPointer(1) -- Move ahead by one spacing unit
 
