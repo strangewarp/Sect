@@ -253,6 +253,7 @@ return {
 			-- create a "remove" cmd, and send that cmd to setCmd.
 			if getIndex(data.seq[data.active].tick, {data.tp, "cmd", data.cmdp}) then
 				setCmd(data.active, {'remove', data.cmdp}, undo)
+				moveTickPointer(1) -- Move tick-pointer by 1 spacing unit
 			end
 
 		else -- Else, delete the active note
@@ -268,6 +269,7 @@ return {
 			if #delnotes > 0 then
 				delnotes = notesToSetType(delnotes, 'remove')
 				setNotes(data.active, delnotes, undo)
+				moveTickPointer(1) -- Move tick-pointer by 1 spacing unit
 			end
 
 		end
@@ -288,6 +290,7 @@ return {
 				for k, v in pairs(delcmds) do
 					setCmd(data.active, v, undo)
 				end
+				moveTickPointer(1) -- Move tick-pointer by 1 spacing unit
 			end
 
 		else -- Else, delete all notes on the tick
@@ -298,6 +301,7 @@ return {
 			-- If any matching notes were found, send them through removeNotes
 			if #delnotes > 0 then
 				setNotes(data.active, delnotes, undo)
+				moveTickPointer(1) -- Move tick-pointer by 1 spacing unit
 			end
 
 		end

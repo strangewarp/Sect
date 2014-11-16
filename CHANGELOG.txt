@@ -47,6 +47,7 @@
 -- Changed the rendering properties of the notes within a sequence's non-active channels, both in their default state and while selected.
 
 * Logic changes:
+-- Started moving tick-pointer forward by 1 spacing-unit on note-delete, in both deleteNote and deleteTickNotes.
 -- Made hotseat-toggling and loadFile commands available when no sequences are loaded.
 -- Changed all modNotes/modCmds calls to use a "multiply" value, as some calls need to multiply the shift-value by data.spacing, while others don't.
 -- Refactored data-structures so that tick tables themselves are also sparse; and added a "total" variable to each seq table to keep track of how many ticks are in a sequence.
