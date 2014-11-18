@@ -56,17 +56,22 @@ return {
 	end,
 
 	-- Load the current active savefile in the hotseats list
-	loadFile = function(add, undo)
+	loadFile = function(filename, add, undo)
 
 		-- If the save-directory doesn't exist, abort function
 		if not data.saveok then
 			return nil
 		end
 
+		-- If no filename was given, use the current hotseat filename
+		if not filename then
+			filename = data.hotseats[data.activeseat]
+		end
+
 		local bpm, tpq = false, false
 		local undotasks = {}
 
-		local saveloc = data.savepath .. data.hotseats[data.activeseat] .. ".mid"
+		local saveloc = data.savepath .. filename .. ".mid"
 		print("loadFile: Now loading: " .. saveloc)
 
 		-- Try to open the MIDI file
@@ -167,20 +172,33 @@ return {
 
 		print("loadFile: loaded MIDI file \"" .. data.hotseats[data.activeseat] .. "\"!")
 
+		-- If in Saveload Mode, untoggle said mode
+		if data.cmdmode == "saveload" then
+			toggleSaveLoad()
+		end
+
+		-- Update the hotseats list with the filename
+		updateHotseats(filename)
+
 	end,
 
 	-- Save to the current active hotseat location
-	saveFile = function()
+	saveFile = function(filename)
 
 		-- If the save-directory doesn't exist, abort function
 		if not data.saveok then
 			return nil
 		end
 
+		-- If no filename was given, use the current hotseat filename
+		if not filename then
+			filename = data.hotseats[data.activeseat]
+		end
+
 		local score = {}
 
 		-- Get save location
-		local shortname = data.hotseats[data.activeseat] .. ".mid"
+		local shortname = filename .. ".mid"
 		local saveloc = data.savepath .. shortname
 		print("saveFile: Now saving: " .. saveloc)
 
@@ -208,7 +226,13 @@ return {
 		print("saveFile: BPM " .. data.bpm .. " :: TPQ " .. data.tpq .. " :: uSPQ " .. outbpm)
 
 		-- Save the score into a MIDI file within the savefolder
-		local midifile = assert(io.open(saveloc, 'w'))
+		local midifile = io.open(saveloc, 'w')
+		if midifile == nil then
+			data.savepopup = true
+			data.savedegrade = 90
+			data.savemsg = "Could not save file! Filename contains invalid characters!"
+			return nil
+		end
 		midifile:write(MIDI.score2midi(score))
 		midifile:close()
 
@@ -218,6 +242,109 @@ return {
 		data.savemsg = "Saved " .. (#score - 1) .. " track" .. (((#score ~= 2) and "s") or "") .. " to file: " .. shortname
 
 		print("saveFile: saved " .. (#score - 1) .. " sequences to file \"" .. saveloc .. "\"!")
+
+		-- If in Saveload Mode, untoggle said mode
+		if data.cmdmode == "saveload" then
+			toggleSaveLoad()
+		end
+
+		-- Update the hotseats list with the filename
+		updateHotseats(filename)
+
+	end,
+
+	-- Update the hotseats list with a new filename
+	updateHotseats = function(name)
+
+		local limit = #data.hotseats
+
+		for k, v in pairs(data.hotseats) do
+			if v == name then
+				table.remove(data.hotseats, k)
+				break
+			end
+		end
+
+		table.insert(data.hotseats, 1, name)
+
+		while #data.hotseats > limit do
+			table.remove(data.hotseats, limit + 1)
+		end
+
+	end,
+
+	-- Load a file with a user-entered string from Saveload Mode
+	loadSLStringFile = function(undo)
+		if data.savestring:len() > 0 then
+			loadFile(data.savestring, add, undo)
+		end
+	end,
+
+	-- Save a file with a user-entered string from Saveload Mode
+	saveSLStringFile = function()
+		if data.savestring:len() > 0 then
+			saveFile(data.savestring)
+		end
+	end,
+
+	-- Add a text-character to the savefile-string in Saveload Mode
+	addSaveChar = function(t)
+
+		local slen = #data.savestring
+		local left = ((data.sfsp > 0) and data.savestring:sub(1, data.sfsp)) or ""
+		local right = ((data.sfsp < slen) and data.savestring:sub(data.sfsp + 1, slen)) or ""
+
+		data.savestring = left .. t .. right
+
+		data.sfsp = math.min(data.sfsp + 1, #data.savestring)
+
+		checkUserSaveEntry()
+
+	end,
+
+	-- Remove a text-character from the savefile-string in Saveload Mode
+	removeSaveChar = function(offset)
+
+		local rpoint = data.sfsp + offset + 1
+
+		if offset > 0 then
+			rpoint = rpoint - 1
+		end
+
+		local slen = #data.savestring
+
+		local left = ((rpoint > 1) and data.savestring:sub(1, rpoint - 1)) or ""
+		local right = ((rpoint < slen) and data.savestring:sub(rpoint + 1, slen)) or ""
+
+		data.savestring = left .. right
+
+		if slen > #data.savestring then
+			data.sfsp = rpoint - 1
+		end
+
+		checkUserSaveEntry()
+
+	end,
+
+	-- Move the savefile-string pointer location
+	moveSavePointer = function(dir)
+		data.sfsp = wrapNum(data.sfsp + dir, 0, data.savestring:len())
+	end,
+
+	-- Check the validity of the current savestring entry
+	checkUserSaveEntry = function()
+
+		if data.savestring:len() == 0 then
+			data.savevalid = false
+		end
+
+		local f = io.open(data.savepath .. data.savestring .. ".mid", 'r')
+		if f == nil then
+			data.savevalid = false
+		else
+			data.savevalid = true
+			f:close()
+		end
 
 	end,
 

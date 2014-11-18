@@ -26,8 +26,9 @@ return {
 			outtab = {
 				"no seqs loaded!",
 				"",
-				string.upper(table.concat(data.cmds.LOAD_FILE, "-")),
-				"opens a hotseat",
+				string.upper(table.concat(data.cmds.TOGGLE_SAVELOAD_MODE, "-")),
+				"opens the",
+				"saveload panel",
 				"",
 				string.upper(table.concat(data.cmds.INSERT_SEQ, "-")),
 				"creates a seq",

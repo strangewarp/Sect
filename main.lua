@@ -60,7 +60,7 @@ end
 ---------------
 function love.load()
 
-	-- Set user-input to false, for duration of loading
+	-- Set text-input commands to false
 	love.keyboard.setTextInput(false)
 
 	MIDI = require('midi/MIDI')
@@ -76,6 +76,7 @@ function love.load()
 	guiloadingfuncs = require('gui/gui-loading-funcs')
 	guimiscfuncs = require('gui/gui-misc-funcs')
 	guinotefuncs = require('gui/gui-note-funcs')
+	guisaveloadfuncs = require('gui/gui-saveload-funcs')
 	guisidebarfuncs = require('gui/gui-sidebar-funcs')
 	indexfuncs = require('funcs/index-funcs')
 	keyfuncs = require('funcs/key-funcs')
@@ -104,6 +105,7 @@ function love.load()
 		guiloadingfuncs,
 		guimiscfuncs,
 		guinotefuncs,
+		guisaveloadfuncs,
 		guisidebarfuncs,
 		indexfuncs,
 		keyfuncs,
@@ -244,7 +246,7 @@ function love.load()
 		data.loadcmds,
 		{
 			{{"setupUDP"}, "Setting up MIDI-over-UDP apparatus..."},
-			{{"buttonsToPianoKeys", data.pianokeys}, "Assigning computer-piano keys..."},
+			{{"buildPianoKeyCommands", data.pianokeys}, "Assigning computer-piano keys..."},
 			{{"buildHotseatCommands"}, "Building hotseat commands..."},
 			{{"sortKeyComboTables"}, "Sorting key-command tables..."},
 		}
@@ -327,6 +329,11 @@ end
 ----------------------
 function love.mousepressed(x, y, button)
 
+	-- Ignore mouse activity in Saveload Mode
+	if data.cmdmode == "saveload" then
+		return nil
+	end
+
 	-- Get window dimensions
 	local width, height = love.graphics.getDimensions()
 
@@ -348,6 +355,11 @@ end
 --- ON MOUSE RELEASE ---
 ------------------------
 function love.mousereleased(x, y, button)
+
+	-- Ignore mouse activity in Saveload Mode
+	if data.cmdmode == "saveload" then
+		return nil
+	end
 
 	-- Set the mouse cursor back to its default appearance
 	if (button == 'l') or (button == 'r') then
@@ -382,6 +394,28 @@ function love.keyreleased(key)
 	end
 
 	removeKeystroke(key)
+
+end
+
+---------------------
+--- ON TEXT-INPUT ---
+---------------------
+function love.textinput(t)
+
+	-- If any commands are being chorded with ctrl or tab, abort function
+	for k, v in pairs(data.keys) do
+		if (v == "ctrl") or (v == "tab") then
+			return nil
+		end
+	end
+
+	if t == "backspace" then
+		removeSaveChar(-1)
+	elseif t == "delete" then
+		removeSaveChar(1)
+	else
+		addSaveChar(t)
+	end
 
 end
 

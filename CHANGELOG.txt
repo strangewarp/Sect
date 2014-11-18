@@ -12,6 +12,15 @@
 
 1.1
 
+-- TODO: Clip off right edge of long hotseat-filenames, to prevent intrusion into sequence-panel.
+
+-- TODO: Update tutorial content for the following things:
+---- Cmd Mode
+---- Saveload mode
+---- Updated save/load commands in general
+---- TextPaste
+---- Updated MIDI-listener system
+
 -- TODO: Test all commands thoroughly again, to check for bugs caused by refactoring / new features.
 
 -- TODO: Remove 'if not data.active then return nil end' checks from all functions, because on-keycommand seq checking makes them extraneous.
@@ -21,11 +30,13 @@
 -- TODO: Change data.version back to "1.1" in data-table.lua!
 
 * New features:
+-- Added "Saveload mode", which allows the user to enter a filename and perform save-or-load commands in a dedicated panel.
 -- Added "CMD mode", where a sequence's non-NOTE commands are held and modified.
 -- Added "Factor" commands, which toggle highlighting of factor-ticks within the current beat-value, with TPQ*4 as its default setting.
 -- Added an "Entry-Quantize" toggle, which makes incoming notes and cmds stick to the nearest Factor-Display-tick.
 -- Added "Stretch" command, which multiplies the duration and the starting tick of every selected note (or every note in the sequence, if none are selected), by global spacing/duration, rounded to the nearest tick-value.
 -- Added "Quantize" command, which snaps all selected notes in the active sequence to ticks that are multiples of data.spacing.
+-- Added "Text Paste" command, which uses love.system.setClipboardText to convert copied text into MIDI notes.
 -- Added "Select Chan" command, a version of Select-All that only applies to notes in the active seq's active channel.
 -- Added a "Destructive Load" command, to overwrite all currently-existing sequences and load a given hotseat file.
 -- Added Cmd Mode versions of various editor commands.
@@ -47,6 +58,7 @@
 -- Changed the rendering properties of the notes within a sequence's non-active channels, both in their default state and while selected.
 
 * Logic changes:
+-- Started modifying hotseats-list based on recent save/load activity.
 -- Started moving tick-pointer forward by 1 spacing-unit on note-delete, in both deleteNote and deleteTickNotes.
 -- Made hotseat-toggling and loadFile commands available when no sequences are loaded.
 -- Changed all modNotes/modCmds calls to use a "multiply" value, as some calls need to multiply the shift-value by data.spacing, while others don't.

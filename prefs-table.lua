@@ -135,12 +135,23 @@ return {
 			cmd_dark = {9, 6, 2, 55},
 		},
 
-		save = { -- Save-popup colors
+		save = { -- Save-confirmation-popup colors
 			border = {230, 233, 234, 255},
 			background = {0, 0, 245, 255},
 			background_fade = {100, 100, 150, 255},
 			text = {240, 240, 240, 255},
 			text_shadow = {4, 5, 10, 175},
+		},
+
+		saveload = { -- Saveload panel colors
+			background = {180, 180, 190, 255},
+			panel = {110, 110, 120, 255},
+			exist = {10, 195, 5, 255},
+			not_exist = {0, 0, 245, 255},
+			reticule = {0, 0, 245, 255},
+			text = {230, 225, 225, 255},
+			text_exist = {255, 255, 255, 255},
+			text_not_exist = {235, 235, 235, 255},
 		},
 
 		loading = { -- Loading-screen colors
@@ -321,9 +332,18 @@ return {
 
 	cmds = { -- Links between command-names and keychords
 
-		LOAD_FILE = {"ctrl", "o"},
-		LOAD_FILE_OVERWRITE = {"ctrl", "shift", "o"},
-		SAVE_FILE = {"ctrl", "s"},
+		LOAD_HOTSEAT_FILE = {"ctrl", "o"},
+		LOAD_HOTSEAT_FILE_OVERWRITE = {"ctrl", "shift", "o"},
+		SAVE_FILE_TO_HOTSEAT = {"ctrl", "shift", "tab", "s"},
+
+		TOGGLE_SAVELOAD_MODE = {"ctrl", "s"},
+		ESCAPE_SAVELOAD_MODE = {"escape"},
+		SL_POINTER_LEFT = {"left"},
+		SL_POINTER_RIGHT = {"right"},
+		SL_CHAR_BACKSPACE = {"backspace"},
+		SL_CHAR_DELETE = {"delete"},
+		LOAD_SL_FILE = {"ctrl", "o"},
+		SAVE_SL_FILE = {"ctrl", "s"},
 
 		TOGGLE_SEQ_OVERLAY = {"backspace"},
 		TOGGLE_NOTE_DRAW = {"shift", "backspace"},
@@ -353,6 +373,8 @@ return {
 		CUT_ADD = {"ctrl", "shift", "x"},
 		PASTE = {"ctrl", "v"},
 		PASTE_REPEATING = {"ctrl", "shift", "v"},
+		PASTE_FROM_TEXT_MONO = {"ctrl", "m"},
+		PASTE_FROM_TEXT_POLY = {"ctrl", "p"},
 
 		HUMANIZE = {"ctrl", "h"},
 		QUANTIZE = {"ctrl", "u"},

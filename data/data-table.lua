@@ -2,7 +2,7 @@
 local D = {}
 
 -- VERSIONING VARS --
-D.version = "1.1-a62" -- Holds Sect's current version-number
+D.version = "1.1-a74" -- Holds Sect's current version-number
 
 -- LOVE ENGINE VARS --
 D.updatespeed = 0.01 -- Speed at which to attempt to update program-state
@@ -21,11 +21,14 @@ D.loadcmds = {} -- Holds all loading-screen messages
 D.loadtext = "" -- Holds text from finished and active loading-screen cmds
 D.loadnum = 1 -- Iterates through loading-screen cmds
 
--- SAVEFILE VARS --
+-- SAVELOAD VARS --
 D.saveok = false -- Controls whether it's OK to save to data.savepath
 D.savemsg = "" -- Current save-popup message
 D.savepopup = false -- Toggles whether a save-popup is visible
 D.savedegrade = 0 -- Number of draw-updates before save popup vanishes
+D.savestring = "" -- Holds user-entered savefile-name text
+D.sfsp = 1 -- Pointer for text-entry into data.savestring
+D.savevalid = false -- Tracks whether data.savestring matches a valid file
 
 -- HOTSEAT VARS --
 D.activeseat = 1 -- Currently active hotseat-name
@@ -119,6 +122,7 @@ D.modenames = { -- Full names of the various mode types
 	entry = "entry",
 	gen = "generator",
 	cmd = "cmd",
+	saveload = "saveload",
 }
 D.cmdmode = "entry" -- Mode flag, for accepting certain command types
 D.loading = true -- True while loading; false after loading is done
@@ -219,9 +223,18 @@ D.pianometa = {
 -- Links between command-names and functions (with args as needed)
 D.cmdfuncs = {
 
-	LOAD_FILE = {"loadFile", true, false},
-	LOAD_FILE_OVERWRITE = {"loadFile", false, false},
-	SAVE_FILE = {"saveFile"},
+	LOAD_HOTSEAT_FILE = {"loadFile", false, true, false},
+	LOAD_HOTSEAT_FILE_OVERWRITE = {"loadFile", false, false, false},
+	SAVE_FILE_TO_HOTSEAT = {"saveFile", false},
+
+	TOGGLE_SAVELOAD_MODE = {"toggleSaveLoad"},
+	ESCAPE_SAVELOAD_MODE = {"toggleSaveLoad"},
+	SL_POINTER_LEFT = {"moveSavePointer", -1},
+	SL_POINTER_RIGHT = {"moveSavePointer", 1},
+	SL_CHAR_BACKSPACE = {"removeSaveChar", -1},
+	SL_CHAR_DELETE = {"removeSaveChar", 1},
+	LOAD_SL_FILE = {"loadSLStringFile", false},
+	SAVE_SL_FILE = {"saveSLStringFile"},
 
 	TOGGLE_SEQ_OVERLAY = {"toggleSeqOverlay"},
 	TOGGLE_NOTE_DRAW = {"toggleNoteDraw"},
@@ -263,6 +276,8 @@ D.cmdfuncs = {
 	CUT_ADD = {"cutSelection", true, false},
 	PASTE = {"pasteSelection", false},
 	PASTE_REPEATING = {"pasteRepeating", false},
+	PASTE_FROM_TEXT_MONO = {"pasteFromText", "mono", false},
+	PASTE_FROM_TEXT_POLY = {"pasteFromText", "poly", false},
 
 	HUMANIZE = {"humanizeNotes", false},
 	QUANTIZE = {"quantizeNotes", false},
@@ -412,9 +427,18 @@ D.cmdfuncs = {
 -- Modes in which a given command will take effect
 D.cmdgate = {
 
-	LOAD_FILE = {"entry", "gen", "cmd"},
-	LOAD_FILE_OVERWRITE = {"entry", "gen", "cmd"},
-	SAVE_FILE = {"entry", "gen", "cmd"},
+	LOAD_HOTSEAT_FILE = {"entry", "gen", "cmd"},
+	LOAD_HOTSEAT_FILE_OVERWRITE = {"entry", "gen", "cmd"},
+	SAVE_FILE_TO_HOTSEAT = {"entry", "gen", "cmd"},
+
+	TOGGLE_SAVELOAD_MODE = {"entry", "gen", "cmd"},
+	ESCAPE_SAVELOAD_MODE = {"saveload"},
+	SL_POINTER_LEFT = {"saveload"},
+	SL_POINTER_RIGHT = {"saveload"},
+	SL_CHAR_BACKSPACE = {"saveload"},
+	SL_CHAR_DELETE = {"saveload"},
+	LOAD_SL_FILE = {"saveload"},
+	SAVE_SL_FILE = {"saveload"},
 
 	TOGGLE_SEQ_OVERLAY = {"entry", "gen", "cmd"},
 	TOGGLE_NOTE_DRAW = {"entry", "gen", "cmd"},
@@ -456,6 +480,8 @@ D.cmdgate = {
 	CUT_ADD = {"entry", "gen"},
 	PASTE = {"entry", "gen"},
 	PASTE_REPEATING = {"entry", "gen"},
+	PASTE_FROM_TEXT_MONO = {"entry", "gen"},
+	PASTE_FROM_TEXT_POLY = {"entry", "gen"},
 
 	HUMANIZE = {"entry", "gen"},
 	QUANTIZE = {"entry", "gen"},
@@ -625,6 +651,8 @@ D.undocmds = {
 
 	-- file-funcs.lua
 	["loadFile"] = true,
+	["loadSLStringFile"] = true,
+	["saveSLStringFile"] = true,
 
 	-- generator-funcs.lua
 	["generateSeqNotes"] = true,
@@ -650,6 +678,7 @@ D.undocmds = {
 	["cutSelection"] = true,
 	["pasteSelection"] = true,
 	["pasteRepeating"] = true,
+	["pasteFromText"] = true,
 
 }
 

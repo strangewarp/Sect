@@ -53,6 +53,42 @@ return {
 	toggleRecording = function()
 		data.recording = not data.recording
 	end,
+
+	-- Toggle the Saveload panel, and its corresponding data-mode
+	toggleSaveLoad = function()
+
+		-- If the save-dir is not correctly set, abort function
+		if not data.saveok then
+			return nil
+		end
+
+		data.playing = false
+		data.recording = false
+
+		data.savestring = ""
+		data.sfsp = 1
+		data.savevalid = false
+
+		-- If in saveload mode, toggle out of it.
+		if data.cmdmode == "saveload" then
+
+			-- Disallow text-input events
+			love.keyboard.setTextInput(false)
+
+			-- Toggle into entry mode
+			data.cmdmode = "entry"
+
+		else -- If out of saveload mode, prepare to toggle into it
+
+			-- Allow text-input events
+			love.keyboard.setTextInput(true)
+
+			-- Toggle into saveload mode
+			data.cmdmode = "saveload"
+
+		end
+
+	end,
 	
 	-- Toggle a given sequence's overlay activity
 	toggleSeqOverlay = function()

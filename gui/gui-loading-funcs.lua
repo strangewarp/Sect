@@ -82,7 +82,6 @@ return {
 		-- If all loading-commands are finished, set the loading-flag to false
 		if data.loadnum > #data.loadcmds then
 			data.loading = false
-			love.keyboard.setTextInput(true) -- Set keyboard-input to true
 		end
 
 	end,

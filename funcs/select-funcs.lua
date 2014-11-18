@@ -290,4 +290,66 @@ return {
 
 	end,
 
+	-- Paste text from the system's clipboard as a series of MIDI notes
+	pasteFromText = function(kind, undo)
+
+		local cdata = love.system.getClipboardText()
+
+		-- If nothing is in the system's clipboard, abort function
+		if #cdata == 0 then
+			return nil
+		end
+
+		-- Replace all non-letter characters with spaces
+		cdata = cdata:gsub("%A+", " ")
+
+		-- Trim incoming text-data to a sane amount (500 characters or less)
+		if #cdata > 500 then
+			cdata = cdata:sub(1, 500)
+		end
+
+		local bot = data.np
+		local top = clampNum(data.np + data.dur, data.bounds.np)
+
+		local notes = {}
+
+		if kind == "poly" then
+			local k = 0
+			for v in cdata:gmatch("%g+") do
+				print("ping!")--debugging
+				k = k + 1
+				for i = 1, #v do
+					local byte = v:byte(i)
+					local n = {
+						"note",
+						wrapNum((data.tp - 1) + (data.spacing * (k - 1)), 0, data.seq[data.active].total - 1),
+						math.max(data.spacing, 1),
+						data.chan,
+						wrapNum(byte, bot, top),
+						data.velo,
+					}
+					table.insert(notes, {'insert', n})
+				end
+			end
+		else
+			for i = 1, #cdata do
+				if cdata:sub(i, i) ~= " " then
+					local byte = cdata:byte(i)
+					local n = {
+						"note",
+						wrapNum((data.tp - 1) + (data.spacing * (i - 1)), 0, data.seq[data.active].total - 1),
+						math.max(data.spacing, 1),
+						data.chan,
+						wrapNum(byte, bot, top),
+						data.velo,
+					}
+					table.insert(notes, {'insert', n})
+				end
+			end
+		end
+
+		setNotes(data.active, notes, undo)
+
+	end,
+
 }

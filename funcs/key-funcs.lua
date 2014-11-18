@@ -18,7 +18,6 @@ return {
 			table.insert(data.keys, key)
 		end
 
-		local mixed = false -- Flags whether piano-keys are mixed with non-piano keys
 		local match = false -- Flags whether there is a command-match
 
 		-- Discern whether the only currently-held keys are piano-keyboard keys
@@ -31,11 +30,6 @@ return {
 				-- Set a fallback match to the newest key
 				if v == key then
 					match = c
-				end
-
-				-- Check for non-piano-command keystrokes
-				if c:sub(1, 10) ~= "PIANO_KEY_" then
-					mixed = true
 				end
 
 			end
@@ -62,23 +56,6 @@ return {
 
 	end,
 
-	-- Seek out a command that perfectly matches a given keychord.
-	checkKeyChord = function(keytab)
-
-		for k, v in pairs(data.cmds) do
-			if crossCompare(keytab, v) then
-				for kk, vv in pairs(data.cmdgate[k]) do
-					if vv == data.cmdmode then
-						return k
-					end
-				end
-			end
-		end
-
-		return false
-		
-	end,
-
 	-- Remove a key from the keystroke-tracking table
 	removeKeystroke = function(key)
 
@@ -97,37 +74,6 @@ return {
 	-- Remove all keystrokes from the keystroke-tracking table
 	removeAllKeystrokes = function()
 		data.keys = {}
-	end,
-
-	-- Convert user-defined keyboard-buttons into piano-keys,
-	-- and attach commands to them in the command-tables.
-	buttonsToPianoKeys = function(keys)
-
-		local iter = 0
-
-		for k, v in pairs(keys) do
-
-			-- Format single keys in the same manner as multiple keys
-			v = ((type(v) == "table") and v) or {v}
-
-			-- For every button that corresponds to a piano-key,
-			-- put corresponding commands into the command-tables.
-			for _, button in pairs(v) do
-
-				-- Make a unique command name
-				local cmdname = "PIANO_KEY_" .. iter
-
-				-- Insert a key-command and its active contexts into the command-tables
-				data.cmds[cmdname] = {button}
-				data.cmdgate[cmdname] = {"entry", "gen"}
-				data.cmdfuncs[cmdname] = {"insertNote", k - 1, false}
-
-				iter = iter + 1
-
-			end
-
-		end
-
 	end,
 
 	-- Build the keychord-commands for tabbing between hotseat names
@@ -161,6 +107,54 @@ return {
 
 		end
 
+	end,
+
+	-- Convert user-defined keyboard-buttons into piano-keys,
+	-- and attach commands to them in the command-tables.
+	buildPianoKeyCommands = function(keys)
+
+		local iter = 0
+
+		for k, v in pairs(keys) do
+
+			-- Format single keys in the same manner as multiple keys
+			v = ((type(v) == "table") and v) or {v}
+
+			-- For every button that corresponds to a piano-key,
+			-- put corresponding commands into the command-tables.
+			for _, button in pairs(v) do
+
+				-- Make a unique command name
+				local cmdname = "PIANO_KEY_" .. iter
+
+				-- Insert a key-command and its active contexts into the command-tables
+				data.cmds[cmdname] = {button}
+				data.cmdgate[cmdname] = {"entry", "gen"}
+				data.cmdfuncs[cmdname] = {"insertNote", k - 1, false}
+
+				iter = iter + 1
+
+			end
+
+		end
+
+	end,
+
+	-- Seek out a command that perfectly matches a given keychord.
+	checkKeyChord = function(keytab)
+
+		for k, v in pairs(data.cmds) do
+			if crossCompare(keytab, v) then
+				for kk, vv in pairs(data.cmdgate[k]) do
+					if vv == data.cmdmode then
+						return k
+					end
+				end
+			end
+		end
+
+		return false
+		
 	end,
 
 	-- Sort all key-command tables, to allow simple comparison

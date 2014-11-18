@@ -12,10 +12,18 @@ return {
 
 		buildBackground(width, height)
 
-		buildSeqFrame(
-			data.size.sidebar.width, 0,
-			width, height - data.size.botbar.height
-		)
+		-- If in saveload mode, draw saveload panel, else draw sequence-panel
+		if data.cmdmode == "saveload" then
+			buildSaveLoadFrame(
+				data.size.sidebar.width, 0,
+				width - data.size.sidebar.width, height - data.size.botbar.height
+			)
+		else
+			buildSeqFrame(
+				data.size.sidebar.width, 0,
+				width, height - data.size.botbar.height
+			)
+		end
 
 		-- Build sidebar after assembling the seq-frame, to cover all outlying elements
 		buildSidebar(
