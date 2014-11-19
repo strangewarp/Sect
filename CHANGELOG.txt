@@ -12,8 +12,6 @@
 
 1.1
 
--- TODO: Clip off right edge of long hotseat-filenames, to prevent intrusion into sequence-panel.
-
 -- TODO: Update tutorial content for the following things:
 ---- Cmd Mode
 ---- Saveload mode
@@ -42,6 +40,7 @@
 -- Created a two-way MIDI-over-UDP communications system, designed to send MIDI between Sect and user devices, via SectMidiClient.
 
 * GUI changes:
+-- Started clipping off the right edge of long hotseat-filenames, to prevent intrusion into sequence-panel.
 -- Started rendering notes on non-active channels in reverse channel order, with highest channels underneath, and lowest channels on top. Active channel's notes are rendered on top of that.
 -- Started showing the active sequence's Cmd Mode commands as Shadow Mode notes, with unique coloration, when Cmd Mode isn't active; and also when a sequence with non-NOTE commands is a Shadow Mode sequence.
 -- Changed how Shadow Mode is applied to a sequence's NOTE commands while Cmd Mode is active.
