@@ -57,11 +57,6 @@ return {
 	-- Toggle the Saveload panel, and its corresponding data-mode
 	toggleSaveLoad = function()
 
-		-- If the save-dir is not correctly set, abort function
-		if not data.saveok then
-			return nil
-		end
-
 		data.playing = false
 		data.recording = false
 

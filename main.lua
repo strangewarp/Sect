@@ -135,8 +135,8 @@ function love.load()
 		vf:close()
 	end
 
-	-- Get the default prefs data
-	local prefs = require('prefs-table')
+	-- Get the default prefs data, and set it as a global table
+	prefs = require('prefs-table')
 	local preftext, _ = love.filesystem.read('prefs-table.lua')
 
 	-- If the userprefs file doesn't exist, create it in the savefile folder
@@ -184,15 +184,8 @@ function love.load()
 	-- Put the prefs into the data object
 	tableToNewContext(data, prefs)
 
-	-- Check whether the savepath exists by opening a dummy file.
-	-- If the savepath exists, enable saving, and delete dummy file.
-	local savetestpath = data.savepath .. "sect_filepath_test.txt"
-	local pathf = io.open(savetestpath, "w")
-	if pathf ~= nil then
-		data.saveok = true
-		pathf:close()
-		_ = love.filesystem.remove(savetestpath)
-	end
+	-- Check whether the savepath exists
+	checkUserSavePath()
 
 	-- Preload all complex GUI elements
 	preloadFonts()

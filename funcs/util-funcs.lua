@@ -457,7 +457,7 @@ return {
 
 		for k, v in pairs(t) do
 			for kk, vv in pairs(v) do
-				context[kk] = vv
+				context[kk] = ((type(vv) == "table") and deepCopy(vv)) or vv
 			end
 		end
 

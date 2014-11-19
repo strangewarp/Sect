@@ -19,7 +19,8 @@ return {
 			local tabs = string.rep("\t", height)
 
 			if type(k) == "number" then
-				f:write(tabs .. "[" .. k .. "] = ")
+				--f:write(tabs .. "[" .. k .. "] = ")
+				f:write(tabs)
 			else
 				f:write(tabs .. "[\"" .. k .. "\"] = ")
 			end
@@ -31,7 +32,7 @@ return {
 			elseif type(v) == "string" then
 				f:write("\"" .. v .. "\",\r\n")
 			else
-				f:write(v .. ",\r\n")
+				f:write(tostring(v) .. ",\r\n")
 			end
 
 		end
@@ -274,7 +275,7 @@ return {
 	end,
 
 	-- Load a file with a user-entered string from Saveload Mode
-	loadSLStringFile = function(undo)
+	loadSLStringFile = function(add, undo)
 		if data.savestring:len() > 0 then
 			loadFile(data.savestring, add, undo)
 		end
@@ -298,7 +299,7 @@ return {
 
 		data.sfsp = math.min(data.sfsp + 1, #data.savestring)
 
-		checkUserSaveEntry()
+		checkUserSaveFile()
 
 	end,
 
@@ -322,7 +323,7 @@ return {
 			data.sfsp = rpoint - 1
 		end
 
-		checkUserSaveEntry()
+		checkUserSaveFile()
 
 	end,
 
@@ -331,12 +332,14 @@ return {
 		data.sfsp = wrapNum(data.sfsp + dir, 0, data.savestring:len())
 	end,
 
-	-- Check the validity of the current savestring entry
-	checkUserSaveEntry = function()
+	-- Check the file-validity of the current savestring entry
+	checkUserSaveFile = function()
 
 		if data.savestring:len() == 0 then
 			data.savevalid = false
 		end
+
+		local d = io.open(data.savepath)
 
 		local f = io.open(data.savepath .. data.savestring .. ".mid", 'r')
 		if f == nil then
@@ -345,6 +348,55 @@ return {
 			data.savevalid = true
 			f:close()
 		end
+
+	end,
+
+	-- Check the path-validity of the current savestring entry
+	checkUserSavePath = function()
+
+		if data.savepath:sub(-1) ~= "/" then
+			data.savepath = data.savepath .. "/"
+		end
+
+		-- Check whether the savepath exists by opening a dummy file.
+		-- If savepath doesn't exist, disable saving.
+		-- Else, if savepath exists, enable saving, and delete dummy file.
+		local savetestfile = data.savepath .. "sect_filepath_test.txt"
+		local pathf = io.open(savetestfile, "w")
+		if pathf == nil then
+			data.saveok = false
+		else
+			data.saveok = true
+			pathf:close()
+			os.remove(savetestfile)
+		end
+
+	end,
+
+	-- Set the current savepath to a user-entered string, from Saveload Mode,
+	-- and update and save all preferences.
+	setUserSavePath = function()
+
+		-- If savestring is empty, abort function
+		if #data.savestring == 0 then
+			return nil
+		end
+
+		data.savepath = data.savestring
+		prefs.savepath = data.savestring
+
+		data.savestring = ""
+
+		checkUserSavePath()
+
+		data.savepopup = true
+		data.savedegrade = 90
+		data.savemsg = "Savepath set! Folder exists!"
+		if not data.saveok then
+			data.savemsg = "Savepath set! Warning: Folder does not exist!"
+		end
+
+		serializeTable(prefs, "userprefs.lua")
 
 	end,
 

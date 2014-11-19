@@ -23,14 +23,12 @@
 
 -- TODO: Test all commands thoroughly again, to check for bugs caused by refactoring / new features.
 
--- TODO: Remove 'if not data.active then return nil end' checks from all functions, because on-keycommand seq checking makes them extraneous.
-
 -- TODO: Remove "debugging" messages
 -- TODO: Comment out console again
 -- TODO: Change data.version back to "1.1" in data-table.lua!
 
 * New features:
--- Added "Saveload mode", which allows the user to enter a filename and perform save-or-load commands in a dedicated panel.
+-- Added "Saveload mode", which allows the user to enter a filename or directory-name, and perform save/load/directory-change commands in a dedicated panel.
 -- Added "CMD mode", where a sequence's non-NOTE commands are held and modified.
 -- Added "Factor" commands, which toggle highlighting of factor-ticks within the current beat-value, with TPQ*4 as its default setting.
 -- Added an "Entry-Quantize" toggle, which makes incoming notes and cmds stick to the nearest Factor-Display-tick.

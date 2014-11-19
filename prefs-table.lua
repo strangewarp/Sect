@@ -1,11 +1,8 @@
 
 return {
 	
-	--------------------------------------
-	-- Path where savefiles are stored. --
-	-- Note to new users: Change this!! --
-	savepath = "C:/Users/Christian/Documents/MUSIC_STAGING/",
-	--------------------------------------
+	-- Path where savefiles are stored
+	savepath = "C:/FALSE_SAVEPATH_REPLACE_ME_WITH_SOMETHING/",
 
 	-- Max undo depth
 	maxundo = 250,
@@ -343,7 +340,9 @@ return {
 		SL_CHAR_BACKSPACE = {"backspace"},
 		SL_CHAR_DELETE = {"delete"},
 		LOAD_SL_FILE = {"ctrl", "o"},
+		LOAD_SL_FILE_OVERWRITE = {"ctrl", "shift", "o"},
 		SAVE_SL_FILE = {"ctrl", "s"},
+		SET_SAVE_PATH = {"ctrl", "shift", "p"},
 
 		TOGGLE_SEQ_OVERLAY = {"backspace"},
 		TOGGLE_NOTE_DRAW = {"shift", "backspace"},

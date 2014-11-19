@@ -2,7 +2,7 @@
 local D = {}
 
 -- VERSIONING VARS --
-D.version = "1.1-a74" -- Holds Sect's current version-number
+D.version = "1.1-a78" -- Holds Sect's current version-number
 
 -- LOVE ENGINE VARS --
 D.updatespeed = 0.01 -- Speed at which to attempt to update program-state
@@ -233,8 +233,10 @@ D.cmdfuncs = {
 	SL_POINTER_RIGHT = {"moveSavePointer", 1},
 	SL_CHAR_BACKSPACE = {"removeSaveChar", -1},
 	SL_CHAR_DELETE = {"removeSaveChar", 1},
-	LOAD_SL_FILE = {"loadSLStringFile", false},
+	LOAD_SL_FILE = {"loadSLStringFile", true, false},
+	LOAD_SL_FILE_OVERWRITE = {"loadSLStringFile", false, false},
 	SAVE_SL_FILE = {"saveSLStringFile"},
+	SET_SAVE_PATH = {"setUserSavePath"},
 
 	TOGGLE_SEQ_OVERLAY = {"toggleSeqOverlay"},
 	TOGGLE_NOTE_DRAW = {"toggleNoteDraw"},
@@ -438,7 +440,9 @@ D.cmdgate = {
 	SL_CHAR_BACKSPACE = {"saveload"},
 	SL_CHAR_DELETE = {"saveload"},
 	LOAD_SL_FILE = {"saveload"},
+	LOAD_SL_FILE_OVERWRITE = {"saveload"},
 	SAVE_SL_FILE = {"saveload"},
+	SET_SAVE_PATH = {"saveload"},
 
 	TOGGLE_SEQ_OVERLAY = {"entry", "gen", "cmd"},
 	TOGGLE_NOTE_DRAW = {"entry", "gen", "cmd"},

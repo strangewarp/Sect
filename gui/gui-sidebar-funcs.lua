@@ -138,8 +138,9 @@ return {
 				"saveload disabled.",
 				"",
 				"please change",
-				"\"savepath\" entry",
-				"in user-prefs.lua!",
+				"your savepath",
+				"in the",
+				"saveload panel!",
 				"",
 			}
 			love.graphics.setColor(data.color.font.shadow)
