@@ -166,11 +166,11 @@ return {
 			acheck = acheck + 1
 		end
 		love.graphics.setColor(data.color.font.mid)
-		printMultilineText(outtab, tleft, ttop, _, "left")
+		printBoundedMultilineText(outtab, tleft, ttop, tright, "left", data.font.sidebar.raster)
 		ttop = ttop + (#outtab * fontheight)
 
 		love.graphics.setColor(data.color.font.highlight)
-		printMultilineText({acheck .. string.rep(".",  1 + string.len(#data.hotseats) - (string.len(acheck) - 1)) .. data.hotseats[acheck]}, tleft, ttop, tright, "left")
+		printBoundedMultilineText({acheck .. string.rep(".",  1 + string.len(#data.hotseats) - (string.len(acheck) - 1)) .. data.hotseats[acheck]}, tleft, ttop, tright, "left", data.font.sidebar.raster)
 		acheck = acheck + 1
 		ttop = ttop + fontheight
 
@@ -182,7 +182,7 @@ return {
 		end
 		table.insert(outtab, "")
 		love.graphics.setColor(data.color.font.mid)
-		printMultilineText(outtab, tleft, ttop, _, "left")
+		printBoundedMultilineText(outtab, tleft, ttop, tright, "left", data.font.sidebar.raster)
 
 	end,
 

@@ -206,18 +206,27 @@ return {
 
 	end,
 
-	-- Given a table of strings, xy coordinates, and a line-height value, print out multiple stacked lines of text
+	-- Given a table of strings, xy coordinates, and a line-width value, print out multiple stacked lines of text
 	printMultilineText = function(atoms, x, y, w, align)
 
 		w = w or math.huge
 
-		love.graphics.printf(
-			table.concat(atoms, "\n"),
-			x,
-			y,
-			w,
-			align
-		)
+		love.graphics.printf(table.concat(atoms, "\r\n"), x, y, w, align)
+
+	end,
+
+	-- Given a table of strings, xy coordinates, and a line-width value,
+	-- print out multiple stacked lines of text, clipped based on width.
+	printBoundedMultilineText = function(atoms, x, y, w, align, font)
+
+		for k, v in pairs(atoms) do
+			while font:getWidth(v) > w do
+				v = v:sub(1, #v - 1)
+			end
+			atoms[k] = v
+		end
+
+		printMultilineText(atoms, x, y, w, align)
 
 	end,
 
