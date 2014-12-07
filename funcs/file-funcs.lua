@@ -272,6 +272,8 @@ return {
 			table.remove(data.hotseats, limit + 1)
 		end
 
+		data.activeseat = 1
+
 	end,
 
 	-- Load a file with a user-entered string from Saveload Mode

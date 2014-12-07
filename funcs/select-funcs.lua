@@ -145,48 +145,34 @@ return {
 	end,
 
 	-- Copy the currently selected chunk of notes and ticks
-	copySelection = function(add)
+	copySelection = function()
+
+		-- Reset the copy-offset value
+		data.copyoffset = 0
 
 		-- If there is no selection window, use tick-pointer for offset
 		local offpoint = data.sel.l or data.tp
 
-		-- If this isn't an additive copy, clear the copy-table
-		if not add then
-			data.copydat = {}
-		end
-
-		-- Get the contents of the selection-table
+		-- Copy the select-table's contents into the copy-table, and get their flattened contents
+		data.copydat = deepCopy(data.seldat)
 		local selitems = getContents(data.seldat, {pairs, pairs, pairs})
 
-		-- Put the select-table's contents into the copy-table
-		for _, n in pairs(selitems) do
-			buildTable(data.copydat, {n[2] + 1, n[4], n[5]}, deepCopy(n))
-		end
-
-		-- If any notes have been copied, get a pointer-offset value
-		if #data.copydat > 0 then
-
-			-- Search for lowest tick, and create an offset value based on it
-			local offset = offpoint
+		-- Put the select-table's contents into the copy-table, with an offset based on tick-pointer position
+		if next(data.copydat) ~= nil then
+			local tleft = math.huge
 			for _, n in pairs(selitems) do
-				local newoff = data.tp - (n[2] + 1)
-				offset = math.max(offset, newoff)
+				tleft = math.min(tleft, n[2])
 			end
-
-			-- Set the copy-table's corresponding offset value
-			data.copyoffset = offset
-
-		else -- Else, if copy-tab is empty, set copy-pointer-offset to 0
-			data.copyoffset = 0
+			data.copyoffset = data.tp - 1
 		end
 
 	end,
 
 	-- Cut the currently selected chunk of notes and ticks
-	cutSelection = function(add, undo)
+	cutSelection = function(undo)
 
 		-- Copy the selected notes
-		copySelection(add)
+		copySelection()
 
 		-- Put select-notes into a flat table, flagged for removal
 		local remnotes = getContents(data.seldat, {pairs, pairs, pairs})
@@ -209,15 +195,11 @@ return {
 		-- Adjust the contents of the paste-table relative to the tick-pointer, using the offset
 		for i = 1, #paste do
 			paste[i][2] = wrapNum(
-				(paste[i][2] + data.tp) - data.copyoffset,
+				(data.tp - 1) + (paste[i][2] - data.copyoffset),
 				0,
 				data.seq[data.active].total - 1
 			)
-		end
-
-		-- Format the paste-table into setNotes commands
-		for k, v in pairs(paste) do
-			paste[k] = {'insert', v}
+			paste[i] = {'insert', paste[i]} -- Format each paste-note-table into a setNotes command
 		end
 
 		-- Add the paste-notes to current seq, and create an undo command
@@ -229,64 +211,35 @@ return {
 	pasteRepeating = function(undo)
 
 		-- If there are no copied notes, abort function
-		if #data.copydat == 0 then
+		if next(data.copydat) == nil then
 			return nil
 		end
 
 		local ticks = data.seq[data.active].total
-		local tleft = math.huge
-		local tright = -math.huge
+		local size = -math.huge
 		local iter = 1
 
 		-- Flatten the copy-table into a paste-table
 		local paste = getContents(data.copydat, {pairs, pairs, pairs})
 		local pasteout = {}
 
-		-- For every flattened paste-note...
+		-- For every flattened paste-note, get the copy-chunk's furthest rightward boundary
 		for _, n in pairs(paste) do
-
-			-- Get the copy-chunk's furthest left and right bounds
-			local testright = n[2] + n[3]
-			if tleft > n[2] then
-				tleft = n[2]
+			local testsize = (n[2] - data.copyoffset) + n[3]
+			if size < testsize then
+				size = testsize
 			end
-			if tright < testright then
-				tright = testright
-			end
-
 		end
-
-		-- Get the copydat range's total size
-		local size = tright + math.abs(tleft)
 
 		-- While the repeating-paste hasn't fully looped around the sequence,
 		-- continue pasting the contents of the copydat table at increasing offsets.
+		local oldtp = data.tp
 		while (iter * size) <= ticks do
-
-			-- Adjust the contents of the paste-table relative to the tick-pointer,
-			-- increasing the paste-chunk multiplier on each iteration.
-			for k, v in pairs(paste) do
-				table.insert(pasteout, #pasteout + 1, deepCopy(v))
-				pasteout[#pasteout][2] = wrapNum(
-					(v[2] + data.tp + ((iter - 1) * size)) - data.copyoffset,
-					0,
-					ticks - 1
-				)
-			end
-
-			print("ping! " .. #pasteout)--debugging
-
+			pasteSelection(undo)
+			data.tp = data.tp + size
 			iter = iter + 1
-
 		end
-
-		-- Format the paste-table into setNotes commands
-		for k, v in pairs(pasteout) do
-			pasteout[k] = {'insert', v}
-		end
-
-		-- Add the paste-notes to current seq, and create an undo command
-		setNotes(data.active, pasteout, undo)
+		data.tp = oldtp
 
 	end,
 

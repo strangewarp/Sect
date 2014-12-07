@@ -12,14 +12,14 @@
 
 1.1
 
+-- TODO: Test all commands thoroughly again, to check for bugs caused by refactoring / new features.
+
 -- TODO: Update tutorial content for the following things:
 ---- Cmd Mode
 ---- Saveload mode
 ---- Updated save/load commands in general
 ---- TextPaste
 ---- Updated MIDI-listener system
-
--- TODO: Test all commands thoroughly again, to check for bugs caused by refactoring / new features.
 
 -- TODO: Remove "debugging" messages
 -- TODO: Comment out console again
@@ -56,6 +56,7 @@
 
 * Logic changes:
 -- Started modifying hotseats-list based on recent save/load activity.
+-- On hotseat-ordering-change, the active hotseat will revert to the first hotseat in the list, to stay aligned with the previously accessed file.
 -- Started moving tick-pointer forward by 1 spacing-unit on note-delete, in both deleteNote and deleteTickNotes.
 -- Made hotseat-toggling and loadFile commands available when no sequences are loaded.
 -- Changed all modNotes/modCmds calls to use a "multiply" value, as some calls need to multiply the shift-value by data.spacing, while others don't.
@@ -63,6 +64,7 @@
 -- Wrote buildTable, getIndex, getContents, seqUnsetCascade, and copyUnsetCascade, which manipulate strictly-defined sparse tables within the new data-structure-space. This allows notes to be stored explicitly, rather than in unordered tables; and yet also prevents said storage from incurring massive lag.
 -- Converted all manipulations within the space of "data.seq[n].tick" to use the new functions in index-funcs.lua, rather than touching the tables directly.
 -- Changed data-structures to be in the format of "data.seq[a].tick[b].note[c][d]", "data.seq[a].tick[b].cmd[c]", "data.seldat[a][b][c]", and "data.copydat[a][b][c]".
+-- Simplified and debugged all copypaste commands.
 -- Bounded Generator Mode scale-size and wheel-size to 7 (used to be 8), to make active data tables more sane.
 -- Changed Play Mode behavior, to repeat the contents of smaller sequences across larger sequences.
 -- Removed moveNotes, and rewrote modNotes to make more sense.

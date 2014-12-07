@@ -2,7 +2,7 @@
 local D = {}
 
 -- VERSIONING VARS --
-D.version = "1.1-a78" -- Holds Sect's current version-number
+D.version = "1.1-a80" -- Holds Sect's current version-number
 
 -- LOVE ENGINE VARS --
 D.updatespeed = 0.01 -- Speed at which to attempt to update program-state
@@ -272,10 +272,8 @@ D.cmdfuncs = {
 	CLEAR_SELECT_RANGE = {"toggleSelect", "clear"},
 	CLEAR_SELECT_MEMORY = {"clearSelectMemory"},
 
-	COPY = {"copySelection", false},
-	COPY_ADD = {"copySelection", true},
-	CUT = {"cutSelection", false, false},
-	CUT_ADD = {"cutSelection", true, false},
+	COPY = {"copySelection"},
+	CUT = {"cutSelection", false},
 	PASTE = {"pasteSelection", false},
 	PASTE_REPEATING = {"pasteRepeating", false},
 	PASTE_FROM_TEXT_MONO = {"pasteFromText", "mono", false},
@@ -479,9 +477,7 @@ D.cmdgate = {
 	CLEAR_SELECT_MEMORY = {"entry", "gen"},
 
 	COPY = {"entry", "gen"},
-	COPY_ADD = {"entry", "gen"},
 	CUT = {"entry", "gen"},
-	CUT_ADD = {"entry", "gen"},
 	PASTE = {"entry", "gen"},
 	PASTE_REPEATING = {"entry", "gen"},
 	PASTE_FROM_TEXT_MONO = {"entry", "gen"},

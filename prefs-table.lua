@@ -367,9 +367,7 @@ return {
 		CLEAR_SELECT_MEMORY = {"ctrl", "shift", "a"},
 
 		COPY = {"ctrl", "c"},
-		COPY_ADD = {"ctrl", "shift", "c"},
 		CUT = {"ctrl", "x"},
-		CUT_ADD = {"ctrl", "shift", "x"},
 		PASTE = {"ctrl", "v"},
 		PASTE_REPEATING = {"ctrl", "shift", "v"},
 		PASTE_FROM_TEXT_MONO = {"ctrl", "m"},
