@@ -15,13 +15,7 @@ return {
 		local pw, lines = data.font.save.raster:getWrap(data.savemsg, data.size.save.width - 1)
 		local ph = data.font.save.raster:getHeight() * lines
 
-		love.graphics.setColor(
-			mixColors(
-				data.color.save.background,
-				data.color.save.background_fade,
-				1 - (data.savedegrade / 90)
-			)
-		)
+		love.graphics.setColor(data.color.save.background_gradient[roundNum(31 * (data.savedegrade / 90), 0)])
 		love.graphics.rectangle("fill", pl, pt, pw + 2, ph)
 
 		love.graphics.setColor(data.color.save.border)
@@ -39,10 +33,13 @@ return {
 
 	-- If the save-popup is active, gradually degrade its activity
 	degradeSavePopup = function()
-		data.savedegrade = data.savedegrade - 1
-		if data.savedegrade == 0 then
-			data.savepopup = false
-			data.savemsg = ""
+		if data.savepopup then
+			data.savedegrade = data.savedegrade - 1
+			if data.savedegrade <= 0 then
+				data.savepopup = false
+				data.savemsg = ""
+				drawGUI() -- Redraw the GUI elements again, to vanish the save-popup
+			end
 		end
 	end,
 
@@ -51,6 +48,10 @@ return {
 
 		-- Get the current loading-command data
 		local cmd, text = unpack(data.loadcmds[data.loadnum])
+
+		-- Clear the global canvas
+		canvas:clear()
+		love.graphics.setCanvas(canvas)
 
 		-- Switch to the loading-screen font
 		love.graphics.setFont(data.font.loading.raster)
@@ -73,15 +74,22 @@ return {
 		love.graphics.setColor(data.color.loading.text)
 		love.graphics.printf(data.loadtext, 50, 50, width - 100, "left")
 
+		-- Draw the canvas to screen
+		love.graphics.setCanvas()
+		love.graphics.draw(canvas, 0, 0)
+
 		-- Execute the loading-command
 		executeFunction(unpack(cmd))
 
 		-- Increment the loading-command pointer
 		data.loadnum = data.loadnum + 1
 
-		-- If all loading-commands are finished, set the loading-flag to false
+		-- If all loading-commands are finished, set the loading-flag to false,
+		-- build the new GUI elements, and draw them to canvas.
 		if data.loadnum > #data.loadcmds then
 			data.loading = false
+			buildGUI()
+			drawGUI()
 		end
 
 	end,
@@ -107,6 +115,18 @@ return {
 				data.img[k].raster = love.graphics.newImage(v.file)
 				data.img[k].width = data.img[k].raster:getWidth()
 				data.img[k].height = data.img[k].raster:getHeight()
+			end
+		end
+	end,
+
+	-- Preload all liminal combinations of GUI gradient-colors
+	preloadGradients = function()
+		for k, v in pairs(data.gradients) do
+			local ctab, cold, hot, name = unpack(v)
+			local c1, c2 = data.color[ctab][cold], data.color[ctab][hot]
+			data.color[ctab][name] = data.color[ctab][name] or {}
+			for i = 0, 15 do
+				data.color[ctab][name][i] = mixColors(c1, c2, i / 15)
 			end
 		end
 	end,

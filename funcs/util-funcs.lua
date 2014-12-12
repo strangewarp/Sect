@@ -31,6 +31,27 @@ return {
 
 	end,
 
+	-- Given a string, xy coordinates, and a line-width value,
+	-- print out a line of text, clipped based on width.
+	clipTextLine = function(line, w, align, font)
+
+		local lclip, rclip
+		if align == "center" then
+			lclip, rclip = 1, -1
+		elseif align == "right" then
+			lclip, rclip = 1, 0
+		else
+			lclip, rclip = 0, -1
+		end
+
+		while font:getWidth(line) > w do
+			line = line:sub(1 + lclip, #line + rclip)
+		end
+
+		return line
+
+	end,
+
 	-- Check whether any portions of two 2D rectangles overlap
 	collisionCheck = function (x1, y1, w1, h1, x2, y2, w2, h2)
 

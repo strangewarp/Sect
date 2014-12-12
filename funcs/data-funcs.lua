@@ -225,6 +225,9 @@ return {
 		normalizePointers()
 		removeOldSelectItems()
 		getBeatFactors()
+		if not data.loading then -- If not loading, refresh GUI and canvas contents
+			data.redraw = true
+		end
 	end,
 
 }

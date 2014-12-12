@@ -1,7 +1,38 @@
 
 return {
 	
-	buildSaveLoadFrame = function(left, top, width, height)
+	drawSaveLoadPanel = function()
+
+		love.graphics.setFont(data.font.save.raster)
+
+		-- Draw frame's background
+		love.graphics.setColor(data.color.saveload.background)
+		local bgl, bgt, bgw, bgh = unpack(data.gui.saveload.bg)
+		love.graphics.rectangle("fill", bgl, bgt, bgw, bgh)
+
+		-- Draw every rectangle-panel
+		for k, v in pairs(data.gui.saveload.rect) do
+			local color, l, t, w, h = unpack(v)
+			love.graphics.setColor(color)
+			love.graphics.rectangle("fill", l, t, w, h)
+		end
+
+		-- Draw every text-slice
+		for k, v in pairs(data.gui.saveload.rect) do
+			local color, text, l, t, w, align = unpack(v)
+			love.graphics.setColor(color)
+			love.graphics.printf(text, l, t, w, align)
+		end
+
+		-- Draw the reticule-line
+		love.graphics.setColor(data.color.saveload.reticule)
+		love.graphics.setLineWidth(2)
+		love.graphics.line(data.gui.saveload.line)
+		love.graphics.setLineWidth(1)
+
+	end,
+
+	buildSaveLoadPanel = function(left, top, width, height)
 
 		-- Get save-font's height per line, as rendered on screen
 		local textheight = data.font.save.raster:getHeight()
@@ -38,38 +69,25 @@ return {
 		local etexttop = etop + 10
 		local etextwidth = ewidth - 30
 
-		love.graphics.setFont(data.font.save.raster)
-
-		-- Draw frame's background
-		love.graphics.setColor(data.color.saveload.background)
-		love.graphics.rectangle("fill", left, top, width, height)
-
 		-- Draw directory-existence confirmation panel
-		if data.saveok then
-			love.graphics.setColor(data.color.saveload.exist)
-			love.graphics.rectangle("fill", dleft, dtop, dwidth, dheight)
-			love.graphics.setColor(data.color.saveload.text_exist)
-			love.graphics.printf(data.savepath .. "\r\nDirectory exists!", dtextleft, dtexttop, dtextwidth, "center")
-		else
+		local trect = {data.color.saveload.exist, dleft, dtop, dwidth, dheight}
+		local trtext = {data.color.saveload.text_exist, data.savepath .. "\r\nDirectory exists!", dtextleft, dtexttop, dtextwidth, "center"}
+		if not data.saveok then
 			local scmdtab = deepCopy(data.cmds.SET_SAVE_PATH)
 			for k, v in pairs(scmdtab) do
 				local vlen = #v
 				scmdtab[k] = v:sub(1, 1):upper() .. (((vlen > 1) and v:sub(2, vlen)) or "")
 			end
-			love.graphics.setColor(data.color.saveload.not_exist)
-			love.graphics.rectangle("fill", dleft, dtop, dwidth, dheight)
-			love.graphics.setColor(data.color.saveload.text_not_exist)
-			love.graphics.printf(data.savepath .. "\r\nDirectory doesn't exist! " .. table.concat(scmdtab, "-") .. " to change it!", dtextleft, dtexttop, dtextwidth, "center")
+			trect[1] = data.color.saveload.not_exist
+			trtext = {data.color.saveload.text_not_exist, data.savepath .. "\r\nDirectory doesn't exist! " .. table.concat(scmdtab, "-") .. " to change it!", dtextleft, dtexttop, dtextwidth, "center"}
 		end
 
 		-- Draw file-existence confirmation panel
-		if data.savevalid then
-			love.graphics.setColor(data.color.saveload.exist)
-			love.graphics.rectangle("fill", vleft, vtop, vwidth, vheight)
-			love.graphics.setColor(data.color.saveload.text_exist)
-			love.graphics.printf("File already exists.\r\nSaving will overwrite it! Loading is OK!", vtextleft, vtexttop, vtextwidth, "center")
-		else
-			local vmsg = "Enter a valid directory before using saveload commands!"
+		local vrect = {data.color.saveload.exist, vleft, vtop, vwidth, vheight}
+		local vmsg = "File already exists.\r\nSaving will overwrite it! Loading is OK!"
+		if not data.savevalid then
+			vrect[1] = data.color.saveload.not_exist
+			vmsg = "Enter a valid directory before using saveload commands!"
 			if data.saveok then
 				if data.savestring:len() > 0 then
 					vmsg = "File does not already exist.\r\nCannot load; can save!"
@@ -77,11 +95,8 @@ return {
 					vmsg = "Type a filename to check availability!"
 				end
 			end
-			love.graphics.setColor(data.color.saveload.not_exist)
-			love.graphics.rectangle("fill", vleft, vtop, vwidth, vheight)
-			love.graphics.setColor(data.color.saveload.text_not_exist)
-			love.graphics.printf(vmsg, vtextleft, vtexttop, vtextwidth, "center")
 		end
+		local vtext = {vmsg, vtextleft, vtexttop, vtextwidth, "center"}
 
 		local text = data.savestring
 		local overflow = ""
@@ -117,15 +132,16 @@ return {
 		local retleft = etextleft + (((data.sfsp > 0) and data.font.save.raster:getWidth(lines[ry]:sub(1, rx))) or 0)
 		local rettop = etexttop + (textheight * (ry - 1))
 
-		-- Draw text-entry panel
-		love.graphics.setColor(data.color.saveload.panel)
-		love.graphics.rectangle("fill", eleft, etop, ewidth, eheight)
-		love.graphics.setColor(data.color.saveload.reticule)
-		love.graphics.setLineWidth(2)
-		love.graphics.line(retleft, rettop, retleft, rettop + textheight)
-		love.graphics.setLineWidth(1)
-		love.graphics.setColor(data.color.saveload.text)
-		love.graphics.printf(text, etextleft, etexttop + 1, etextwidth, "left")
+		local drect = {data.color.saveload.panel, eleft, etop, ewidth, eheight}
+		local dtext = {data.color.saveload.text, text, etextleft, etexttop + 1, etextwidth, "left"}
+
+		-- Save the panel-items for later rendering
+		data.gui.saveload = {
+			bg = {left, top, width, height},
+			rect = {trect, vrect, drect},
+			text = {trtext, vtext, dtext},
+			line = {retleft, rettop, retleft, rettop + textheight},
+		}
 
 	end,
 

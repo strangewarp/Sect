@@ -76,6 +76,7 @@ function love.load()
 	guiloadingfuncs = require('gui/gui-loading-funcs')
 	guimiscfuncs = require('gui/gui-misc-funcs')
 	guinotefuncs = require('gui/gui-note-funcs')
+	guipianofuncs = require('gui/gui-piano-funcs')
 	guisaveloadfuncs = require('gui/gui-saveload-funcs')
 	guisidebarfuncs = require('gui/gui-sidebar-funcs')
 	indexfuncs = require('funcs/index-funcs')
@@ -105,6 +106,7 @@ function love.load()
 		guiloadingfuncs,
 		guimiscfuncs,
 		guinotefuncs,
+		guipianofuncs,
 		guisaveloadfuncs,
 		guisidebarfuncs,
 		indexfuncs,
@@ -187,10 +189,16 @@ function love.load()
 	-- Check whether the savepath exists
 	checkUserSavePath()
 
+	-- Initialize a global Love canvas
+	local width, height = love.graphics.getDimensions()
+	canvas = love.graphics.newCanvas(width, height)
+	love.graphics.setCanvas(canvas)
+
 	-- Preload all complex GUI elements
 	preloadFonts()
 	preloadImages()
 	preloadCursors()
+	preloadGradients()
 
 	-- Load the mousemove-inactive cursor
 	love.mouse.setCursor(data.cursor.default.c)
@@ -286,8 +294,18 @@ function love.draw()
 		return nil
 	end
 
-	-- Update the piano-bar width, based on window width
-	data.pianowidth = data.size.piano.basewidth + (width / 50)
+	-- If redraw has been flagged, or width or height has been resized, rebuild the visible GUI elements accordingly
+	if data.redraw
+	or (width ~= data.width)
+	or (height ~= data.height)
+	then
+		data.redraw = false
+		data.width = width
+		data.height = height
+		canvas = love.graphics.newCanvas(data.width, data.height)
+		buildGUI()
+		drawGUI()
+	end
 
 	-- If the mouse is being dragged, check drag boundaries
 	if data.dragging then
@@ -309,11 +327,21 @@ function love.draw()
 
 	end
 
-	-- Build the GUI
-	buildGUI(width, height)
+	-- In play-mode, rebuild and redraw the seq-panel and sidebar on every frame
+	if data.playing then
+		buildSidebar()
+		buildMetaSeqPanel()
+		drawSidebar()
+		drawMetaSeqPanel()
+		drawPianoRoll()
+	end
 
-	-- If the save-popup is active, gradually degrade its activity
-	degradeSavePopup()
+	-- Draw canvas to screen
+	love.graphics.setColor(255, 255, 255, 255)
+	love.graphics.draw(canvas, 0, 0)
+
+	degradeSavePopup() -- Gradually degrade any active save-popup's activity
+	drawSavePopup() -- Redraw the save-popup on top of itself
 
 end
 

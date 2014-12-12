@@ -2,15 +2,18 @@
 1.2
 
 -- TODO: Add cross-platform native MIDI I/O.
-
-1.1.1
-
--- TODO: Remove unnecessary 'undo-suppression' vars from function-calls and undo-funcs.
--- TODO: Refactor GUI rendering pathway to reduce lag.
 -- TODO: Allow Quantize to affect non-note commands.
 -- TODO: Allow item-movement to affect non-note commands.
 
 1.1
+
+-- TODO: Refactor GUI rendering pathway to reduce lag.
+---- sub-task: Pre-generate all liminal color palettes in preloadGradients, add this function to the loading-list, and modify all liminal-color-systems to use pregenerated colors instead of generating them on-the-fly.
+---- sub-task: Generate all GUI elements on-keystroke using new functions containing the GUI-element-generation-parts of some of the old GUI functions.
+---- sub-task: Rewrite the actual rendering of GUI elements to act upon the saved GUI-element tables.
+---- sub-task: Re-render on mouse-movement and mouse-drag.
+
+-- TODO: Remove unnecessary 'undo-suppression' vars from function-calls and undo-funcs.
 
 -- TODO: Test all commands thoroughly again, to check for bugs caused by refactoring / new features.
 
@@ -19,6 +22,7 @@
 ---- Saveload mode
 ---- Updated save/load commands in general
 ---- TextPaste
+---- Copy/Paste simplifications
 ---- Updated MIDI-listener system
 
 -- TODO: Remove "debugging" messages

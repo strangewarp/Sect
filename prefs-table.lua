@@ -77,8 +77,11 @@ return {
 			inactive_light = {150, 150, 200, 255},
 			highlight = {230, 45, 40, 255},
 			border = {130, 129, 132, 255},
-			labellight = {200, 200, 205, 255},
-			labeldark = {40, 40, 35, 255},
+			text_active_light = {40, 40, 35, 255},
+			text_active_dark = {200, 200, 205, 255},
+			text_inactive_light = {170, 170, 200, 255},
+			text_inactive_dark = {130, 130, 150, 255},
+			text_highlight = {225, 225, 255, 255},
 		},
 
 		seq = { -- Sequence-grid colors

@@ -2,7 +2,7 @@
 local D = {}
 
 -- VERSIONING VARS --
-D.version = "1.1-a80" -- Holds Sect's current version-number
+D.version = "1.1-a90" -- Holds Sect's current version-number
 
 -- LOVE ENGINE VARS --
 D.updatespeed = 0.01 -- Speed at which to attempt to update program-state
@@ -58,7 +58,6 @@ D.udpin = false -- Holds UDP-IN socket
 -- ZOOM VARS --
 D.cellwidth = 2 -- Horizontal pixels per cell
 D.cellheight = 14 -- Vertical pixels per cell
-D.pianowidth = 0 -- Holds updated width of piano-bar
 
 -- UNDO VARS --
 D.dostack = {} -- Holds all undo and redo command-blocks
@@ -131,6 +130,43 @@ D.playing = false -- Toggles whether to play through the seq's contents
 D.drawnotes = true -- Toggles whether to draw notes
 D.chanview = true -- Toggles rendering chan-nums on notes
 D.entryquant = false -- Toggles auto-quantization of note-entry
+
+-- GUI VARS --
+D.width = 800 -- Global width
+D.height = 600 -- Global height
+D.redraw = false -- Toggles whether to redraw the GUI on the next frame
+D.gui = { -- Table for saving pre-generated GUI elements
+	grid = { -- Sequence-grid elements
+		cols = {}, -- Highlighted columns
+		rows = {}, -- Highlighted rows
+		keys = {}, -- Piano-keys
+		notes = {}, -- Note-cells
+		tris = {}, -- Beat-triangles
+	},
+	piano = {}, -- Vertical piano-roll keys
+	reticule = { -- Pointer-reticules and other reticule-layer polys
+	},
+	saveload = { -- Saveload-panel elements
+		bg = {}, -- Background box
+		rect = {}, -- Rectangle panels
+		text = {}, -- Text overlays
+		line = {}, -- Line-cursor
+	},
+	sidebar = { -- Sidebar elements
+		text = {}, -- List of sidebar text-lines
+	},
+	track = { -- Track-bar elements
+		cells = {}, -- Sequence-cells
+	},
+}
+D.gradients = { -- Gradients to build within the data.color table
+	{"note", "quiet", "loud", "ql_gradient"},
+	{"note", "select_quiet", "select_loud", "s_ql_gradient"},
+	{"note", "overlay_quiet", "overlay_loud", "o_ql_gradient"},
+	{"note", "overlay_select_quiet", "overlay_select_loud", "o_s_ql_gradient"},
+	{"note", "bar_quiet", "bar_loud", "b_gradient"},
+	{"save", "background", "background_fade", "bg_gradient"},
+}
 
 -- Baseline contents for new sequences
 D.baseseq = {

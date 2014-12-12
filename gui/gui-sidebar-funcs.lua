@@ -1,28 +1,79 @@
 
 return {
-	
-	-- Build the sidebar that contains all the sequence's metadata, and hotseat information
-	buildSidebar = function(left, top, right, bot, width, height)
 
-		local tleft, ttop, tright = left + 5, top + 10, right - 10
-		local outtab = {}
+	drawSidebar = function()
 
-		local fontheight = data.font.sidebar.raster:getHeight()
+		local left, top = 0, 0
+		local width, height = data.size.sidebar.width, data.height
 
-		-- Draw the pane's background
+		-- Draw the panel's background
 		love.graphics.setColor(data.color.window.mid)
-		love.graphics.rectangle("fill", left, top, right, bot)
+		love.graphics.rectangle("fill", left, top, width, height)
 
 		-- Draw the sidebar image
-		drawBoundedImage(left, top, right, bot, data.img.sidebar)
+		drawBoundedImage(left, top, width, height, data.img.sidebar)
 
-		-- Set the font-color
-		love.graphics.setColor(data.color.font.light)
+		-- Set the correct font for sidebar text
+		love.graphics.setFont(data.font.sidebar.raster)
+
+		-- Draw all text, with shadows
+		for k, v in ipairs(data.gui.sidebar.text) do
+			local color, tleft, ttop, twidth, line = unpack(v)
+			love.graphics.setColor(data.color.font.shadow)
+			love.graphics.print(line, tleft + 1, ttop + 1)
+			love.graphics.setColor(color)
+			love.graphics.print(line, tleft, ttop)
+		end
+
+	end,
+	
+	-- Build the sidebar that contains all the sequence's metadata, and hotseat information
+	buildSidebar = function()
+
+		local left, top = 0, 0
+		local width, height = data.size.sidebar.width, data.height
+		local bot = top + height
+
+		local tleft, ttop, twidth = left + 5, top + 10, width - 10
+
+		local fontheight = data.font.sidebar.raster:getHeight()
+		local fonthalf = roundNum(fontheight / 2, 0)
+
+		local outtab = {}
+
+		data.gui.sidebar.text = {} -- Clear old sidebar text
+
+		-- Gather the metadata info
+		local oticks = (data.active and #data.seq[data.active].tick) or 0
+		local obeats = tostring(roundNum(oticks / (data.tpq * 4), 2))
+		local notelet = data.pianometa[wrapNum(data.np + 1, 1, 12)][2]
+		local octave = math.floor(data.np / 12)
+		obeats = ((obeats:sub(-3, -3) == ".") and ("~" .. obeats)) or obeats
+
+		-- If the save-folder wasn't found, throw some warning-text
+		if not data.saveok then
+			local warntab = {
+				"! WARNING !",
+				"savepath not found!",
+				"saveload disabled.",
+				"",
+				"please change",
+				"your savepath",
+				"in the",
+				"saveload panel!",
+				"",
+			}
+			linesToSidebarText(
+				warntab,
+				tleft, ttop, twidth, fontheight,
+				"left", data.color.font.warning
+			)
+			ttop = ttop + (fontheight * #warntab) + fonthalf
+		end
 
 		-- If no sequences are loaded, write a simple guidance statement,
 		-- and skip displaying the sequence/pointer information.
 		if data.active == false then
-
 			outtab = {
 				"no seqs loaded!",
 				"",
@@ -34,15 +85,7 @@ return {
 				"creates a seq",
 				"",
 			}
-
 		end
-
-		-- Gather and draw the metadata info
-		local oticks = (data.active and #data.seq[data.active].tick) or 0
-		local obeats = tostring(roundNum(oticks / (data.tpq * 4), 2))
-		local notelet = data.pianometa[wrapNum(data.np + 1, 1, 12)][2]
-		local octave = math.floor(data.np / 12)
-		obeats = ((obeats:sub(-3, -3) == ".") and ("~" .. obeats)) or obeats
 
 		local addtab = {
 			"mode: " .. data.modenames[data.cmdmode],
@@ -124,65 +167,47 @@ return {
 			"bpm " .. data.bpm,
 			"tpq " .. data.tpq,
 			"",
+			"hotseats",
 		}
 		outtab = tableCombine(outtab, addtab5)
 
-		-- Set the correct font for sidebar text
-		love.graphics.setFont(data.font.sidebar.raster)
-
-		-- If the save-folder wasn't found, throw some warning-text
-		if not data.saveok then
-			local warntab = {
-				"! WARNING !",
-				"savepath not found!",
-				"saveload disabled.",
-				"",
-				"please change",
-				"your savepath",
-				"in the",
-				"saveload panel!",
-				"",
-			}
-			love.graphics.setColor(data.color.font.shadow)
-			printMultilineText(warntab, tleft + 1, ttop + 1, _, "left")
-			love.graphics.setColor(data.color.font.warning)
-			printMultilineText(warntab, tleft, ttop, _, "left")
-			ttop = ttop + (#warntab * fontheight) + roundNum(fontheight / 2, 0)
-		end
-
-		-- Print the pre-hotseat sidebar text
-		love.graphics.setColor(data.color.font.shadow)
-		printMultilineText(outtab, tleft + 1, ttop + 1, _, "left")
-		love.graphics.setColor(data.color.font.light)
-		printMultilineText(outtab, tleft, ttop, _, "left")
-		ttop = ttop + (#outtab * fontheight) + roundNum(fontheight / 2, 0)
+		-- Put all pre-hotseat text into sidebar-text-storage
+		linesToSidebarText(
+			outtab,
+			tleft, ttop, twidth, fontheight,
+			"left", data.color.font.light
+		)
+		ttop = ttop + (fontheight * #outtab)
 
 		-- Print out the hotseats, with the currently-active one highlighted
-		outtab = {"hotseats"}
-		local acheck = 1
-		while acheck ~= data.activeseat do
-			local text = acheck .. string.rep(".", 1 + string.len(#data.hotseats) - (string.len(acheck) - 1)) .. data.hotseats[acheck]
-			table.insert(outtab, text)
-			acheck = acheck + 1
+		for k, v in ipairs(data.hotseats) do
+			local text = k .. string.rep(".", 1 + string.len(#data.hotseats) - (string.len(k) - 1)) .. v
+			local color = ((k == data.activeseat) and data.color.font.highlight) or data.color.font.mid
+			local line = {color, tleft, ttop, twidth, text}
+			table.insert(data.gui.sidebar.text, line)
+			ttop = ttop + fontheight
 		end
-		love.graphics.setColor(data.color.font.mid)
-		printBoundedMultilineText(outtab, tleft, ttop, tright, "left", data.font.sidebar.raster)
-		ttop = ttop + (#outtab * fontheight)
 
-		love.graphics.setColor(data.color.font.highlight)
-		printBoundedMultilineText({acheck .. string.rep(".",  1 + string.len(#data.hotseats) - (string.len(acheck) - 1)) .. data.hotseats[acheck]}, tleft, ttop, tright, "left", data.font.sidebar.raster)
-		acheck = acheck + 1
-		ttop = ttop + fontheight
+	end,
 
-		outtab = {}
-		while acheck <= #data.hotseats do
-			local text = acheck .. string.rep(".",  1 + string.len(#data.hotseats) - (string.len(acheck) - 1)) .. data.hotseats[acheck]
-			table.insert(outtab, text)
-			acheck = acheck + 1
+	-- Convert a table of lines, boundaries, and color into sidebar-text.
+	linesToSidebarText = function(lines, l, t, w, h, align, color)
+
+		w = w - 1 -- Compensate for drop-shadow
+
+		for _, v in ipairs(lines) do
+
+			if (t + h + 1) > data.height then
+				do break end
+			end
+
+			local clip = clipTextLine(v, w, "left", data.font.sidebar.raster)
+			local out = {color, l, t, w, clip}
+			table.insert(data.gui.sidebar.text, out)
+
+			t = t + h
+
 		end
-		table.insert(outtab, "")
-		love.graphics.setColor(data.color.font.mid)
-		printBoundedMultilineText(outtab, tleft, ttop, tright, "left", data.font.sidebar.raster)
 
 	end,
 
@@ -290,86 +315,6 @@ return {
 				row = row + 1
 			else
 				col = col + 1
-			end
-
-		end
-
-	end,
-
-	-- Draw the column of piano-keys in the sequence window
-	drawPianoRoll = function(left, kwidth, width, height)
-
-		local whitedraw = {}
-		local blackdraw = {}
-
-		-- Get key heights, and half-key heights, and note-row heights
-		local yflare = data.cellheight * 1.5
-		local ymid = data.cellheight
-		local khalf = data.cellheight / 2
-
-		-- Get the center-point, on which the sequence grid (and by extension, the piano-roll) are fixed
-		local ycenter = height * data.size.anchor.y
-
-		-- Add the active note, in center position, with highlighted color, to the relevant draw-table
-		whitedraw, blackdraw = pianoNoteToDrawTables(whitedraw, blackdraw, data.np, left, ycenter, ymid, yflare, kwidth, true)
-
-		-- Moving outwards from center, add piano-keys to the draw-tables, until fully passing the stencil border
-		local upkey, downkey, uppos, downpos = data.np, data.np, ycenter, ycenter
-		while uppos >= (0 - khalf) do
-
-			-- Update position and pointer values
-			upkey = wrapNum(upkey + 1, data.bounds.np)
-			downkey = wrapNum(downkey - 1, data.bounds.np)
-			uppos = uppos - data.cellheight
-			downpos = downpos + data.cellheight
-
-			-- Add the two outermost notes, with normal color, to the relevant draw-tables
-			whitedraw, blackdraw = pianoNoteToDrawTables(whitedraw, blackdraw, upkey, left, uppos, ymid, yflare, kwidth, false)
-			whitedraw, blackdraw = pianoNoteToDrawTables(whitedraw, blackdraw, downkey, left, downpos, ymid, yflare, kwidth, false)
-
-		end
-
-		-- Draw all tabled keys, in the proper visibility order
-		drawTabledPianoKeys(whitedraw, "white")
-		drawTabledPianoKeys(blackdraw, "black")
-
-	end,
-
-	-- Draw a table of piano-key rectangles, with text overlay
-	drawTabledPianoKeys = function(tab, kind)
-
-		local fontheight = data.font.piano.raster:getHeight()
-
-		for _, v in pairs(tab) do
-
-			-- Simplify the possibly-concave polygon into triangles
-			local tri = love.math.triangulate(v.poly)
-
-			-- Draw the triangles that comprise the piano-key polygon
-			love.graphics.setColor(v.color)
-			for _, t in pairs(tri) do
-				love.graphics.polygon("fill", t)
-			end
-
-			-- Draw the polygon's outline
-			love.graphics.setColor(data.color.piano.border)
-			love.graphics.polygon("line", v.poly)
-
-			-- Get key height from its positional metadata
-			local kh = v.b - v.t
-
-			-- If the small font is smaller than the key size, print the key-name onto the key
-			if fontheight <= kh then
-				local color = ((kind == "white") and data.color.piano.labeldark) or data.color.piano.labellight
-				love.graphics.setColor(color)
-				love.graphics.setFont(data.font.piano.raster)
-				love.graphics.printf(
-					v.name,
-					v.l + v.fl,
-					(v.t + kh) - ((kh + fontheight) / 2),
-					v.fr,
-					"center"
-				)
 			end
 
 		end
