@@ -99,7 +99,7 @@ return {
 		local left = data.size.sidebar.width
 		local top = 0
 		local right = left + width
-		local middle = height - data.size.botbar.height
+		local middle = height - data.size.track.height
 
 		if collisionCheck(x, y, 0, 0, left, top, right, middle) then
 			reactToGridClick(left, top, width, middle, x - left, y - top, button)

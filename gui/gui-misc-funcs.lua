@@ -21,9 +21,7 @@ return {
 			drawPianoRoll()
 		end
 
-		--[[
 		drawTrackPanel()
-		]]
 
 		love.graphics.setCanvas()
 
@@ -43,9 +41,9 @@ return {
 			buildPianoRoll()
 		end
 
-		--[[
 		buildTrackPanel()
 
+		--[[
 		-- Draw a line that compensates for a dangling border on the piano-roll,
 		-- in order to keep any frame-lines from changing when toggled into Cmd Mode.
 		love.graphics.setColor(data.color.piano.border)

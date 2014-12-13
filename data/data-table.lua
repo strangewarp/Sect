@@ -2,7 +2,7 @@
 local D = {}
 
 -- VERSIONING VARS --
-D.version = "1.1-a90" -- Holds Sect's current version-number
+D.version = "1.1-a91" -- Holds Sect's current version-number
 
 -- LOVE ENGINE VARS --
 D.updatespeed = 0.01 -- Speed at which to attempt to update program-state
@@ -137,11 +137,11 @@ D.height = 600 -- Global height
 D.redraw = false -- Toggles whether to redraw the GUI on the next frame
 D.gui = { -- Table for saving pre-generated GUI elements
 	grid = { -- Sequence-grid elements
-		cols = {}, -- Highlighted columns
-		rows = {}, -- Highlighted rows
-		keys = {}, -- Piano-keys
-		notes = {}, -- Note-cells
-		tris = {}, -- Beat-triangles
+		col = {}, -- Highlighted columns
+		row = {}, -- Highlighted rows
+		key = {}, -- Piano-keys
+		note = {}, -- Note-cells
+		tri = {}, -- Beat-triangles
 	},
 	piano = {}, -- Vertical piano-roll keys
 	reticule = { -- Pointer-reticules and other reticule-layer polys
@@ -156,7 +156,8 @@ D.gui = { -- Table for saving pre-generated GUI elements
 		text = {}, -- List of sidebar text-lines
 	},
 	track = { -- Track-bar elements
-		cells = {}, -- Sequence-cells
+		cell = {}, -- Sequence-cells
+		cursor = {}, -- Active-sequence reticule
 	},
 }
 D.gradients = { -- Gradients to build within the data.color table
@@ -166,6 +167,7 @@ D.gradients = { -- Gradients to build within the data.color table
 	{"note", "overlay_select_quiet", "overlay_select_loud", "o_s_ql_gradient"},
 	{"note", "bar_quiet", "bar_loud", "b_gradient"},
 	{"save", "background", "background_fade", "bg_gradient"},
+	{"summary", "empty", "full", "gradient"},
 }
 
 -- Baseline contents for new sequences

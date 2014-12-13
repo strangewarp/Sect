@@ -49,7 +49,7 @@ return {
 		local left = data.size.sidebar.width
 		local kwidth = data.size.piano.basewidth + (data.width / 40)
 		local width = data.width - left
-		local height = data.height - data.size.botbar.height
+		local height = data.height - data.size.track.height
 
 		-- Get key heights, and half-key heights, and note-row heights
 		local yflare = data.cellheight * 1.5

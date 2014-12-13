@@ -182,7 +182,7 @@ return {
 			yglue = "bottom",
 		},
 
-		botbar = { -- Bottom-bar
+		track = { -- Bottom-bar
 			file = false,
 			xglue = "center",
 			yglue = "center",
@@ -231,7 +231,7 @@ return {
 			height = 8,
 		},
 
-		botbar = { -- Bottom track-bar font
+		track = { -- Bottom track-bar font
 			file = "font/Milavregarian.ttf",
 			height = 10,
 		},
@@ -270,7 +270,7 @@ return {
 			y = 0.7, -- Distance between top and bottom
 		},
 
-		botbar = { -- Bottom track-bar
+		track = { -- Bottom track-bar
 			height = 60,
 		},
 

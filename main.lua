@@ -79,6 +79,7 @@ function love.load()
 	guipianofuncs = require('gui/gui-piano-funcs')
 	guisaveloadfuncs = require('gui/gui-saveload-funcs')
 	guisidebarfuncs = require('gui/gui-sidebar-funcs')
+	guitrackfuncs = require('gui/gui-track-funcs')
 	indexfuncs = require('funcs/index-funcs')
 	keyfuncs = require('funcs/key-funcs')
 	modefuncs = require('funcs/mode-funcs')
@@ -109,6 +110,7 @@ function love.load()
 		guipianofuncs,
 		guisaveloadfuncs,
 		guisidebarfuncs,
+		guitrackfuncs,
 		indexfuncs,
 		keyfuncs,
 		modefuncs,
@@ -313,7 +315,7 @@ function love.draw()
 		-- Get positioning vars
 		local left = data.size.sidebar.width
 		local top = 0
-		local middle = height - data.size.botbar.height
+		local middle = height - data.size.track.height
 
 		-- Get the mouse's concrete position
 		local x, y = love.mouse.getPosition()
