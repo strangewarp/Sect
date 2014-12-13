@@ -67,27 +67,22 @@ return {
 			return nil
 		end
 
-		local left = D.size.sidebar.width
-		local top = 0
-
 		-- Get ticks-per-beat
 		local beatsize = D.tpq * 4
 
 		-- Get the number of ticks in the active sequence, and global notes
-		local ticks = D.seq[D.active].total
-		local notes = D.bounds.np[2] - D.bounds.np[1]
+		local ticks = D.c.ticks
+		local notes = D.c.notes
 
 		-- Grid-panel's full X and Y size
-		local xfull = D.width - left
-		local yfull = D.height - D.size.track.height
+		local left = D.c.sqleft
+		local top = D.c.sqtop
+		local xfull = D.c.sqwidth
+		local yfull = D.c.sqheight
 
 		-- Reticule anchor coordinates
 		local xanchor = xfull * D.size.anchor.x
 		local yanchor = yfull * D.size.anchor.y
-
-		-- Halved cell sizes, for later GUI positioning
-		local xcellhalf = D.cellwidth / 2
-		local ycellhalf = D.cellheight / 2
 
 		-- Total number of grid-cells along both axes
 		local xcells = math.ceil(xfull / D.cellwidth)
@@ -98,8 +93,8 @@ return {
 		local ytopcells = math.ceil(yanchor / D.cellheight)
 
 		-- Positions for the left and top grid borders, adjusted to anchor point
-		local gridleft = (xanchor - (xleftcells * D.cellwidth)) - xcellhalf
-		local gridtop = (yanchor - (ytopcells * D.cellheight)) - ycellhalf
+		local gridleft = (xanchor - (xleftcells * D.cellwidth)) - D.c.xcellhalf
+		local gridtop = (yanchor - (ytopcells * D.cellheight)) - D.c.ycellhalf
 
 		-- Leftmost/topmost unwrapped tick and note values, for grid rendering
 		local lefttick = wrapNum(D.tp - xleftcells, 1, ticks)
@@ -171,7 +166,7 @@ return {
 			-- If this column is on a beat, add a triangle to the beat-triangle-table
 			if ((tick - 1) % beatsize) == 0 then
 				local beat = ((tick - 1) / beatsize) + 1
-				local trimiddle = left + gridleft + xcellhalf + (x * D.cellwidth)
+				local trimiddle = left + gridleft + D.c.xcellhalf + (x * D.cellwidth)
 				local tri = {beat, trimiddle, tritop, trifonttop}
 				table.insert(D.gui.seq.tri, tri)
 			end

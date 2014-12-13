@@ -135,6 +135,7 @@ T.entryquant = false -- Toggles auto-quantization of note-entry
 T.width = 800 -- Global width
 T.height = 600 -- Global height
 T.redraw = false -- Toggles whether to redraw the GUI on the next frame
+T.c = {} -- Holds various GUI constants
 T.gui = { -- Table for saving pre-generated GUI elements
 	piano = {}, -- Vertical piano-roll keys
 	reticule = {}, -- Pointer-reticules and other reticule-layer polys
@@ -144,6 +145,7 @@ T.gui = { -- Table for saving pre-generated GUI elements
 		text = {}, -- Text overlays
 		line = {}, -- Line-cursor
 	},
+	sel = {}, -- Selection boxes
 	seq = { -- Sequence-grid elements
 		col = {}, -- Highlighted columns
 		row = {}, -- Highlighted rows

@@ -46,8 +46,8 @@ return {
 		local nboundary = yanchor - ((D.cellheight * (D.bounds.np[2] - D.np)) + ycellhalf)
 
 		-- Sequence's full width and height, in pixels
-		local fullwidth = D.cellwidth * ticks
-		local fullheight = D.cellheight * notes
+		local fullwidth = D.c.fullwidth
+		local fullheight = D.c.fullwidth
 
 		-- All boundaries for wrapping the sequence's display
 		local xranges = getTileAxisBounds(0, xfull, tboundary, fullwidth)
@@ -108,23 +108,6 @@ return {
 				end
 
 			end
-
-		end
-
-		-- If there is a selection range, find and store its coordinates
-		if D.sel.l then
-
-			local selleft = ((D.sel.l - 1) * D.cellwidth)
-			local seltop = (D.bounds.np[2] - D.sel.t) * D.cellheight
-
-			local selwidth = D.cellwidth * ((D.sel.r - D.sel.l) + 1)
-			local selheight = D.cellheight * ((D.sel.t - D.sel.b) + 1)
-
-			drawsels = makeSelectionRenderTable(
-				left, top, xfull, yfull,
-				selleft, seltop, selwidth, selheight,
-				xranges, yranges
-			)
 
 		end
 

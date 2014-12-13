@@ -77,11 +77,11 @@ return {
 			outtab = {
 				"no seqs loaded!",
 				"",
-				string.upper(table.concat(D.cmds.TOGGLE_SAVELOAD_MODE, "-")),
+				table.concat(D.cmds.TOGGLE_SAVELOAD_MODE, "-"),
 				"opens the",
 				"saveload panel",
 				"",
-				string.upper(table.concat(D.cmds.INSERT_SEQ, "-")),
+				table.concat(D.cmds.INSERT_SEQ, "-"),
 				"creates a seq",
 				"",
 			}

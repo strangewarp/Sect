@@ -28,6 +28,8 @@ return {
 	-- Build the entire GUI
 	buildGUI = function(width, height)
 
+		buildConstants()
+
 		buildSidebar()
 
 		buildMetaSeqPanel()
@@ -53,9 +55,7 @@ return {
 			buildSaveLoadPanel()
 		else
 			buildSeqGrid()
-			--[[
 			buildSelectionTable()
-			]]
 			buildReticules()
 		end
 	end,
@@ -66,11 +66,49 @@ return {
 			drawSaveLoadPanel()
 		else
 			drawSeqGrid()
-			--[[
 			drawSelectionTable()
-			]]
 			drawReticules()
 		end
+	end,
+
+	-- Generate the constants used by the seq-panel-building functions
+	buildConstants = function()
+
+		-- If there isno active sequence, abort function
+		if not D.active then
+			return nil
+		end
+
+		-- Get the number of ticks in the active sequence, and global notes
+		D.c.ticks = D.seq[D.active].total
+		D.c.notes = D.bounds.np[2] - D.bounds.np[1]
+
+		-- Seq-panel boundaries
+		D.c.sqleft = D.size.sidebar.width
+		D.c.sqtop = 0
+		D.c.sqwidth = D.width - D.c.sqleft
+		D.c.sqheight = (D.height - D.c.sqtop) - D.size.track.height
+
+		-- Reticule anchor-points
+		D.c.xanchor = D.c.sqwidth * D.size.anchor.x
+		D.c.yanchor = D.c.sqheight * D.size.anchor.y
+
+		-- Halved cell-sizes
+		D.c.xcellhalf = D.cellwidth / 2
+		D.c.ycellhalf = D.cellheight / 2
+
+		-- Sequence's full width and height, in pixels
+		D.c.fullwidth = D.cellwidth * D.c.ticks
+		D.c.fullheight = D.cellheight * D.c.notes
+
+		-- Left/top boundaries of sequence's current, non-wrapped chunk
+		D.c.tboundary = D.c.xanchor - ((D.cellwidth * (D.tp - 1)) + D.c.xcellhalf)
+		D.c.nboundary = D.c.yanchor - ((D.cellheight * (D.bounds.np[2] - D.np)) + D.c.ycellhalf)
+
+		-- Tables of all boundaries for wrapping the sequence's display
+		D.c.xwrap = getTileAxisBounds(0, D.c.sqwidth, D.c.tboundary, D.c.fullwidth)
+		D.c.ywrap = getTileAxisBounds(0, D.c.sqheight, D.c.nboundary, D.c.fullheight)
+
 	end,
 
 	-- Draw an image in the specified area, aligned in a certain way

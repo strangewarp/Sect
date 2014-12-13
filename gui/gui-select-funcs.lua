@@ -2,30 +2,37 @@
 return {
 	
 	-- Draw a table of wrapped visible selection-positions
-	drawSelectionTable = function(sels)
-
-		for k, v in pairs(sels) do
-
+	drawSelectionTable = function()
+		for k, v in pairs(D.gui.sel) do
 			local l, t, w, h = unpack(v)
-
 			love.graphics.setColor(D.color.selection.fill)
 			love.graphics.rectangle("fill", l, t, w, h)
-
 			love.graphics.setColor(D.color.selection.line)
 			love.graphics.rectangle("line", l, t, w, h)
-
 		end
-
 	end,
 
 	-- Make a wrapping render-table of all visible positions of the selection
-	makeSelectionRenderTable = function(
-		left, top, xfull, yfull,
-		selleft, seltop, selwidth, selheight,
-		xranges, yranges
-	)
+	buildSelectionTable = function()
 
-		local sels = {}
+		-- If there is no selection range, abort function
+		if not D.sel.l then
+			return nil
+		end
+
+		local left = D.size.sidebar.width
+		local top = 0
+		local width = D.width - left
+		local height = D.height - top
+
+		local xranges = D.c.wrap.x
+		local yranges = D.c.wrap.y
+
+		local selleft = ((D.sel.l - 1) * D.cellwidth)
+		local seltop = (D.bounds.np[2] - D.sel.t) * D.cellheight
+
+		local selwidth = D.cellwidth * ((D.sel.r - D.sel.l) + 1)
+		local selheight = D.cellheight * ((D.sel.t - D.sel.b) + 1)
 
 		-- For every combination of on-screen X-ranges and Y-ranges,
 		-- check the selection's visibility there, and render if visible.
@@ -45,7 +52,7 @@ return {
 				end
 
 				-- If the selection is onscreen in this chunk, table it for display
-				if collisionCheck(left, top, xfull, yfull, l, t, sw, selheight) then
+				if collisionCheck(left, top, width, height, l, t, sw, selheight) then
 					table.insert(sels, {l, t, sw, selheight})
 				end
 
