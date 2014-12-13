@@ -5,22 +5,19 @@ return {
 	-- apply highlights to its note and border colors.
 	applyNoteHighlight = function(n, c1, c2)
 
-		local nindex = n[D.acceptmidi[n[1]][1]]
+		-- TODO: Simplify and move into draw function
+
 		local linecolor = deepCopy(D.color.note.border)
 		local highlight = D.color.note.highlight
 
-		-- If the note is on both axes, highlight it distinctly
-		if ((n[2] + 1) == D.tp) and (nindex == D.np) then
-
-			c1, c2 = mixColors(c1, highlight, 0.6), mixColors(c2, highlight, 0.6)
-			linecolor = deepCopy(D.color.note.lightborder)
-
-		-- Else if the note is on one axis, highlight it moderately
-		elseif (n.tick == D.tp) or (nindex == D.np) then
-
-			c1, c2 = mixColors(c1, highlight, 0.25), mixColors(c2, highlight, 0.25)
-			linecolor = deepCopy(D.color.note.adjborder)
-
+		if ((n[2] + 1) == D.tp) and (n[5] == D.np) then -- If the note is on both axes, highlight it distinctly
+			c1 = D.color.note.highlight_bg_bright
+			c2 = D.color.note.highlight_text_bright
+			linecolor = D.color.note.highlight_border_bright
+		elseif (n.tick == D.tp) or (n[5] == D.np) then -- Else if the note is on one axis, highlight it moderately
+			c1 = D.color.note.highlight_bg
+			c2 = D.color.note.highlight_text
+			linecolor = D.color.note.highlight_border
 		end
 
 		return c1, c2, linecolor
@@ -36,8 +33,108 @@ return {
 		end
 	end,
 
-	-- Draw a given table of render-notes
-	drawNoteTable = function(notes)
+	-- Draw a table of GUI notes
+	drawNoteTable = function()
+
+	end,
+
+	-- Build a table of GUI-notes
+	buildNoteTable = function()
+
+		-- Left/top boundaries of sequence's current, non-wrapped chunk
+		local tboundary = xanchor - ((D.cellwidth * (D.tp - 1)) + xcellhalf)
+		local nboundary = yanchor - ((D.cellheight * (D.bounds.np[2] - D.np)) + ycellhalf)
+
+		-- Sequence's full width and height, in pixels
+		local fullwidth = D.cellwidth * ticks
+		local fullheight = D.cellheight * notes
+
+		-- All boundaries for wrapping the sequence's display
+		local xranges = getTileAxisBounds(0, xfull, tboundary, fullwidth)
+		local yranges = getTileAxisBounds(0, yfull, nboundary, fullheight)
+
+		-- Get render-note data from all visible sequences
+		for snum, s in pairs(D.seq) do
+
+			local render = false
+
+			-- Assign render type based on notedraw and shadow activity
+			if D.drawnotes then
+				if snum == D.active then
+					render = 'normal'
+				elseif s.overlay then
+					render = 'shadow'
+				end
+			else
+				if s.overlay then
+					render = 'shadow'
+				end
+			end
+
+			-- If the shadow-seq is a different length than the active seq,
+			-- wrap the shadow-seq onto the active-seq accordingly.
+			local tempxr = deepCopy(xranges)
+			if snum ~= D.active then
+				if s.total ~= ticks then
+					tempxr = getTileAxisBounds(0, xfull, tboundary, D.cellwidth * s.total)
+				end
+			end
+
+			-- If the sequence is to be rendered...
+			if render then
+
+				-- If Cmd Mode is active, use only one vertical render-range
+				if D.cmdmode == "cmd" then
+					yranges = {{a = -math.huge, b = yanchor - ycellhalf, o = 0}}
+					drawnotes = tableCombine(
+						drawnotes,
+						makeNoteRenderTable(
+							render,
+							snum, getContents(s.tick, {pairs, 'cmd', pairs}, true),
+							left, top, xfull, yfull,
+							tempxr, yranges
+						)
+					)
+				else -- Else add visible notes to the drawnotes table normally
+					drawnotes = tableCombine(
+						drawnotes,
+						makeNoteRenderTable(
+							render,
+							snum, getContents(s.tick, {pairs, 'note', pairs, pairs}, true),
+							left, top, xfull, yfull,
+							tempxr, yranges
+						)
+					)
+				end
+
+			end
+
+		end
+
+		-- If there is a selection range, find and store its coordinates
+		if D.sel.l then
+
+			local selleft = ((D.sel.l - 1) * D.cellwidth)
+			local seltop = (D.bounds.np[2] - D.sel.t) * D.cellheight
+
+			local selwidth = D.cellwidth * ((D.sel.r - D.sel.l) + 1)
+			local selheight = D.cellheight * ((D.sel.t - D.sel.b) + 1)
+
+			drawsels = makeSelectionRenderTable(
+				left, top, xfull, yfull,
+				selleft, seltop, selwidth, selheight,
+				xranges, yranges
+			)
+
+		end
+
+		-- Draw all overlay-notes on top of the sequence grid
+		drawNoteTable(drawnotes)
+
+
+
+
+
 
 		local c1, c2, linecolor = {}, {}, {}
 
@@ -217,18 +314,6 @@ return {
 			end
 
 		end
-
-	end,
-
-	-- Get a note's color based on velocity.
-	-- c1, c2: "quiet" and "loud" colors.
-	getVelocityColor = function(n, c1, c2)
-
-		local veloval = n[D.acceptmidi[n[1]][2]]
-		local velomap = veloval / D.bounds.velo[2]
-		local velorev = (D.bounds.velo[2] - veloval) / D.bounds.velo[2]
-
-		return mixColors(c2, c1, velorev)
 
 	end,
 

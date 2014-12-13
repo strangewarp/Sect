@@ -39,18 +39,6 @@ return {
 
 		buildTrackPanel()
 
-		--[[
-		-- Draw a line that compensates for a dangling border on the piano-roll,
-		-- in order to keep any frame-lines from changing when toggled into Cmd Mode.
-		love.graphics.setColor(D.color.piano.border)
-		love.graphics.setLineWidth(2)
-		love.graphics.line(
-			D.size.sidebar.width, 0,
-			D.size.sidebar.width, height
-		)
-		love.graphics.setLineWidth(1)
-		]]
-
 	end,
 
 	-- Build the window's background
@@ -65,7 +53,10 @@ return {
 			buildSaveLoadPanel()
 		else
 			buildSeqGrid()
-			--buildSeqNotes()
+			--[[
+			buildSelectionTable()
+			]]
+			buildReticules()
 		end
 	end,
 
@@ -75,7 +66,10 @@ return {
 			drawSaveLoadPanel()
 		else
 			drawSeqGrid()
-			--drawSeqNotes()
+			--[[
+			drawSelectionTable()
+			]]
+			drawReticules()
 		end
 	end,
 

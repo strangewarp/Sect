@@ -72,12 +72,13 @@ function love.load()
 	factorfuncs = require('funcs/factor-funcs')
 	filefuncs = require('funcs/file-funcs')
 	generatorfuncs = require('funcs/generator-funcs')
-	guigridfuncs = require('gui/gui-grid-funcs')
 	guiloadingfuncs = require('gui/gui-loading-funcs')
 	guimiscfuncs = require('gui/gui-misc-funcs')
 	guinotefuncs = require('gui/gui-note-funcs')
 	guipianofuncs = require('gui/gui-piano-funcs')
+	guireticulefuncs = require('gui/gui-reticule-funcs')
 	guisaveloadfuncs = require('gui/gui-saveload-funcs')
+	guiselectfuncs = require('gui/gui-select-funcs')
 	guiseqfuncs = require('gui/gui-seq-funcs')
 	guisidebarfuncs = require('gui/gui-sidebar-funcs')
 	guitrackfuncs = require('gui/gui-track-funcs')
@@ -104,12 +105,13 @@ function love.load()
 		factorfuncs,
 		filefuncs,
 		generatorfuncs,
-		guigridfuncs,
 		guiloadingfuncs,
 		guimiscfuncs,
 		guinotefuncs,
 		guipianofuncs,
+		guireticulefuncs,
 		guisaveloadfuncs,
+		guiselectfuncs,
 		guiseqfuncs,
 		guisidebarfuncs,
 		guitrackfuncs,

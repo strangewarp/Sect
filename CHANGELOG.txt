@@ -13,6 +13,7 @@
 ---- sub-task: Rewrite the actual rendering of GUI elements to act upon the saved GUI-element tables.
 ---- sub-task: Re-render on mouse-movement and mouse-drag.
 ---- sub-task: Clarify commented-out code block in gui-misc-funcs.lua that used to draw a line to the left of the piano-roll
+---- sub-task: render beat-columns, and active row, in Cmd Mode
 
 -- TODO: Remove unnecessary 'undo-suppression' vars from function-calls and undo-funcs.
 

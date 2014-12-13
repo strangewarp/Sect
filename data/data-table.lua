@@ -137,8 +137,7 @@ T.height = 600 -- Global height
 T.redraw = false -- Toggles whether to redraw the GUI on the next frame
 T.gui = { -- Table for saving pre-generated GUI elements
 	piano = {}, -- Vertical piano-roll keys
-	reticule = { -- Pointer-reticules and other reticule-layer polys
-	},
+	reticule = {}, -- Pointer-reticules and other reticule-layer polys
 	saveload = { -- Saveload-panel elements
 		bg = {}, -- Background box
 		rect = {}, -- Rectangle panels
