@@ -15,8 +15,10 @@ return {
 	-- Make a wrapping render-table of all visible positions of the selection
 	buildSelectionTable = function()
 
-		-- If there is no selection range, abort function
-		if not D.sel.l then
+		D.gui.sel = {} -- Empty selection-GUI-table
+
+		-- If there is no selection, abort function
+		if (not D.active) or (not D.sel.l) then
 			return nil
 		end
 
@@ -25,8 +27,8 @@ return {
 		local width = D.width - left
 		local height = D.height - top
 
-		local xranges = D.c.wrap.x
-		local yranges = D.c.wrap.y
+		local xranges = D.c.xwrap
+		local yranges = D.c.ywrap
 
 		local selleft = ((D.sel.l - 1) * D.cellwidth)
 		local seltop = (D.bounds.np[2] - D.sel.t) * D.cellheight
@@ -53,7 +55,7 @@ return {
 
 				-- If the selection is onscreen in this chunk, table it for display
 				if collisionCheck(left, top, width, height, l, t, sw, selheight) then
-					table.insert(sels, {l, t, sw, selheight})
+					table.insert(D.gui.sel, {l, t, sw, selheight})
 				end
 
 			end

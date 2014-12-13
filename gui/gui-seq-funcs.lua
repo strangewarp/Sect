@@ -81,8 +81,8 @@ return {
 		local yfull = D.c.sqheight
 
 		-- Reticule anchor coordinates
-		local xanchor = xfull * D.size.anchor.x
-		local yanchor = yfull * D.size.anchor.y
+		local xanchor = D.c.xanchor
+		local yanchor = D.c.yanchor
 
 		-- Total number of grid-cells along both axes
 		local xcells = math.ceil(xfull / D.cellwidth)

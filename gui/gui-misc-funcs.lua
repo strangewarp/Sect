@@ -74,7 +74,7 @@ return {
 	-- Generate the constants used by the seq-panel-building functions
 	buildConstants = function()
 
-		-- If there isno active sequence, abort function
+		-- If there is no active sequence, abort function
 		if not D.active then
 			return nil
 		end

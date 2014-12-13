@@ -85,7 +85,7 @@ return {
 		},
 
 		seq = { -- Sequence-grid colors
-			active = {255, 0, 0, 200},
+			active = {255, 0, 0, 235},
 			dark = {10, 5, 108, 50},
 			light = {200, 200, 209, 255},
 			beat_dark = {0, 0, 220, 230},
