@@ -70,9 +70,8 @@ return {
 		local left = D.size.sidebar.width
 		local top = 0
 
-		-- All factors of the ticks-per-beat, for later column colorization
+		-- Get ticks-per-beat
 		local beatsize = D.tpq * 4
-		local factors = getFactors(beatsize)
 
 		-- Get the number of ticks in the active sequence, and global notes
 		local ticks = D.seq[D.active].total
@@ -106,24 +105,11 @@ return {
 		local lefttick = wrapNum(D.tp - xleftcells, 1, ticks)
 		local topnote = wrapNum(D.np + ytopcells, D.bounds.np)
 
-		-- Left/top boundaries of sequence's current, non-wrapped chunk
-		local tboundary = xanchor - ((D.cellwidth * (D.tp - 1)) + xcellhalf)
-		local nboundary = yanchor - ((D.cellheight * (D.bounds.np[2] - D.np)) + ycellhalf)
-
-		-- Sequence's full width and height, in pixels
-		local fullwidth = D.cellwidth * ticks
-		local fullheight = D.cellheight * notes
-
 		-- If note-cells are less than 1 wide, keep tick-columns from vanishing
 		local colwidth = math.max(1, D.cellwidth)
 
-		-- All boundaries for wrapping the sequence's display
-		local xranges = getTileAxisBounds(0, xfull, tboundary, fullwidth)
-		local yranges = getTileAxisBounds(0, yfull, nboundary, fullheight)
-
 		-- Positioning for beat-triangles
-		local trifontheight = D.font.beat.raster:getHeight()
-		local trifonttop = yfull - (trifontheight + 1)
+		local trifonttop = yfull - (D.font.beat.raster:getHeight() + 1)
 		local tritop = yfull - (D.size.triangle.breadth / 2)
 
 		-- If Cmd Mode isn't active, build highlighted rows
@@ -195,6 +181,18 @@ return {
 	end,
 
 	dummyFunc = function() -- TODO: REMOVE THIS
+
+		-- Left/top boundaries of sequence's current, non-wrapped chunk
+		local tboundary = xanchor - ((D.cellwidth * (D.tp - 1)) + xcellhalf)
+		local nboundary = yanchor - ((D.cellheight * (D.bounds.np[2] - D.np)) + ycellhalf)
+
+		-- Sequence's full width and height, in pixels
+		local fullwidth = D.cellwidth * ticks
+		local fullheight = D.cellheight * notes
+
+		-- All boundaries for wrapping the sequence's display
+		local xranges = getTileAxisBounds(0, xfull, tboundary, fullwidth)
+		local yranges = getTileAxisBounds(0, yfull, nboundary, fullheight)
 
 		-- Get render-note data from all visible sequences
 		for snum, s in pairs(D.seq) do

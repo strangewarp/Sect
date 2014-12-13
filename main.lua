@@ -335,8 +335,8 @@ function love.draw()
 	if D.playing then
 		buildSidebar()
 		buildMetaSeqPanel()
-		drawSidebar()
 		drawMetaSeqPanel()
+		drawSidebar()
 		drawPianoRoll()
 	end
 

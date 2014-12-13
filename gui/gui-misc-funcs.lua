@@ -10,9 +10,9 @@ return {
 
 		drawBackground()
 
-		drawSidebar()
-
 		drawMetaSeqPanel()
+
+		drawSidebar()
 
 		-- If not in Cmd Mode, draw the vertical piano-roll
 		if D.cmdmode ~= "cmd" then
