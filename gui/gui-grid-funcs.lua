@@ -9,12 +9,12 @@ return {
 			local tick, colleft, coltop, colwidth, colheight, color = unpack(v)
 
 			-- If any portion of the column is within the seq-panel...
-			if (colleft + colwidth) >= data.size.sidebar.width then
+			if (colleft + colwidth) >= D.size.sidebar.width then
 
 				-- Crop the tinted column to the seq-panel's left border
-				if colleft < data.size.sidebar.width then
-					colwidth = colwidth - (data.size.sidebar.width - colleft)
-					colleft = data.size.sidebar.width
+				if colleft < D.size.sidebar.width then
+					colwidth = colwidth - (D.size.sidebar.width - colleft)
+					colleft = D.size.sidebar.width
 				end
 
 				love.graphics.setColor(color)
@@ -26,36 +26,12 @@ return {
 
 	end,
 
-	-- Render a table of beat-triangles
-	drawBeatTriangles = function(tris, beatsize, yfull, tritop, trifonttop)
-
-		local breadth = data.size.triangle.breadth
-		local bhalf = breadth / 2
-		local bhalfout = bhalf + 1
-	
-		for k, v in ipairs(tris) do
-
-			local beat, xpos = unpack(v)
-
-			love.graphics.setColor(data.color.triangle.fill)
-
-			love.graphics.polygon("fill", xpos - bhalf, yfull, xpos + bhalf, yfull, xpos, tritop)
-			love.graphics.setColor(data.color.triangle.line)
-			love.graphics.line(xpos - bhalfout, yfull + 1, xpos, tritop, xpos + bhalfout, yfull + 1)
-			love.graphics.setColor(data.color.triangle.text)
-			love.graphics.setFont(data.font.beat.raster)
-			love.graphics.printf(beat, xpos - bhalf, trifonttop, breadth, "center")
-
-		end
-
-	end,
-
 	-- Draw the reticules that show the position and size of current note-entry
 	drawReticules = function(left, top, right, xhalf, yhalf, xcellhalf, ycellhalf)
 
-		local trh = data.size.reticule.breadth
-		local trl = left + xhalf - (data.size.reticule.breadth / 2)
-		local trt = top + yhalf - (data.size.reticule.breadth / 2)
+		local trh = D.size.reticule.breadth
+		local trl = left + xhalf - (D.size.reticule.breadth / 2)
+		local trt = top + yhalf - (D.size.reticule.breadth / 2)
 		local trr = trl + trh
 		local trb = trt + trh
 		trt = trt - ycellhalf
@@ -64,27 +40,27 @@ return {
 		local nrh = ycellhalf
 		local nrlr = left + xhalf - xcellhalf
 		local nrll = nrlr - nrh
-		local nrrl = nrlr + (data.cellwidth * data.dur)
+		local nrrl = nrlr + (D.cellwidth * D.dur)
 		local nrrr = nrrl + nrh
 		local nrt = yhalf - nrh
 		local nrb = yhalf + nrh
 
 		-- Draw the tick reticule
-		if data.recording then
-			if data.cmdmode == "gen" then
-				love.graphics.setColor(data.color.reticule.generator)
-			elseif data.cmdmode == "cmd" then
-				love.graphics.setColor(data.color.reticule.cmd)
+		if D.recording then
+			if D.cmdmode == "gen" then
+				love.graphics.setColor(D.color.reticule.generator)
+			elseif D.cmdmode == "cmd" then
+				love.graphics.setColor(D.color.reticule.cmd)
 			else
-				love.graphics.setColor(data.color.reticule.recording)
+				love.graphics.setColor(D.color.reticule.recording)
 			end
 		else
-			if data.cmdmode == "gen" then
-				love.graphics.setColor(data.color.reticule.generator_dark)
-			elseif data.cmdmode == "cmd" then
-				love.graphics.setColor(data.color.reticule.cmd_dark)
+			if D.cmdmode == "gen" then
+				love.graphics.setColor(D.color.reticule.generator_dark)
+			elseif D.cmdmode == "cmd" then
+				love.graphics.setColor(D.color.reticule.cmd_dark)
 			else
-				love.graphics.setColor(data.color.reticule.dark)
+				love.graphics.setColor(D.color.reticule.dark)
 			end
 		end
 		love.graphics.polygon(
@@ -101,8 +77,8 @@ return {
 		)
 
 		-- Draw the note-duration reticule
-		if not data.recording then
-			love.graphics.setColor(data.color.reticule.light)
+		if not D.recording then
+			love.graphics.setColor(D.color.reticule.light)
 		end
 		love.graphics.polygon(
 			"fill",
@@ -110,7 +86,7 @@ return {
 			nrlr, yhalf,
 			nrll, nrb
 		)
-		if data.cmdmode ~= "cmd" then -- Only draw right reticule arrow if Cmd Mode is inactive
+		if D.cmdmode ~= "cmd" then -- Only draw right reticule arrow if Cmd Mode is inactive
 			if nrrl < right then
 				love.graphics.polygon(
 					"fill",
@@ -130,10 +106,10 @@ return {
 
 			local l, t, w, h = unpack(v)
 
-			love.graphics.setColor(data.color.selection.fill)
+			love.graphics.setColor(D.color.selection.fill)
 			love.graphics.rectangle("fill", l, t, w, h)
 
-			love.graphics.setColor(data.color.selection.line)
+			love.graphics.setColor(D.color.selection.line)
 			love.graphics.rectangle("line", l, t, w, h)
 
 		end
@@ -144,16 +120,16 @@ return {
 	drawSeqGrid = function(left, top, right, bot)
 
 		-- All factors of the ticks-per-beat, for later column colorization
-		local beatsize = data.tpq * 4
+		local beatsize = D.tpq * 4
 		local factors = getFactors(beatsize)
 
 		-- Get the number of ticks in the active sequence, and global notes
-		local ticks = data.seq[data.active].total
-		local notes = data.bounds.np[2] - data.bounds.np[1]
+		local ticks = D.seq[D.active].total
+		local notes = D.bounds.np[2] - D.bounds.np[1]
 
 		-- Get visible/invisible versions of the beat-color, for mixing
-		local beatcolor = deepCopy(data.color.seq.beat)
-		local invis = deepCopy(data.color.seq.beat)
+		local beatcolor = deepCopy(D.color.seq.beat)
+		local invis = deepCopy(D.color.seq.beat)
 		invis[4] = 0
 
 		-- Grid-panel's full X and Y size
@@ -161,85 +137,85 @@ return {
 		local yfull = bot - top
 
 		-- Reticule anchor coordinates
-		local xanchor = xfull * data.size.anchor.x
-		local yanchor = yfull * data.size.anchor.y
+		local xanchor = xfull * D.size.anchor.x
+		local yanchor = yfull * D.size.anchor.y
 
 		-- Halved cell sizes, for later GUI positioning
-		local xcellhalf = data.cellwidth / 2
-		local ycellhalf = data.cellheight / 2
+		local xcellhalf = D.cellwidth / 2
+		local ycellhalf = D.cellheight / 2
 
 		-- Total number of grid-cells along both axes
-		local xcells = math.ceil(xfull / data.cellwidth)
-		local ycells = math.ceil(yfull / data.cellheight)
+		local xcells = math.ceil(xfull / D.cellwidth)
+		local ycells = math.ceil(yfull / D.cellheight)
 
 		-- Number of cells between anchor point and grid origin borders
-		local xleftcells = math.ceil(xanchor / data.cellwidth)
-		local ytopcells = math.ceil(yanchor / data.cellheight)
+		local xleftcells = math.ceil(xanchor / D.cellwidth)
+		local ytopcells = math.ceil(yanchor / D.cellheight)
 
 		-- Positions for the left and top grid borders, adjusted to anchor point
-		local gridleft = (xanchor - (xleftcells * data.cellwidth)) - xcellhalf
-		local gridtop = (yanchor - (ytopcells * data.cellheight)) - ycellhalf
+		local gridleft = (xanchor - (xleftcells * D.cellwidth)) - xcellhalf
+		local gridtop = (yanchor - (ytopcells * D.cellheight)) - ycellhalf
 
 		-- Leftmost/topmost unwrapped tick and note values, for grid rendering
-		local lefttick = wrapNum(data.tp - xleftcells, 1, ticks)
-		local topnote = wrapNum(data.np + ytopcells, data.bounds.np)
+		local lefttick = wrapNum(D.tp - xleftcells, 1, ticks)
+		local topnote = wrapNum(D.np + ytopcells, D.bounds.np)
 
 		-- Left/top boundaries of sequence's current, non-wrapped chunk
-		local tboundary = xanchor - ((data.cellwidth * (data.tp - 1)) + xcellhalf)
-		local nboundary = yanchor - ((data.cellheight * (data.bounds.np[2] - data.np)) + ycellhalf)
+		local tboundary = xanchor - ((D.cellwidth * (D.tp - 1)) + xcellhalf)
+		local nboundary = yanchor - ((D.cellheight * (D.bounds.np[2] - D.np)) + ycellhalf)
 
 		-- Sequence's full width and height, in pixels
-		local fullwidth = data.cellwidth * ticks
-		local fullheight = data.cellheight * notes
+		local fullwidth = D.cellwidth * ticks
+		local fullheight = D.cellheight * notes
 
 		-- If note-cells are less than 1 wide, keep tick-columns from vanishing
-		local colwidth = math.max(1, data.cellwidth)
+		local colwidth = math.max(1, D.cellwidth)
 
 		-- All boundaries for wrapping the sequence's display
 		local xranges = getTileAxisBounds(0, xfull, tboundary, fullwidth)
 		local yranges = getTileAxisBounds(0, yfull, nboundary, fullheight)
 
 		-- Positioning for beat-triangles
-		local trifontheight = data.font.beat.raster:getHeight()
+		local trifontheight = D.font.beat.raster:getHeight()
 		local trifonttop = yfull - (trifontheight + 1)
-		local tritop = yfull - (data.size.triangle.breadth / 2)
+		local tritop = yfull - (D.size.triangle.breadth / 2)
 
 		-- Initialize the local tables that will be populated
 		local tintcolumns, drawnotes, drawsels, triangles = {}, {}, {}, {}
 
 		-- Render the seq-window's background
-		love.graphics.setColor(data.color.seq.light)
+		love.graphics.setColor(D.color.seq.light)
 		love.graphics.rectangle("fill", left, top, xfull, yfull)
 
 		-- Render the seq-window's background-image
-		drawBoundedImage(left, top, xfull, yfull, data.img.grid)
+		drawBoundedImage(left, top, xfull, yfull, D.img.grid)
 
 		-- If Cmd Mode isn't active, draw highlighted rows
-		if data.cmdmode ~= "cmd" then
+		if D.cmdmode ~= "cmd" then
 
 			-- Set color for rendering darkened rows
-			love.graphics.setColor(data.color.seq.dark)
+			love.graphics.setColor(D.color.seq.dark)
 
 			-- Find and render darkened rows
 			for y = 0, ycells + 1 do
 
 				-- Get row's Y-center and Y-top
-				local ytop = gridtop + (data.cellheight * y)
+				local ytop = gridtop + (D.cellheight * y)
 
 				-- Get the row's corresponding note, and the note's scale position
-				local note = wrapNum(topnote - y, data.bounds.np)
-				local notetype = data.pianometa[wrapNum(note + 1, 1, 12)][1]
+				local note = wrapNum(topnote - y, D.bounds.np)
+				local notetype = D.pianometa[wrapNum(note + 1, 1, 12)][1]
 
 				-- On black-key rows, render dark overlays
 				if notetype == 0 then
-					love.graphics.rectangle("fill", left, ytop, xfull, data.cellheight)
+					love.graphics.rectangle("fill", left, ytop, xfull, D.cellheight)
 				end
 
 				-- Highlight the active note-row
-				if note == data.np then
-					love.graphics.setColor(data.color.seq.active)
-					love.graphics.rectangle("fill", left, ytop, xfull, data.cellheight)
-					love.graphics.setColor(data.color.seq.dark)
+				if note == D.np then
+					love.graphics.setColor(D.color.seq.active)
+					love.graphics.rectangle("fill", left, ytop, xfull, D.cellheight)
+					love.graphics.setColor(D.color.seq.dark)
 				end
 
 			end
@@ -249,43 +225,43 @@ return {
 		-- Find and render tick-columns
 		for x = 0, xcells do
 
-			local xleft = gridleft + (data.cellwidth * x)
+			local xleft = gridleft + (D.cellwidth * x)
 
 			-- Get the row's corresponding tick
 			local tick = wrapNum(lefttick + x, 1, ticks)
 
 			-- If factor-column, table for later rendering
-			if ((tick - 1) % (data.tpq * 4)) == 0 then
+			if ((tick - 1) % (D.tpq * 4)) == 0 then
 				local color = mixColors(beatcolor, invis, 0.1)
 				table.insert(tintcolumns, {tick, left + xleft, top, colwidth, yfull, color})
-			elseif ((tick - 1) % data.factors[data.fp]) == 0 then
+			elseif ((tick - 1) % D.factors[D.fp]) == 0 then
 				local color = mixColors(beatcolor, invis, 0.5)
 				table.insert(tintcolumns, {tick, left + xleft, top, colwidth, yfull, color})
 			end
 
 			-- If active column, table activity-color for later rendering
-			if tick == data.tp then
-				local color = data.color.seq.active
+			if tick == D.tp then
+				local color = D.color.seq.active
 				table.insert(tintcolumns, {tick, left + xleft, top, colwidth, yfull, color})
 			end
 
 			-- If this column is on a beat, add a triangle to the beat-triangle-table
 			if ((tick - 1) % beatsize) == 0 then
 				local beat = ((tick - 1) / beatsize) + 1
-				local trileft = left + gridleft + xcellhalf + (x * data.cellwidth)
+				local trileft = left + gridleft + xcellhalf + (x * D.cellwidth)
 				table.insert(triangles, {beat, trileft})
 			end
 
 		end
 
 		-- Get render-note data from all visible sequences
-		for snum, s in pairs(data.seq) do
+		for snum, s in pairs(D.seq) do
 
 			local render = false
 
 			-- Assign render type based on notedraw and shadow activity
-			if data.drawnotes then
-				if snum == data.active then
+			if D.drawnotes then
+				if snum == D.active then
 					render = 'normal'
 				elseif s.overlay then
 					render = 'shadow'
@@ -299,9 +275,9 @@ return {
 			-- If the shadow-seq is a different length than the active seq,
 			-- wrap the shadow-seq onto the active-seq accordingly.
 			local tempxr = deepCopy(xranges)
-			if snum ~= data.active then
+			if snum ~= D.active then
 				if s.total ~= ticks then
-					tempxr = getTileAxisBounds(0, xfull, tboundary, data.cellwidth * s.total)
+					tempxr = getTileAxisBounds(0, xfull, tboundary, D.cellwidth * s.total)
 				end
 			end
 
@@ -309,7 +285,7 @@ return {
 			if render then
 
 				-- If Cmd Mode is active, use only one vertical render-range
-				if data.cmdmode == "cmd" then
+				if D.cmdmode == "cmd" then
 					yranges = {{a = -math.huge, b = yanchor - ycellhalf, o = 0}}
 				end
 
@@ -337,13 +313,13 @@ return {
 		end
 
 		-- If there is a selection range, find and store its coordinates
-		if data.sel.l then
+		if D.sel.l then
 
-			local selleft = ((data.sel.l - 1) * data.cellwidth)
-			local seltop = (data.bounds.np[2] - data.sel.t) * data.cellheight
+			local selleft = ((D.sel.l - 1) * D.cellwidth)
+			local seltop = (D.bounds.np[2] - D.sel.t) * D.cellheight
 
-			local selwidth = data.cellwidth * ((data.sel.r - data.sel.l) + 1)
-			local selheight = data.cellheight * ((data.sel.t - data.sel.b) + 1)
+			local selwidth = D.cellwidth * ((D.sel.r - D.sel.l) + 1)
+			local selheight = D.cellheight * ((D.sel.t - D.sel.b) + 1)
 
 			drawsels = makeSelectionRenderTable(
 				left, top, xfull, yfull,
@@ -388,7 +364,7 @@ return {
 
 				-- Get the concrete offsets of the wrapped selection position
 				local l = left + xr.a + selleft
-				local t = top + yr.a + seltop + (data.cellheight * yr.o)
+				local t = top + yr.a + seltop + (D.cellheight * yr.o)
 
 				-- Clip the portion of the selection that would overflow the left border
 				if l < left then

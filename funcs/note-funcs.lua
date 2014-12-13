@@ -51,9 +51,9 @@ return {
 
 		-- Set parameters to default if any are empty
 		tbot = tbot or 1
-		ttop = ttop or data.seq[p].total
-		nbot = nbot or data.bounds.np[1]
-		ntop = ntop or data.bounds.np[2]
+		ttop = ttop or D.seq[p].total
+		nbot = nbot or D.bounds.np[1]
+		ntop = ntop or D.bounds.np[2]
 		chan = chan or false
 
 		-- Compensate for erroneous bounds
@@ -69,7 +69,7 @@ return {
 		for n = nbot, ntop do
 			table.insert(nindexes, n)
 		end
-		local notes = getContents(data.seq[p].tick, {tindexes, "note", chan or pairs, nindexes})
+		local notes = getContents(D.seq[p].tick, {tindexes, "note", chan or pairs, nindexes})
 
 		return notes
 
@@ -92,7 +92,7 @@ return {
 		local removenotes = {}
 		local addnotes = {}
 
-		local ticks = data.seq[p].total
+		local ticks = D.seq[p].total
 
 		-- Find all overlapping notes, and all to-be-removed notes
 		for i = #notes, 1, -1 do
@@ -100,7 +100,7 @@ return {
 			local kind, n = unpack(notes[i])
 
 			-- If an already-existing note matches the incoming note...
-			local sn = getIndex(data.seq[p].tick, {n[2] + 1, "note", n[4], n[5]})
+			local sn = getIndex(D.seq[p].tick, {n[2] + 1, "note", n[4], n[5]})
 			if sn then
 
 				-- If the incoming setNote command is for removal, put old note into remove-table.
@@ -133,7 +133,7 @@ return {
 
 		-- Remove all removenotes, cull sparse tables, and shape undo tables
 		for k, v in pairs(removenotes) do
-			local rnote = getIndex(data.seq[p].tick, {v[2] + 1, "note", v[4], v[5]})
+			local rnote = getIndex(D.seq[p].tick, {v[2] + 1, "note", v[4], v[5]})
 			if rnote then
 				seqUnsetCascade(p, 'note', rnote)
 				table.insert(undonotes, {'insert', rnote})
@@ -143,7 +143,7 @@ return {
 
 		-- Add all addnotes while building sparse tables, and shape undo tables accordingly
 		for k, v in pairs(addnotes) do
-			buildTable(data.seq[p].tick, {v[2] + 1, "note", v[4], v[5]}, v)
+			buildTable(D.seq[p].tick, {v[2] + 1, "note", v[4], v[5]}, v)
 			table.insert(undonotes, {'remove', deepCopy(v)})
 			table.insert(redonotes, {'insert', deepCopy(v)})
 		end
@@ -163,33 +163,33 @@ return {
 		local n = {}
 
 		-- If the note/tick pointers don't exist, get temporary values
-		local tempnp = data.np or 0
-		local temptp = data.tp or 1
+		local tempnp = D.np or 0
+		local temptp = D.tp or 1
 
 		-- If Entry-Quantize is active, snap the insert-point to the nearest factor-tick
-		if data.entryquant then
-			temptp = wrapNum(temptp + getSnapDistance(temptp, data.factors[data.fp]) + 1, 1, data.seq[data.active].total)
+		if D.entryquant then
+			temptp = wrapNum(temptp + getSnapDistance(temptp, D.factors[D.fp]) + 1, 1, D.seq[D.active].total)
 		end
 
 		-- If Cmd Mode isn't active...
-		if data.cmdmode ~= "cmd" then
+		if D.cmdmode ~= "cmd" then
 
 			-- If a distance-from-C isn't given, set it to the note-pointer position
 			dist = dist or (tempnp % 12)
 
 			-- Get the note-pointer position, modulated by dist-offset
 			local npoffset = dist + (tempnp - (tempnp % 12))
-			local adjnote = clampNum(npoffset, data.bounds.np)
+			local adjnote = clampNum(npoffset, D.bounds.np)
 
 			n = {
 				'insert', -- setNotes command-name
 				{
 					'note', -- MIDI.lua item command
 					temptp - 1, -- 0-indexed tick start-time
-					data.dur, -- Duration (ticks)
-					data.chan, -- Channel
+					D.dur, -- Duration (ticks)
+					D.chan, -- Channel
 					adjnote, -- Pitch + piano key dist
-					data.velo, -- Velocity
+					D.velo, -- Velocity
 				},
 			}
 
@@ -199,26 +199,26 @@ return {
 		end
 
 		-- If recording is off, then abort function
-		if not data.recording then
+		if not D.recording then
 			return nil
 		end
 
-		if data.cmdmode == "gen" then -- If in Generator Mode, generate a note-sequence
+		if D.cmdmode == "gen" then -- If in Generator Mode, generate a note-sequence
 
-			generateSeqNotes(data.active, dist, undo)
+			generateSeqNotes(D.active, dist, undo)
 
-		elseif data.cmdmode == "entry" then -- If in Entry Mode, enter a note
+		elseif D.cmdmode == "entry" then -- If in Entry Mode, enter a note
 
-			setNotes(data.active, {n}, undo)
+			setNotes(D.active, {n}, undo)
 			moveTickPointer(1) -- Move ahead by one spacing unit
 
 		else -- Else, we're in Cmd Mode, so generate a non-note command
 
 			local c = {
-				data.cmdtypes[data.cmdtype][3],
+				D.cmdtypes[D.cmdtype][3],
 				temptp - 1,
-				data.chan,
-				data.cmdbyte1,
+				D.chan,
+				D.cmdbyte1,
 			}
 
 			-- For 2-byte commands, add the second Cmd-byte
@@ -226,16 +226,16 @@ return {
 			or (c[1] == 'control_change')
 			then
 
-				c[5] = data.cmdbyte2
+				c[5] = D.cmdbyte2
 
 			-- For pitch-bend commands, sum the two byte commands
 			elseif c[1] == 'pitch_wheel_change' then
 
-				c[4] = (c[4] * 128) + data.cmdbyte2
+				c[4] = (c[4] * 128) + D.cmdbyte2
 
 			end
 
-			setCmd(data.active, {'insert', data.cmdp, c}, undo)
+			setCmd(D.active, {'insert', D.cmdp, c}, undo)
 
 		end
 
@@ -247,28 +247,28 @@ return {
 		local delnotes = {}
 
 		-- If Cmd Mode is active, delete the active Non-Note
-		if data.cmdmode == "cmd" then
+		if D.cmdmode == "cmd" then
 
 			-- If the command-pointer corresponds to a cmd on the active tick,
 			-- create a "remove" cmd, and send that cmd to setCmd.
-			if getIndex(data.seq[data.active].tick, {data.tp, "cmd", data.cmdp}) then
-				setCmd(data.active, {'remove', data.cmdp}, undo)
+			if getIndex(D.seq[D.active].tick, {D.tp, "cmd", D.cmdp}) then
+				setCmd(D.active, {'remove', D.cmdp}, undo)
 				moveTickPointer(1) -- Move tick-pointer by 1 spacing unit
 			end
 
 		else -- Else, delete the active note
 
 			-- If any notes are selected, slate them for deletion
-			if next(data.seldat) ~= nil then
-				delnotes = getContents(data.seldat, {pairs, pairs, pairs})
+			if next(D.seldat) ~= nil then
+				delnotes = getContents(D.seldat, {pairs, pairs, pairs})
 			else -- Else, if no notes are selected, slate the current pointer-pos's note for deletion
-				delnotes = getNotes(data.active, data.tp, data.tp, data.np, data.np, data.chan)
+				delnotes = getNotes(D.active, D.tp, D.tp, D.np, D.np, D.chan)
 			end
 
 			-- If any matching notes were found, remove them
 			if #delnotes > 0 then
 				delnotes = notesToSetType(delnotes, 'remove')
-				setNotes(data.active, delnotes, undo)
+				setNotes(D.active, delnotes, undo)
 				moveTickPointer(1) -- Move tick-pointer by 1 spacing unit
 			end
 
@@ -280,27 +280,27 @@ return {
 	deleteTickNotes = function(undo)
 
 		-- If Cmd Mode is active, delete all non-note commands within the tick
-		if data.cmdmode == "cmd" then
+		if D.cmdmode == "cmd" then
 
-			local delcmds = getCmds(data.active, data.tp, data.tp, _, 'remove')
+			local delcmds = getCmds(D.active, D.tp, D.tp, _, 'remove')
 			delcmds = cmdsToSetType(delcmds, 'remove')
 
 			-- If any matching cmds were found, send them through setCmd individually
 			if #delcmds > 0 then
 				for k, v in pairs(delcmds) do
-					setCmd(data.active, v, undo)
+					setCmd(D.active, v, undo)
 				end
 				moveTickPointer(1) -- Move tick-pointer by 1 spacing unit
 			end
 
 		else -- Else, delete all notes on the tick
 
-			local delnotes = getNotes(data.active, data.tp, data.tp, _, _, data.chan)
+			local delnotes = getNotes(D.active, D.tp, D.tp, _, _, D.chan)
 			delnotes = notesToSetType(delnotes, 'remove')
 
 			-- If any matching notes were found, send them through removeNotes
 			if #delnotes > 0 then
-				setNotes(data.active, delnotes, undo)
+				setNotes(D.active, delnotes, undo)
 				moveTickPointer(1) -- Move tick-pointer by 1 spacing unit
 			end
 
@@ -311,12 +311,12 @@ return {
 	-- Delete all notes in the active pitch
 	deletePitchNotes = function(undo)
 
-		local delnotes = getNotes(data.active, _, _, data.np, data.np, data.chan)
+		local delnotes = getNotes(D.active, _, _, D.np, D.np, D.chan)
 		delnotes = notesToSetType(delnotes, 'remove')
 
 		-- If any matching notes were found, send them through removeNotes
 		if #delnotes > 0 then
-			setNotes(data.active, delnotes, undo)
+			setNotes(D.active, delnotes, undo)
 		end
 
 	end,
@@ -325,32 +325,32 @@ return {
 	deleteBeatNotes = function(undo)
 
 		-- Find the beginning and end of the current beat
-		local ltick = data.tp
-		while wrapNum(ltick, 1, data.tpq * 4) ~= 1 do
+		local ltick = D.tp
+		while wrapNum(ltick, 1, D.tpq * 4) ~= 1 do
 			ltick = ltick - 1
 		end
-		local rtick = clampNum((ltick + (data.tpq * 4)) - 1, 1, data.seq[data.active].total)
+		local rtick = clampNum((ltick + (D.tpq * 4)) - 1, 1, D.seq[D.active].total)
 
 		-- If Cmd Mode is active, delete all non-note commands within the beat
-		if data.cmdmode == "cmd" then
+		if D.cmdmode == "cmd" then
 
-			local delcmds = getCmds(data.active, ltick, rtick, 'remove')
+			local delcmds = getCmds(D.active, ltick, rtick, 'remove')
 
 			-- If any matching cmds were found, send them through setCmd individually
 			if #delcmds > 0 then
 				for k, v in pairs(delcmds) do
-					setCmd(data.active, v, undo)
+					setCmd(D.active, v, undo)
 				end
 			end
 
 		else -- Else, delete all notes in the beat
 
-			local delnotes = getNotes(data.active, ltick, rtick, _, _, data.chan)
+			local delnotes = getNotes(D.active, ltick, rtick, _, _, D.chan)
 			delnotes = notesToSetType(delnotes, 'remove')
 
 			-- If any matching notes were found, send them through removeNotes
 			if #delnotes > 0 then
-				setNotes(data.active, delnotes, undo)
+				setNotes(D.active, delnotes, undo)
 			end
 
 		end

@@ -4,13 +4,13 @@ return {
 	-- Get all factors that fall within the current ticks-per-beat value
 	getBeatFactors = function()
 
-		local oldfactors = deepCopy(data.factors)
+		local oldfactors = deepCopy(D.factors)
 
-		data.factors = getFactors(data.tpq * 4)
+		D.factors = getFactors(D.tpq * 4)
 
 		-- If the new factors are different from the oldfactors, set the factor-index to 1
-		if not strictCompare(oldfactors, data.factors) then
-			data.fp = #data.factors
+		if not strictCompare(oldfactors, D.factors) then
+			D.fp = #D.factors
 		end
 
 	end,
@@ -42,7 +42,7 @@ return {
 
 	-- Shift the factor-pointer by a given amount
 	shiftFactorKey = function(dist)
-		data.fp = wrapNum(data.fp + dist, 1, #data.factors)
+		D.fp = wrapNum(D.fp + dist, 1, #D.factors)
 	end,
 
 }

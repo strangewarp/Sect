@@ -217,10 +217,10 @@ return {
 
 		-- If done loading, and commands aren't allowed without active sequences,
 		-- and a funcgate isn't active, then return nil and throw a warning.
-		if (not data.active)
-		and (not data.loading)
-		and (not data.inactivecmds[t[1]])
-		and (not data.funcgate)
+		if (not D.active)
+		and (not D.loading)
+		and (not D.inactivecmds[t[1]])
+		and (not D.funcgate)
 		then
 			print("executeFunction: Warning: Cannot use function '" .. t[1] .. "' until a sequence is loaded!")
 			return nil
@@ -228,10 +228,10 @@ return {
 
 		-- Set or increase a function-gate, so that sub-commands in the undo system
 		-- can occur even when no sequences are loaded.
-		data.funcgate = (data.funcgate and (data.funcgate + 1)) or 1
+		D.funcgate = (D.funcgate and (D.funcgate + 1)) or 1
 
 		-- If the function will create an undo entry, create a new undo block
-		if data.undocmds[t[1]] and (not t[#t]) then
+		if D.undocmds[t[1]] and (not t[#t]) then
 			addUndoBlock()
 		end
 
@@ -243,9 +243,9 @@ return {
 		sanitizeDataStructures()
 
 		-- Reduce and/or unset the funcgate, so that 
-		data.funcgate = data.funcgate - 1
-		if data.funcgate == 0 then
-			data.funcgate = false
+		D.funcgate = D.funcgate - 1
+		if D.funcgate == 0 then
+			D.funcgate = false
 		end
 
 	end,

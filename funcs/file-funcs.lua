@@ -46,33 +46,33 @@ return {
 
 	-- Load the scale and wheel files
 	loadScalesAndWheels = function()
-		data.scales = require('scales')
-		data.wheels = require('wheels')
+		D.scales = require('scales')
+		D.wheels = require('wheels')
 	end,
 
 	-- Save the scale and wheel tables
 	saveScalesAndWheels = function()
-		serializeTable(data.scales, "scales.lua")
-		serializeTable(data.wheels, "wheels.lua")
+		serializeTable(D.scales, "scales.lua")
+		serializeTable(D.wheels, "wheels.lua")
 	end,
 
 	-- Load the current active savefile in the hotseats list
 	loadFile = function(filename, add, undo)
 
 		-- If the save-directory doesn't exist, abort function
-		if not data.saveok then
+		if not D.saveok then
 			return nil
 		end
 
 		-- If no filename was given, use the current hotseat filename
 		if not filename then
-			filename = data.hotseats[data.activeseat]
+			filename = D.hotseats[D.activeseat]
 		end
 
 		local bpm, tpq = false, false
 		local undotasks = {}
 
-		local saveloc = data.savepath .. filename .. ".mid"
+		local saveloc = D.savepath .. filename .. ".mid"
 		print("loadFile: Now loading: " .. saveloc)
 
 		-- Try to open the MIDI file
@@ -86,7 +86,7 @@ return {
 
 		-- If this isn't an additive-load, unset all currently existing seqs
 		if add == false then
-			while data.active do
+			while D.active do
 				removeActiveSequence(undo)
 			end
 		end
@@ -97,7 +97,7 @@ return {
 		tpq = table.remove(score, 1)
 
 		-- Set the active-sequence pointer to the new seq's location
-		data.active = ((data.active ~= false) and (data.active + 1)) or 1
+		D.active = ((D.active ~= false) and (D.active + 1)) or 1
 
 		-- Read every track in the MIDI file's score table
 		for tracknum, track in ipairs(score) do
@@ -105,13 +105,13 @@ return {
 			local newnotes, newcmds = {}, {}
 			local cmdcount = {}
 			local endpoint = 0
-			local inseq = data.active + (tracknum - 1)
+			local inseq = D.active + (tracknum - 1)
 
 			-- Add a sequence in the new insert-position, and send an undo-task accordingly
 			addSequence(inseq, undo)
 
 			-- Get new sequence's default length
-			local newseqlen = data.seq[inseq].total
+			local newseqlen = D.seq[inseq].total
 
 			-- Read every note in a given track, and prepare known commands for insertion
 			for k, v in pairs(track) do
@@ -125,7 +125,7 @@ return {
 					print("loadFile: Text-event: " .. v[3])
 				elseif v[1] == 'set_tempo' then
 					bpm = 60000000 / v[3]
-				elseif data.acceptmidi[v[1]] then
+				elseif D.acceptmidi[v[1]] then
 					if v[1] == 'note' then -- Extend note by tick + dur
 						endpoint = math.max(endpoint, v[2] + v[3])
 						table.insert(newnotes, {'insert', v})
@@ -155,26 +155,26 @@ return {
 			newcmds = cmdsToSetType(newcmds, 'insert')
 			setCmds(inseq, newcmds, undo)
 
-			print("loadFile: loaded track " .. tracknum .. " into sequence " .. inseq .. " :: " .. data.seq[inseq].total .. " ticks")
+			print("loadFile: loaded track " .. tracknum .. " into sequence " .. inseq .. " :: " .. D.seq[inseq].total .. " ticks")
 
 		end
 
 		-- Set global BPM and TPQ to latest BPM/TPQ values
-		data.bpm = roundNum(bpm, 0)
-		data.tpq = tpq
+		D.bpm = roundNum(bpm, 0)
+		D.tpq = tpq
 
 		-- Move to the first note in the first loaded sequence
-		data.tp = 1
-		data.np = data.bounds.np[2]
-		local checkpoint = getNotes(data.active, data.tp, data.tp, data.np, data.np)
+		D.tp = 1
+		D.np = D.bounds.np[2]
+		local checkpoint = getNotes(D.active, D.tp, D.tp, D.np, D.np)
 		if #checkpoint == 0 then
 			moveTickPointerByNote(1)
 		end
 
-		print("loadFile: loaded MIDI file \"" .. data.hotseats[data.activeseat] .. "\"!")
+		print("loadFile: loaded MIDI file \"" .. D.hotseats[D.activeseat] .. "\"!")
 
 		-- If in Saveload Mode, untoggle said mode
-		if data.cmdmode == "saveload" then
+		if D.cmdmode == "saveload" then
 			toggleSaveLoad()
 		end
 
@@ -187,24 +187,24 @@ return {
 	saveFile = function(filename)
 
 		-- If the save-directory doesn't exist, abort function
-		if not data.saveok then
+		if not D.saveok then
 			return nil
 		end
 
 		-- If no filename was given, use the current hotseat filename
 		if not filename then
-			filename = data.hotseats[data.activeseat]
+			filename = D.hotseats[D.activeseat]
 		end
 
 		local score = {}
 
 		-- Get save location
 		local shortname = filename .. ".mid"
-		local saveloc = data.savepath .. shortname
+		local saveloc = D.savepath .. shortname
 		print("saveFile: Now saving: " .. saveloc)
 
 		-- For every sequence, translate it to a valid score track
-		for tracknum, track in ipairs(data.seq) do
+		for tracknum, track in ipairs(D.seq) do
 
 			-- Copy over all notes and cmds to the score-track-table
 			local cmdtrack = getContents(track, {'tick', pairs, 'cmd', pairs})
@@ -220,32 +220,32 @@ return {
 
 		-- Insert tempo information in the first track,
 		-- and the TPQ value in the first score-table entry, as per MIDI.lua spec.
-		local outbpm = 60000000 / data.bpm
-		table.insert(score, 1, data.tpq)
-		table.insert(score[2], 1, {'time_signature', 0, 4, 4, data.tpq, 8})
+		local outbpm = 60000000 / D.bpm
+		table.insert(score, 1, D.tpq)
+		table.insert(score[2], 1, {'time_signature', 0, 4, 4, D.tpq, 8})
 		table.insert(score[2], 2, {'set_tempo', 0, outbpm})
-		print("saveFile: BPM " .. data.bpm .. " :: TPQ " .. data.tpq .. " :: uSPQ " .. outbpm)
+		print("saveFile: BPM " .. D.bpm .. " :: TPQ " .. D.tpq .. " :: uSPQ " .. outbpm)
 
 		-- Save the score into a MIDI file within the savefolder
 		local midifile = io.open(saveloc, 'w')
 		if midifile == nil then
-			data.savepopup = true
-			data.savedegrade = 90
-			data.savemsg = "Could not save file! Filename contains invalid characters!"
+			D.savepopup = true
+			D.savedegrade = 90
+			D.savemsg = "Could not save file! Filename contains invalid characters!"
 			return nil
 		end
 		midifile:write(MIDI.score2midi(score))
 		midifile:close()
 
 		-- Toggle the rendering-flag, and set rendering info, for a visual save confirmation
-		data.savepopup = true
-		data.savedegrade = 90
-		data.savemsg = "Saved " .. (#score - 1) .. " track" .. (((#score ~= 2) and "s") or "") .. " to file: " .. shortname
+		D.savepopup = true
+		D.savedegrade = 90
+		D.savemsg = "Saved " .. (#score - 1) .. " track" .. (((#score ~= 2) and "s") or "") .. " to file: " .. shortname
 
 		print("saveFile: saved " .. (#score - 1) .. " sequences to file \"" .. saveloc .. "\"!")
 
 		-- If in Saveload Mode, untoggle said mode
-		if data.cmdmode == "saveload" then
+		if D.cmdmode == "saveload" then
 			toggleSaveLoad()
 		end
 
@@ -257,49 +257,49 @@ return {
 	-- Update the hotseats list with a new filename
 	updateHotseats = function(name)
 
-		local limit = #data.hotseats
+		local limit = #D.hotseats
 
-		for k, v in pairs(data.hotseats) do
+		for k, v in pairs(D.hotseats) do
 			if v == name then
-				table.remove(data.hotseats, k)
+				table.remove(D.hotseats, k)
 				break
 			end
 		end
 
-		table.insert(data.hotseats, 1, name)
+		table.insert(D.hotseats, 1, name)
 
-		while #data.hotseats > limit do
-			table.remove(data.hotseats, limit + 1)
+		while #D.hotseats > limit do
+			table.remove(D.hotseats, limit + 1)
 		end
 
-		data.activeseat = 1
+		D.activeseat = 1
 
 	end,
 
 	-- Load a file with a user-entered string from Saveload Mode
 	loadSLStringFile = function(add, undo)
-		if data.savestring:len() > 0 then
-			loadFile(data.savestring, add, undo)
+		if D.savestring:len() > 0 then
+			loadFile(D.savestring, add, undo)
 		end
 	end,
 
 	-- Save a file with a user-entered string from Saveload Mode
 	saveSLStringFile = function()
-		if data.savestring:len() > 0 then
-			saveFile(data.savestring)
+		if D.savestring:len() > 0 then
+			saveFile(D.savestring)
 		end
 	end,
 
 	-- Add a text-character to the savefile-string in Saveload Mode
 	addSaveChar = function(t)
 
-		local slen = #data.savestring
-		local left = ((data.sfsp > 0) and data.savestring:sub(1, data.sfsp)) or ""
-		local right = ((data.sfsp < slen) and data.savestring:sub(data.sfsp + 1, slen)) or ""
+		local slen = #D.savestring
+		local left = ((D.sfsp > 0) and D.savestring:sub(1, D.sfsp)) or ""
+		local right = ((D.sfsp < slen) and D.savestring:sub(D.sfsp + 1, slen)) or ""
 
-		data.savestring = left .. t .. right
+		D.savestring = left .. t .. right
 
-		data.sfsp = math.min(data.sfsp + 1, #data.savestring)
+		D.sfsp = math.min(D.sfsp + 1, #D.savestring)
 
 		checkUserSaveFile()
 
@@ -308,21 +308,21 @@ return {
 	-- Remove a text-character from the savefile-string in Saveload Mode
 	removeSaveChar = function(offset)
 
-		local rpoint = data.sfsp + offset + 1
+		local rpoint = D.sfsp + offset + 1
 
 		if offset > 0 then
 			rpoint = rpoint - 1
 		end
 
-		local slen = #data.savestring
+		local slen = #D.savestring
 
-		local left = ((rpoint > 1) and data.savestring:sub(1, rpoint - 1)) or ""
-		local right = ((rpoint < slen) and data.savestring:sub(rpoint + 1, slen)) or ""
+		local left = ((rpoint > 1) and D.savestring:sub(1, rpoint - 1)) or ""
+		local right = ((rpoint < slen) and D.savestring:sub(rpoint + 1, slen)) or ""
 
-		data.savestring = left .. right
+		D.savestring = left .. right
 
-		if slen > #data.savestring then
-			data.sfsp = rpoint - 1
+		if slen > #D.savestring then
+			D.sfsp = rpoint - 1
 		end
 
 		checkUserSaveFile()
@@ -331,23 +331,23 @@ return {
 
 	-- Move the savefile-string pointer location
 	moveSavePointer = function(dir)
-		data.sfsp = wrapNum(data.sfsp + dir, 0, data.savestring:len())
+		D.sfsp = wrapNum(D.sfsp + dir, 0, D.savestring:len())
 	end,
 
 	-- Check the file-validity of the current savestring entry
 	checkUserSaveFile = function()
 
-		if data.savestring:len() == 0 then
-			data.savevalid = false
+		if D.savestring:len() == 0 then
+			D.savevalid = false
 		end
 
-		local d = io.open(data.savepath)
+		local d = io.open(D.savepath)
 
-		local f = io.open(data.savepath .. data.savestring .. ".mid", 'r')
+		local f = io.open(D.savepath .. D.savestring .. ".mid", 'r')
 		if f == nil then
-			data.savevalid = false
+			D.savevalid = false
 		else
-			data.savevalid = true
+			D.savevalid = true
 			f:close()
 		end
 
@@ -356,19 +356,19 @@ return {
 	-- Check the path-validity of the current savestring entry
 	checkUserSavePath = function()
 
-		if data.savepath:sub(-1) ~= "/" then
-			data.savepath = data.savepath .. "/"
+		if D.savepath:sub(-1) ~= "/" then
+			D.savepath = D.savepath .. "/"
 		end
 
 		-- Check whether the savepath exists by opening a dummy file.
 		-- If savepath doesn't exist, disable saving.
 		-- Else, if savepath exists, enable saving, and delete dummy file.
-		local savetestfile = data.savepath .. "sect_filepath_test.txt"
+		local savetestfile = D.savepath .. "sect_filepath_test.txt"
 		local pathf = io.open(savetestfile, "w")
 		if pathf == nil then
-			data.saveok = false
+			D.saveok = false
 		else
-			data.saveok = true
+			D.saveok = true
 			pathf:close()
 			os.remove(savetestfile)
 		end
@@ -380,22 +380,22 @@ return {
 	setUserSavePath = function()
 
 		-- If savestring is empty, abort function
-		if #data.savestring == 0 then
+		if #D.savestring == 0 then
 			return nil
 		end
 
-		data.savepath = data.savestring
-		prefs.savepath = data.savestring
+		D.savepath = D.savestring
+		prefs.savepath = D.savestring
 
-		data.savestring = ""
+		D.savestring = ""
 
 		checkUserSavePath()
 
-		data.savepopup = true
-		data.savedegrade = 90
-		data.savemsg = "Savepath set! Folder exists!"
-		if not data.saveok then
-			data.savemsg = "Savepath set! Warning: Folder does not exist!"
+		D.savepopup = true
+		D.savedegrade = 90
+		D.savemsg = "Savepath set! Folder exists!"
+		if not D.saveok then
+			D.savemsg = "Savepath set! Warning: Folder does not exist!"
 		end
 
 		serializeTable(prefs, "userprefs.lua")

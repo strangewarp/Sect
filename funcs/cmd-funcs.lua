@@ -23,7 +23,7 @@ return {
 
 		-- Set parameters to default if any are empty
 		tbot = tbot or 1
-		ttop = ttop or data.seq[p].total
+		ttop = ttop or D.seq[p].total
 		kind = kind or 'insert'
 
 		local cmds = {}
@@ -32,7 +32,7 @@ return {
 		for t = tbot, ttop do
 
 			-- Grab all cmds within the tick.
-			local ctab = getContents(data.seq[p].tick, {t, "cmd", pairs}, true)
+			local ctab = getContents(D.seq[p].tick, {t, "cmd", pairs}, true)
 
 			-- Format the cmd tables properly
 			for k, v in pairs(ctab) do
@@ -65,7 +65,7 @@ return {
 
 		-- Check whether the index is already filled
 		local filled = false
-		if getIndex(data.seq[p].tick, {ctick, "cmd", cmd[2]}) then
+		if getIndex(D.seq[p].tick, {ctick, "cmd", cmd[2]}) then
 			filled = true
 		end
 
@@ -83,9 +83,9 @@ return {
 
 		else -- Else, insert cmd
 			if filled then
-				table.insert(data.seq[p].tick[ctick].cmd, cmd[2], cmd[3])
+				table.insert(D.seq[p].tick[ctick].cmd, cmd[2], cmd[3])
 			else
-				buildTable(data.seq[p].tick, {ctick, "cmd", cmd[2]}, cmd[3])
+				buildTable(D.seq[p].tick, {ctick, "cmd", cmd[2]}, cmd[3])
 			end
 			undocmd[1] = 'remove'
 		end

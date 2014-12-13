@@ -5,37 +5,37 @@ return {
 	iteratePlayMode = function(dt)
 
 		-- If there's no active sequence, abort function
-		if not data.active then
+		if not D.active then
 			return nil
 		end
 
 		-- Get number of ticks in sequence
-		local ticks = data.seq[data.active].total
+		local ticks = D.seq[D.active].total
 
 		-- Adjust delta-time by remainder-time-offset from previous iteration
-		local dtadj = data.playoffset + dt
+		local dtadj = D.playoffset + dt
 
 		-- Get the number of steps contained in the adjusted delta-time
-		local steps = roundNum(dtadj / data.updatespeed, 0)
+		local steps = roundNum(dtadj / D.updatespeed, 0)
 
 		-- Get the remainder-time-offset for next iteration
-		data.playoffset = dtadj - (data.updatespeed * steps)
+		D.playoffset = dtadj - (D.updatespeed * steps)
 
 		-- Get the current ideal update-speed
-		data.updatespeed = 60 / (data.bpm * data.tpq * 4)
+		D.updatespeed = 60 / (D.bpm * D.tpq * 4)
 
 		-- Iterate through a "steps" number of ticks, if applicable
 		if steps >= 1 then
 			for i = 1, steps do
 
 				-- For every sequence...
-				for s, seq in pairs(data.seq) do
+				for s, seq in pairs(D.seq) do
 
 					-- If the seq is set as an overlay, or is the active seq...
-					if seq.overlay or (s == data.active) then
+					if seq.overlay or (s == D.active) then
 
 						-- Wrap the tick-pointer to the sequence's size
-						local twrap = wrapNum(data.tp, 1, seq.total)
+						local twrap = wrapNum(D.tp, 1, seq.total)
 
 						-- Send the tick's items to the MIDI-listener via MIDI-over-UDP,
 						-- in the order of: cmds first, then notes.
@@ -49,7 +49,7 @@ return {
 				end
 
 				-- Increment the tick-pointer
-				data.tp = wrapNum(data.tp + 1, 1, ticks)
+				D.tp = wrapNum(D.tp + 1, 1, ticks)
 
 			end
 		end

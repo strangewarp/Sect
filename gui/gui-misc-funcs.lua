@@ -12,12 +12,10 @@ return {
 
 		drawSidebar()
 
-		--[[
 		drawMetaSeqPanel()
-		]]
 
 		-- If not in Cmd Mode, draw the vertical piano-roll
-		if data.cmdmode ~= "cmd" then
+		if D.cmdmode ~= "cmd" then
 			drawPianoRoll()
 		end
 
@@ -32,12 +30,10 @@ return {
 
 		buildSidebar()
 
-		--[[
 		buildMetaSeqPanel()
-		]]
 
 		-- If not in Cmd Mode, build the vertical piano-roll
-		if data.cmdmode ~= "cmd" then
+		if D.cmdmode ~= "cmd" then
 			buildPianoRoll()
 		end
 
@@ -46,11 +42,11 @@ return {
 		--[[
 		-- Draw a line that compensates for a dangling border on the piano-roll,
 		-- in order to keep any frame-lines from changing when toggled into Cmd Mode.
-		love.graphics.setColor(data.color.piano.border)
+		love.graphics.setColor(D.color.piano.border)
 		love.graphics.setLineWidth(2)
 		love.graphics.line(
-			data.size.sidebar.width, 0,
-			data.size.sidebar.width, height
+			D.size.sidebar.width, 0,
+			D.size.sidebar.width, height
 		)
 		love.graphics.setLineWidth(1)
 		]]
@@ -59,44 +55,28 @@ return {
 
 	-- Build the window's background
 	drawBackground = function()
-		love.graphics.setColor(data.color.window.dark)
-		love.graphics.rectangle("fill", 0, 0, data.width, data.height)
+		love.graphics.setColor(D.color.window.dark)
+		love.graphics.rectangle("fill", 0, 0, D.width, D.height)
 	end,
 
-	-- Build either the saveload-panel or the seq-panel, depending on the data.cmdmode flag.
+	-- Build either the saveload-panel or the seq-panel, depending on the D.cmdmode flag.
 	buildMetaSeqPanel = function()
-		if data.cmdmode == "saveload" then
+		if D.cmdmode == "saveload" then
 			buildSaveLoadPanel()
 		else
-			buildSeqPanel()
+			buildSeqGrid()
+			--buildSeqNotes()
 		end
 	end,
 
-	-- Draw either the saveload-panel or the seq-panel, depending on the data.cmdmode flag.
+	-- Draw either the saveload-panel or the seq-panel, depending on the D.cmdmode flag.
 	drawMetaSeqPanel = function()
-		if data.cmdmode == "saveload" then
+		if D.cmdmode == "saveload" then
 			drawSaveLoadPanel()
 		else
-			drawSeqPanel()
+			drawSeqGrid()
+			--drawSeqNotes()
 		end
-	end,
-
-	-- Draw the contents of the sequence-frame
-	buildSeqFrame = function(left, top, width, height)
-
-		-- If no sequences are loaded, terminate the function
-		if data.active == false then
-			return nil
-		end
-
-		-- Draw the sequence-grid
-		drawSeqGrid(left, top, width, height)
-
-		-- If not in Cmd Mode, draw the vertical piano-roll
-		if data.cmdmode ~= "cmd" then
-			drawPianoRoll(left, data.pianowidth, width, height)
-		end
-
 	end,
 
 	-- Draw an image in the specified area, aligned in a certain way

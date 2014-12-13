@@ -4,22 +4,22 @@ return {
 	drawSidebar = function()
 
 		local left, top = 0, 0
-		local width, height = data.size.sidebar.width, data.height
+		local width, height = D.size.sidebar.width, D.height
 
 		-- Draw the panel's background
-		love.graphics.setColor(data.color.window.mid)
+		love.graphics.setColor(D.color.window.mid)
 		love.graphics.rectangle("fill", left, top, width, height)
 
 		-- Draw the sidebar image
-		drawBoundedImage(left, top, width, height, data.img.sidebar)
+		drawBoundedImage(left, top, width, height, D.img.sidebar)
 
 		-- Set the correct font for sidebar text
-		love.graphics.setFont(data.font.sidebar.raster)
+		love.graphics.setFont(D.font.sidebar.raster)
 
 		-- Draw all text, with shadows
-		for k, v in ipairs(data.gui.sidebar.text) do
+		for k, v in ipairs(D.gui.sidebar.text) do
 			local color, tleft, ttop, twidth, line = unpack(v)
-			love.graphics.setColor(data.color.font.shadow)
+			love.graphics.setColor(D.color.font.shadow)
 			love.graphics.print(line, tleft + 1, ttop + 1)
 			love.graphics.setColor(color)
 			love.graphics.print(line, tleft, ttop)
@@ -31,27 +31,27 @@ return {
 	buildSidebar = function()
 
 		local left, top = 0, 0
-		local width, height = data.size.sidebar.width, data.height
+		local width, height = D.size.sidebar.width, D.height
 		local bot = top + height
 
 		local tleft, ttop, twidth = left + 5, top + 10, width - 10
 
-		local fontheight = data.font.sidebar.raster:getHeight()
+		local fontheight = D.font.sidebar.raster:getHeight()
 		local fonthalf = roundNum(fontheight / 2, 0)
 
 		local outtab = {}
 
-		data.gui.sidebar.text = {} -- Clear old sidebar text
+		D.gui.sidebar.text = {} -- Clear old sidebar text
 
 		-- Gather the metadata info
-		local oticks = (data.active and #data.seq[data.active].tick) or 0
-		local obeats = tostring(roundNum(oticks / (data.tpq * 4), 2))
-		local notelet = data.pianometa[wrapNum(data.np + 1, 1, 12)][2]
-		local octave = math.floor(data.np / 12)
+		local oticks = (D.active and #D.seq[D.active].tick) or 0
+		local obeats = tostring(roundNum(oticks / (D.tpq * 4), 2))
+		local notelet = D.pianometa[wrapNum(D.np + 1, 1, 12)][2]
+		local octave = math.floor(D.np / 12)
 		obeats = ((obeats:sub(-3, -3) == ".") and ("~" .. obeats)) or obeats
 
 		-- If the save-folder wasn't found, throw some warning-text
-		if not data.saveok then
+		if not D.saveok then
 			local warntab = {
 				"! WARNING !",
 				"savepath not found!",
@@ -66,44 +66,44 @@ return {
 			linesToSidebarText(
 				warntab,
 				tleft, ttop, twidth, fontheight,
-				"left", data.color.font.warning
+				"left", D.color.font.warning
 			)
 			ttop = ttop + (fontheight * #warntab) + fonthalf
 		end
 
 		-- If no sequences are loaded, write a simple guidance statement,
 		-- and skip displaying the sequence/pointer information.
-		if data.active == false then
+		if D.active == false then
 			outtab = {
 				"no seqs loaded!",
 				"",
-				string.upper(table.concat(data.cmds.TOGGLE_SAVELOAD_MODE, "-")),
+				string.upper(table.concat(D.cmds.TOGGLE_SAVELOAD_MODE, "-")),
 				"opens the",
 				"saveload panel",
 				"",
-				string.upper(table.concat(data.cmds.INSERT_SEQ, "-")),
+				string.upper(table.concat(D.cmds.INSERT_SEQ, "-")),
 				"creates a seq",
 				"",
 			}
 		end
 
 		local addtab = {
-			"mode: " .. data.modenames[data.cmdmode],
-			"recording: " .. ((data.recording and "on") or "off"),
-			"e-quant: " .. ((data.entryquant and "on") or "off"),
-			"notes: " .. ((data.drawnotes and "visible") or "hidden"),
-			"chans: " .. ((data.chanview and "visible") or "hidden"),
+			"mode: " .. D.modenames[D.cmdmode],
+			"recording: " .. ((D.recording and "on") or "off"),
+			"e-quant: " .. ((D.entryquant and "on") or "off"),
+			"notes: " .. ((D.drawnotes and "visible") or "hidden"),
+			"chans: " .. ((D.chanview and "visible") or "hidden"),
 			"",
-			"seq " .. (data.active or 0) .. "/" .. #data.seq,
+			"seq " .. (D.active or 0) .. "/" .. #D.seq,
 			"beats " .. obeats,
 			"",
-			"tick " .. data.tp .. "/" .. oticks,
+			"tick " .. D.tp .. "/" .. oticks,
 		}
 		outtab = tableCombine(outtab, addtab)
 
-		if data.cmdmode ~= "cmd" then
+		if D.cmdmode ~= "cmd" then
 			local addnocmd = {
-				"note " .. data.np .. " (" .. notelet .. "-" .. octave .. ")",
+				"note " .. D.np .. " (" .. notelet .. "-" .. octave .. ")",
 			}
 			outtab = tableCombine(outtab, addnocmd)
 		else
@@ -114,58 +114,58 @@ return {
 		end
 
 		local addtab2 = {
-			"chan " .. data.chan,
+			"chan " .. D.chan,
 			"",
 		}
 		outtab = tableCombine(outtab, addtab2)
 
-		if data.cmdmode == "cmd" then
+		if D.cmdmode == "cmd" then
 			local addcmd = {
-				"cmd: " .. data.cmdtypes[data.cmdtype][2],
-				"byte1: " .. data.cmdbyte1,
-				"byte2: " .. data.cmdbyte2,
+				"cmd: " .. D.cmdtypes[D.cmdtype][2],
+				"byte1: " .. D.cmdbyte1,
+				"byte2: " .. D.cmdbyte2,
 				"",
 			}
 			outtab = tableCombine(outtab, addcmd)
 		end
 
-		if data.cmdmode == "gen" then
+		if D.cmdmode == "gen" then
 			local addtab3 = {
-				"k-species: " .. data.kspecies,
-				"maxscales: " .. #data.scales[data.kspecies].s,
-				"grabscales: " .. data.scalenum,
-				"grabwheels: " .. data.wheelnum,
-				"consonance: " .. data.consonance .. " %",
-				"s-switch: " .. data.scaleswitch .. " %",
-				"w-switch: " .. data.wheelswitch .. " %",
+				"k-species: " .. D.kspecies,
+				"maxscales: " .. #D.scales[D.kspecies].s,
+				"grabscales: " .. D.scalenum,
+				"grabwheels: " .. D.wheelnum,
+				"consonance: " .. D.consonance .. " %",
+				"s-switch: " .. D.scaleswitch .. " %",
+				"w-switch: " .. D.wheelswitch .. " %",
 				"",
-				"density: " .. data.density .. " %",
-				"stick: " .. data.beatstick .. " %",
-				"alt-ticks: " .. data.beatlength,
-				"fill-beats: " .. data.beatbound,
+				"density: " .. D.density .. " %",
+				"stick: " .. D.beatstick .. " %",
+				"alt-ticks: " .. D.beatlength,
+				"fill-beats: " .. D.beatbound,
 				"",
-				"beat-grain: " .. data.beatgrain,
-				"note-grain: " .. data.notegrain,
+				"beat-grain: " .. D.beatgrain,
+				"note-grain: " .. D.notegrain,
 				"",
 			}
 			outtab = tableCombine(outtab, addtab3)
 		end
 
-		if data.cmdmode ~= "cmd" then
+		if D.cmdmode ~= "cmd" then
 			local addtab4 = {
-				"velo " .. data.velo,
+				"velo " .. D.velo,
 				"",
-				"duration " .. data.dur,
+				"duration " .. D.dur,
 			}
 			outtab = tableCombine(outtab, addtab4)
 		end
 
 		local addtab5 = {
-			"spacing " .. data.spacing,
-			"factor " .. data.factors[data.fp] .. " (" .. data.factors[#data.factors] .. "/" .. (data.factors[#data.factors] / data.factors[data.fp]) .. ")",
+			"spacing " .. D.spacing,
+			"factor " .. D.factors[D.fp] .. " (" .. D.factors[#D.factors] .. "/" .. (D.factors[#D.factors] / D.factors[D.fp]) .. ")",
 			"",
-			"bpm " .. data.bpm,
-			"tpq " .. data.tpq,
+			"bpm " .. D.bpm,
+			"tpq " .. D.tpq,
 			"",
 			"hotseats",
 		}
@@ -175,16 +175,16 @@ return {
 		linesToSidebarText(
 			outtab,
 			tleft, ttop, twidth, fontheight,
-			"left", data.color.font.light
+			"left", D.color.font.light
 		)
 		ttop = ttop + (fontheight * #outtab)
 
 		-- Print out the hotseats, with the currently-active one highlighted
-		for k, v in ipairs(data.hotseats) do
-			local text = k .. string.rep(".", 1 + string.len(#data.hotseats) - (string.len(k) - 1)) .. v
-			local color = ((k == data.activeseat) and data.color.font.highlight) or data.color.font.mid
+		for k, v in ipairs(D.hotseats) do
+			local text = k .. string.rep(".", 1 + string.len(#D.hotseats) - (string.len(k) - 1)) .. v
+			local color = ((k == D.activeseat) and D.color.font.highlight) or D.color.font.mid
 			local line = {color, tleft, ttop, twidth, text}
-			table.insert(data.gui.sidebar.text, line)
+			table.insert(D.gui.sidebar.text, line)
 			ttop = ttop + fontheight
 		end
 
@@ -197,13 +197,13 @@ return {
 
 		for _, v in ipairs(lines) do
 
-			if (t + h + 1) > data.height then
+			if (t + h + 1) > D.height then
 				do break end
 			end
 
-			local clip = clipTextLine(v, w, "left", data.font.sidebar.raster)
+			local clip = clipTextLine(v, w, "left", D.font.sidebar.raster)
 			local out = {color, l, t, w, clip}
-			table.insert(data.gui.sidebar.text, out)
+			table.insert(D.gui.sidebar.text, out)
 
 			t = t + h
 

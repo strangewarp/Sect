@@ -49,7 +49,7 @@ function love.run()
 			love.graphics.present()
 		end
 
-		if love.timer then love.timer.sleep(data.updatespeed) end
+		if love.timer then love.timer.sleep(D.updatespeed) end
 
 	end
 
@@ -78,6 +78,7 @@ function love.load()
 	guinotefuncs = require('gui/gui-note-funcs')
 	guipianofuncs = require('gui/gui-piano-funcs')
 	guisaveloadfuncs = require('gui/gui-saveload-funcs')
+	guiseqfuncs = require('gui/gui-seq-funcs')
 	guisidebarfuncs = require('gui/gui-sidebar-funcs')
 	guitrackfuncs = require('gui/gui-track-funcs')
 	indexfuncs = require('funcs/index-funcs')
@@ -94,7 +95,7 @@ function love.load()
 	utilfuncs = require('funcs/util-funcs')
 	wheelfuncs = require('funcs/wheel-funcs')
 
-	data = require('data/data-table')
+	D = require('data/data-table')
 
 	utilfuncs.tableToNewContext(
 		_G,
@@ -109,6 +110,7 @@ function love.load()
 		guinotefuncs,
 		guipianofuncs,
 		guisaveloadfuncs,
+		guiseqfuncs,
 		guisidebarfuncs,
 		guitrackfuncs,
 		indexfuncs,
@@ -135,7 +137,7 @@ function love.load()
 	else
 		local vf = love.filesystem.newFile("version.lua")
 		vf:open('w')
-		vf:write("return { version = \"" .. data.version .. "\" }")
+		vf:write("return { version = \"" .. D.version .. "\" }")
 		vf:close()
 	end
 
@@ -159,7 +161,7 @@ function love.load()
 
 		-- If userprefs contain no version number,
 		-- or are from an old version, then replace them.
-		if (not version) or (data.version ~= version) then
+		if (not version) or (D.version ~= version) then
 
 			-- Write outdated prefs to an "oldprefs.lua" file, with version number
 			local oldf = love.filesystem.newFile("oldprefs-" .. (version or "old") .. ".lua")
@@ -170,7 +172,7 @@ function love.load()
 			-- Update the local version.lua with the current version number
 			local vf = love.filesystem.newFile("version.lua")
 			vf:open('w')
-			vf:write("return { version = \"" .. data.version .. "\" }")
+			vf:write("return { version = \"" .. D.version .. "\" }")
 			vf:close()
 
 			-- Write this version's default prefs to userprefs.lua
@@ -186,7 +188,7 @@ function love.load()
 	end
 
 	-- Put the prefs into the data object
-	tableToNewContext(data, prefs)
+	tableToNewContext(D, prefs)
 
 	-- Check whether the savepath exists
 	checkUserSavePath()
@@ -203,7 +205,7 @@ function love.load()
 	preloadGradients()
 
 	-- Load the mousemove-inactive cursor
-	love.mouse.setCursor(data.cursor.default.c)
+	love.mouse.setCursor(D.cursor.default.c)
 
 	-- Get a new time-based random-seed for the entire session
 	math.randomseed(os.time())
@@ -220,7 +222,7 @@ function love.load()
 
 		-- Append combinatoric generation commands to loading-cmd table
 		tableCombine(
-			data.loadcmds,
+			D.loadcmds,
 			{
 				{{"buildDataScales"}, "Building scales..."},
 				{{"anonymizeScaleKeys"}, "Indexing scales..."},
@@ -231,25 +233,25 @@ function love.load()
 				{{"purgeEmptyScales"}, "Purging empty scales..."},
 				{{"buildConsonanceRatings"}, "Building consonance ratings..."},
 				{{"buildWheels"}, "Building wheels..."},
-				{{"saveScalesAndWheels"}, "Saving scale and wheel data..."},
+				{{"saveScalesAndWheels"}, "Saving scale and wheel D..."},
 			}
 		)
 
 	else -- Else, if combinatoric tables exist, load them
 		tableCombine(
-			data.loadcmds,
+			D.loadcmds,
 			{
-				{{"loadScalesAndWheels"}, "Loading scale and wheel data..."},
+				{{"loadScalesAndWheels"}, "Loading scale and wheel D..."},
 			}
 		)
 	end
 
 	-- Enable keyboard commands after completing all other load-funcs
 	tableCombine(
-		data.loadcmds,
+		D.loadcmds,
 		{
 			{{"setupUDP"}, "Setting up MIDI-over-UDP apparatus..."},
-			{{"buildPianoKeyCommands", data.pianokeys}, "Assigning computer-piano keys..."},
+			{{"buildPianoKeyCommands", D.pianokeys}, "Assigning computer-piano keys..."},
 			{{"buildHotseatCommands"}, "Building hotseat commands..."},
 			{{"sortKeyComboTables"}, "Sorting key-command tables..."},
 		}
@@ -263,20 +265,20 @@ end
 function love.update(dt)
 
 	-- If still loading, abort function
-	if data.loading then
+	if D.loading then
 		return nil
 	end
 
 	-- Check for incoming MIDI commands
 	repeat
-		local d, msg = data.udpin:receive()
+		local d, msg = D.udpin:receive()
 		if d then
 			getMidiMessage(d) -- Send incoming MIDI to a parsing function
 		end
 	until not d
 
 	-- If Play Mode is active, iterate by one tick
-	if data.playing then
+	if D.playing then
 		iteratePlayMode(dt)
 	end
 
@@ -291,31 +293,31 @@ function love.draw()
 	local width, height = love.graphics.getDimensions()
 
 	-- If still loading, render a loading screen
-	if data.loading then
+	if D.loading then
 		executeLoadingFuncAndDraw(width, height)
 		return nil
 	end
 
 	-- If redraw has been flagged, or width or height has been resized, rebuild the visible GUI elements accordingly
-	if data.redraw
-	or (width ~= data.width)
-	or (height ~= data.height)
+	if D.redraw
+	or (width ~= D.width)
+	or (height ~= D.height)
 	then
-		data.redraw = false
-		data.width = width
-		data.height = height
-		canvas = love.graphics.newCanvas(data.width, data.height)
+		D.redraw = false
+		D.width = width
+		D.height = height
+		canvas = love.graphics.newCanvas(D.width, D.height)
 		buildGUI()
 		drawGUI()
 	end
 
 	-- If the mouse is being dragged, check drag boundaries
-	if data.dragging then
+	if D.dragging then
 
 		-- Get positioning vars
-		local left = data.size.sidebar.width
+		local left = D.size.sidebar.width
 		local top = 0
-		local middle = height - data.size.track.height
+		local middle = height - D.size.track.height
 
 		-- Get the mouse's concrete position
 		local x, y = love.mouse.getPosition()
@@ -330,7 +332,7 @@ function love.draw()
 	end
 
 	-- In play-mode, rebuild and redraw the seq-panel and sidebar on every frame
-	if data.playing then
+	if D.playing then
 		buildSidebar()
 		buildMetaSeqPanel()
 		drawSidebar()
@@ -353,7 +355,7 @@ end
 function love.mousepressed(x, y, button)
 
 	-- Ignore mouse activity in Saveload Mode
-	if data.cmdmode == "saveload" then
+	if D.cmdmode == "saveload" then
 		return nil
 	end
 
@@ -380,7 +382,7 @@ end
 function love.mousereleased(x, y, button)
 
 	-- Ignore mouse activity in Saveload Mode
-	if data.cmdmode == "saveload" then
+	if D.cmdmode == "saveload" then
 		return nil
 	end
 
@@ -397,7 +399,7 @@ end
 function love.keypressed(key, isrepeat)
 
 	-- If still on the loading screen, do nothing
-	if data.loading then
+	if D.loading then
 		return nil
 	end
 
@@ -412,7 +414,7 @@ end
 function love.keyreleased(key)
 
 	-- If still on the loading screen, do nothing
-	if data.loading then
+	if D.loading then
 		return nil
 	end
 
@@ -426,7 +428,7 @@ end
 function love.textinput(t)
 
 	-- If any commands are being chorded with ctrl or tab, abort function
-	for k, v in pairs(data.keys) do
+	for k, v in pairs(D.keys) do
 		if (v == "ctrl") or (v == "tab") then
 			return nil
 		end

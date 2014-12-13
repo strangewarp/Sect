@@ -1,49 +1,49 @@
 
-local D = {}
+local T = {}
 
 -- VERSIONING VARS --
-D.version = "1.1-a91" -- Holds Sect's current version-number
+T.version = "1.1-a95" -- Holds Sect's current version-number
 
 -- LOVE ENGINE VARS --
-D.updatespeed = 0.01 -- Speed at which to attempt to update program-state
+T.updatespeed = 0.01 -- Speed at which to attempt to update program-state
 
 -- DATA VARS --
-D.seq = {} -- Sequence-data table
-D.keys = {} -- Keystroke-tracking table
-D.active = false -- Currently active sequence (false if nothing loaded)
-D.tp = 0 -- Current tick-pointer position
-D.np = 0 -- Current note-pointer position
-D.cmdp = 1 -- Current Cmd Mode non-note-command pointer position
-D.tick = 1 -- Current tick occupied by the play-line position
+T.seq = {} -- Sequence-data table
+T.keys = {} -- Keystroke-tracking table
+T.active = false -- Currently active sequence (false if nothing loaded)
+T.tp = 0 -- Current tick-pointer position
+T.np = 0 -- Current note-pointer position
+T.cmdp = 1 -- Current Cmd Mode non-note-command pointer position
+T.tick = 1 -- Current tick occupied by the play-line position
 
 -- LOADING SCREEN VARS --
-D.loadcmds = {} -- Holds all loading-screen messages
-D.loadtext = "" -- Holds text from finished and active loading-screen cmds
-D.loadnum = 1 -- Iterates through loading-screen cmds
+T.loadcmds = {} -- Holds all loading-screen messages
+T.loadtext = "" -- Holds text from finished and active loading-screen cmds
+T.loadnum = 1 -- Iterates through loading-screen cmds
 
 -- SAVELOAD VARS --
-D.saveok = false -- Controls whether it's OK to save to data.savepath
-D.savemsg = "" -- Current save-popup message
-D.savepopup = false -- Toggles whether a save-popup is visible
-D.savedegrade = 0 -- Number of draw-updates before save popup vanishes
-D.savestring = "" -- Holds user-entered savefile-name text
-D.sfsp = 1 -- Pointer for text-entry into data.savestring
-D.savevalid = false -- Tracks whether data.savestring matches a valid file
+T.saveok = false -- Controls whether it's OK to save to D.savepath
+T.savemsg = "" -- Current save-popup message
+T.savepopup = false -- Toggles whether a save-popup is visible
+T.savedegrade = 0 -- Number of draw-updates before save popup vanishes
+T.savestring = "" -- Holds user-entered savefile-name text
+T.sfsp = 1 -- Pointer for text-entry into D.savestring
+T.savevalid = false -- Tracks whether D.savestring matches a valid file
 
 -- HOTSEAT VARS --
-D.activeseat = 1 -- Currently active hotseat-name
+T.activeseat = 1 -- Currently active hotseat-name
 
 -- MIDI VARS --
-D.bpm = 120 -- Beats per minute
-D.tpq = 24 -- Ticks per quarter-note
-D.chan = 0 -- Channel
-D.velo = 127 -- Velocity
-D.dur = 24 -- Duration
-D.spacing = 24 -- Spacing
-D.cmdbyte1 = 0 -- First byte of non-NOTE commands
-D.cmdbyte2 = 0 -- Second byte of non-NOTE commands
-D.cmdtype = 1 -- Command type
-D.cmdtypes = { -- Byte values, command names, and MIDI.lua key names
+T.bpm = 120 -- Beats per minute
+T.tpq = 24 -- Ticks per quarter-note
+T.chan = 0 -- Channel
+T.velo = 127 -- Velocity
+T.dur = 24 -- Duration
+T.spacing = 24 -- Spacing
+T.cmdbyte1 = 0 -- First byte of non-NOTE commands
+T.cmdbyte2 = 0 -- Second byte of non-NOTE commands
+T.cmdtype = 1 -- Command type
+T.cmdtypes = { -- Byte values, command names, and MIDI.lua key names
 	{160, "aftertouch-key", "key_after_touch"},
 	{176, "control", "control_change"},
 	{192, "program", "patch_change"},
@@ -52,97 +52,90 @@ D.cmdtypes = { -- Byte values, command names, and MIDI.lua key names
 }
 
 -- SOCKET VARS --
-D.udpout = false -- Holds UDP-OUT socket
-D.udpin = false -- Holds UDP-IN socket
+T.udpout = false -- Holds UDP-OUT socket
+T.udpin = false -- Holds UDP-IN socket
 
 -- ZOOM VARS --
-D.cellwidth = 2 -- Horizontal pixels per cell
-D.cellheight = 14 -- Vertical pixels per cell
+T.cellwidth = 2 -- Horizontal pixels per cell
+T.cellheight = 14 -- Vertical pixels per cell
 
 -- UNDO VARS --
-D.dostack = {} -- Holds all undo and redo command-blocks
-D.undotarget = 0 -- Currently targeted undo-block
+T.dostack = {} -- Holds all undo and redo command-blocks
+T.undotarget = 0 -- Currently targeted undo-block
 
 -- BEAT-FACTOR VARS --
-D.factors = {} -- Factors of the current TPQ*4 value
-D.fp = 1 -- Current factor-pointer position
+T.factors = {} -- Factors of the current TPQ*4 value
+T.fp = 1 -- Current factor-pointer position
 
 -- SELECTION VARS --
-D.selbool = false -- Toggles whether a selection is active
-D.seltop = { -- Top selection-pointer
+T.selbool = false -- Toggles whether a selection is active
+T.seltop = { -- Top selection-pointer
 	x = false,
 	y = false,
 }
-D.selbot = { -- Bottom selection-pointer
+T.selbot = { -- Bottom selection-pointer
 	x = false,
 	y = false,
 }
-D.sel = { -- Holds the boundaries of the currently selected area
+T.sel = { -- Holds the boundaries of the currently selected area
 	l = false, -- Left
 	r = false, -- Right
 	t = false, -- Top
 	b = false, -- Bottom
 }
-D.copyoffset = 0 -- Tick-distance that copydat is offset from data.tp
-D.seldat = {} -- Holds the notes that were selected for commands
-D.copydat = {} -- Table for copied notes
+T.copyoffset = 0 -- Tick-distance that copydat is offset from D.tp
+T.seldat = {} -- Holds the notes that were selected for commands
+T.copydat = {} -- Table for copied notes
 
 -- MOUSE VARS --
-D.dragging = false -- True if mouse is dragging across screen
-D.dragx = false -- Holds table of both x-bounds while dragging
-D.dragy = false -- Holds table of both y-bounds while dragging
+T.dragging = false -- True if mouse is dragging across screen
+T.dragx = false -- Holds table of both x-bounds while dragging
+T.dragy = false -- Holds table of both y-bounds while dragging
 
 -- SCALE VARS --
-D.scales = {} -- All possible scales (built in wheel-funcs)
-D.wheels = {} -- All possible wheels (built in wheel-funcs)
-D.scalenotes = {} -- Holds currently-used notes for scale comparison
-D.threshbig = 0 -- Biggest note-consonance threshold
+T.scales = {} -- All possible scales (built in wheel-funcs)
+T.wheels = {} -- All possible wheels (built in wheel-funcs)
+T.scalenotes = {} -- Holds currently-used notes for scale comparison
+T.threshbig = 0 -- Biggest note-consonance threshold
 
 -- GENERATOR VARS --
-D.kspecies = 7 -- Scale-size per 12 chromatic notes for melody generation
-D.scalenum = 5 -- Number of scales to grab from the desired consonance-point
-D.wheelnum = 2 -- Number of wheels to grab from the present wheel-species
-D.consonance = 90 -- Melody scale consonance
-D.scaleswitch = 20 -- Chance to switch scales, per note
-D.wheelswitch = 20 -- Chance to switch wheels, per note
-D.density = 60 -- Melody note-density
-D.beatstick = 66 -- Likelihood for notes to favor major beats
-D.beatlength = 24 -- Secondary beat length, decoupled from TPQ
-D.beatbound = 1 -- Number of TPQ-based beats to fill with generated notes
-D.beatgrain = 12 -- Smallest beatlength factor to which notes will stick
-D.notegrain = 4 -- Minimum note size, in ticks
+T.kspecies = 7 -- Scale-size per 12 chromatic notes for melody generation
+T.scalenum = 5 -- Number of scales to grab from the desired consonance-point
+T.wheelnum = 2 -- Number of wheels to grab from the present wheel-species
+T.consonance = 90 -- Melody scale consonance
+T.scaleswitch = 20 -- Chance to switch scales, per note
+T.wheelswitch = 20 -- Chance to switch wheels, per note
+T.density = 60 -- Melody note-density
+T.beatstick = 66 -- Likelihood for notes to favor major beats
+T.beatlength = 24 -- Secondary beat length, decoupled from TPQ
+T.beatbound = 1 -- Number of TPQ-based beats to fill with generated notes
+T.beatgrain = 12 -- Smallest beatlength factor to which notes will stick
+T.notegrain = 4 -- Minimum note size, in ticks
 
 -- SEQ-PLAY VARS --
-D.playing = false -- Toggles whether the tickline is playing or not
-D.playoffset = 0 -- Holds the sub-delta time offset for tick-playing
+T.playing = false -- Toggles whether the tickline is playing or not
+T.playoffset = 0 -- Holds the sub-delta time offset for tick-playing
 
 -- MODE VARS --
-D.modenames = { -- Full names of the various mode types
+T.modenames = { -- Full names of the various mode types
 	entry = "entry",
 	gen = "generator",
 	cmd = "cmd",
 	saveload = "saveload",
 }
-D.cmdmode = "entry" -- Mode flag, for accepting certain command types
-D.loading = true -- True while loading; false after loading is done
-D.recording = true -- Toggles whether note-recording is enabled
-D.playing = false -- Toggles whether to play through the seq's contents
-D.drawnotes = true -- Toggles whether to draw notes
-D.chanview = true -- Toggles rendering chan-nums on notes
-D.entryquant = false -- Toggles auto-quantization of note-entry
+T.cmdmode = "entry" -- Mode flag, for accepting certain command types
+T.loading = true -- True while loading; false after loading is done
+T.recording = true -- Toggles whether note-recording is enabled
+T.playing = false -- Toggles whether to play through the seq's contents
+T.drawnotes = true -- Toggles whether to draw notes
+T.chanview = true -- Toggles rendering chan-nums on notes
+T.entryquant = false -- Toggles auto-quantization of note-entry
 
 -- GUI VARS --
-D.width = 800 -- Global width
-D.height = 600 -- Global height
-D.redraw = false -- Toggles whether to redraw the GUI on the next frame
-D.gui = { -- Table for saving pre-generated GUI elements
-	grid = { -- Sequence-grid elements
-		col = {}, -- Highlighted columns
-		row = {}, -- Highlighted rows
-		key = {}, -- Piano-keys
-		note = {}, -- Note-cells
-		tri = {}, -- Beat-triangles
-	},
+T.width = 800 -- Global width
+T.height = 600 -- Global height
+T.redraw = false -- Toggles whether to redraw the GUI on the next frame
+T.gui = { -- Table for saving pre-generated GUI elements
 	piano = {}, -- Vertical piano-roll keys
 	reticule = { -- Pointer-reticules and other reticule-layer polys
 	},
@@ -152,6 +145,12 @@ D.gui = { -- Table for saving pre-generated GUI elements
 		text = {}, -- Text overlays
 		line = {}, -- Line-cursor
 	},
+	seq = { -- Sequence-grid elements
+		col = {}, -- Highlighted columns
+		row = {}, -- Highlighted rows
+		note = {}, -- Note-cells
+		tri = {}, -- Beat-triangles
+	},
 	sidebar = { -- Sidebar elements
 		text = {}, -- List of sidebar text-lines
 	},
@@ -160,25 +159,26 @@ D.gui = { -- Table for saving pre-generated GUI elements
 		cursor = {}, -- Active-sequence reticule
 	},
 }
-D.gradients = { -- Gradients to build within the data.color table
+T.gradients = { -- Gradients to build within the D.color table
 	{"note", "quiet", "loud", "ql_gradient"},
 	{"note", "select_quiet", "select_loud", "s_ql_gradient"},
 	{"note", "overlay_quiet", "overlay_loud", "o_ql_gradient"},
 	{"note", "overlay_select_quiet", "overlay_select_loud", "o_s_ql_gradient"},
 	{"note", "bar_quiet", "bar_loud", "b_gradient"},
 	{"save", "background", "background_fade", "bg_gradient"},
+	{"seq", "beat_dark", "beat_light", "beat_gradient"},
 	{"summary", "empty", "full", "gradient"},
 }
 
 -- Baseline contents for new sequences
-D.baseseq = {
+T.baseseq = {
 	overlay = false, -- Toggles whether the seq shadows other seqs
 	tick = {}, -- Holds all populated ticks (each holds its own notes)
 	total = 0, -- Tracks the total size of the sequence, in ticks
 }
 
 -- Boundaries for user-shiftable control vars
-D.bounds = {
+T.bounds = {
 
 	-- Misc bounds --
 	bpm = {1, math.huge, false}, -- Beats per minute
@@ -216,7 +216,7 @@ D.bounds = {
 }
 
 -- Note-bytes that correspond to modNote command names
-D.notebytes = {
+T.notebytes = {
 	tp = 2,
 	dur = 3,
 	chan = 4,
@@ -226,7 +226,7 @@ D.notebytes = {
 
 -- Types of MIDI commands that are accepted in a sequence,
 -- and the corresponding values to display.
-D.acceptmidi = {
+T.acceptmidi = {
 	note = {5, 6},
 	channel_after_touch = {4, 4},
 	control_change = {4, 5},
@@ -236,14 +236,14 @@ D.acceptmidi = {
 }
 
 -- Names of keys that start with "l"/"r", which collapse into single keys
-D.sidekeys = {
+T.sidekeys = {
 	"lshift", "rshift",
 	"lctrl", "rctrl",
 	"lalt", "ralt",
 }
 
 -- Shapes and names of piano-keys
-D.pianometa = {
+T.pianometa = {
 	{1, "C"},
 	{0, "Cs"},
 	{2, "D"},
@@ -259,7 +259,7 @@ D.pianometa = {
 }
 
 -- Links between command-names and functions (with args as needed)
-D.cmdfuncs = {
+T.cmdfuncs = {
 
 	LOAD_HOTSEAT_FILE = {"loadFile", false, true, false},
 	LOAD_HOTSEAT_FILE_OVERWRITE = {"loadFile", false, false, false},
@@ -463,7 +463,7 @@ D.cmdfuncs = {
 }
 
 -- Modes in which a given command will take effect
-D.cmdgate = {
+T.cmdgate = {
 
 	LOAD_HOTSEAT_FILE = {"entry", "gen", "cmd"},
 	LOAD_HOTSEAT_FILE_OVERWRITE = {"entry", "gen", "cmd"},
@@ -667,7 +667,7 @@ D.cmdgate = {
 }
 
 -- Functions that incur undo-block formation when called by keystrokes
-D.undocmds = {
+T.undocmds = {
 
 	-- cmd-funcs.lua
 	["setCmd"] = true,
@@ -720,8 +720,8 @@ D.undocmds = {
 
 }
 
--- Functions that are allowed when data.active is false
-D.inactivecmds = {
+-- Functions that are allowed when D.active is false
+T.inactivecmds = {
 	
 	["addActiveSequence"] = true,
 	["loadFile"] = true,
@@ -731,4 +731,4 @@ D.inactivecmds = {
 
 }
 
-return D
+return T

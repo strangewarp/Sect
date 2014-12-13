@@ -3,75 +3,75 @@ return {
 
 	-- Toggle the rendering of channel-numbers onto the notes
 	toggleChanNumView = function()
-		data.chanview = not data.chanview
+		D.chanview = not D.chanview
 	end,
 
 	-- Toggle Command Mode, where non-note MIDI commands can be entered.
 	toggleCmdMode = function()
 
 		-- Reset command-pointer on tabbing in or out, to avoid null pointer errors
-		data.cmdp = 1
+		D.cmdp = 1
 
-		if data.cmdmode == "cmd" then
-			data.cmdmode = "entry"
+		if D.cmdmode == "cmd" then
+			D.cmdmode = "entry"
 		else
-			data.cmdmode = "cmd"
+			D.cmdmode = "cmd"
 		end
 
 	end,
 
 	-- Toggle the entry-quantize flag, which controls whether note-entry snaps to global factor values
 	toggleEntryQuantize = function()
-		data.entryquant = not data.entryquant
+		D.entryquant = not D.entryquant
 	end,
 
 	-- Toggle between Generator Mode and Entry Mode
 	toggleGeneratorMode = function()
-		if data.cmdmode == "gen" then
-			data.cmdmode = "entry"
+		if D.cmdmode == "gen" then
+			D.cmdmode = "entry"
 		else
-			data.cmdmode = "gen"
+			D.cmdmode = "gen"
 		end
 	end,
 
 	-- Toggle whether to draw the active sequence's notes
 	toggleNoteDraw = function()
-		data.drawnotes = not data.drawnotes
+		D.drawnotes = not D.drawnotes
 	end,
 
 	-- Toggle whether to be actively playing through the sequence's ticks
 	togglePlayMode = function()
-		data.playing = not data.playing
-		if data.playing then
-			data.updatespeed = 60 / (data.bpm * data.tpq * 4)
+		D.playing = not D.playing
+		if D.playing then
+			D.updatespeed = 60 / (D.bpm * D.tpq * 4)
 		else
-			data.updatespeed = 0.01
+			D.updatespeed = 0.01
 		end
 	end,
 
 	-- Toggle whether note-recording commands are accepted
 	toggleRecording = function()
-		data.recording = not data.recording
+		D.recording = not D.recording
 	end,
 
 	-- Toggle the Saveload panel, and its corresponding data-mode
 	toggleSaveLoad = function()
 
-		data.playing = false
-		data.recording = false
+		D.playing = false
+		D.recording = false
 
-		data.savestring = ""
-		data.sfsp = 1
-		data.savevalid = false
+		D.savestring = ""
+		D.sfsp = 1
+		D.savevalid = false
 
 		-- If in saveload mode, toggle out of it.
-		if data.cmdmode == "saveload" then
+		if D.cmdmode == "saveload" then
 
 			-- Disallow text-input events
 			love.keyboard.setTextInput(false)
 
 			-- Toggle into entry mode
-			data.cmdmode = "entry"
+			D.cmdmode = "entry"
 
 		else -- If out of saveload mode, prepare to toggle into it
 
@@ -79,7 +79,7 @@ return {
 			love.keyboard.setTextInput(true)
 
 			-- Toggle into saveload mode
-			data.cmdmode = "saveload"
+			D.cmdmode = "saveload"
 
 		end
 
@@ -87,7 +87,7 @@ return {
 	
 	-- Toggle a given sequence's overlay activity
 	toggleSeqOverlay = function()
-		data.seq[data.active].overlay = not data.seq[data.active].overlay
+		D.seq[D.active].overlay = not D.seq[D.active].overlay
 	end,
 
 }

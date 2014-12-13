@@ -4,22 +4,22 @@ return {
 	-- Draw the GUI elements for the track-panel
 	drawTrackPanel = function()
 
-		love.graphics.setFont(data.font.track.raster)
+		love.graphics.setFont(D.font.track.raster)
 
-		local left = 0
-		local top = data.height - data.size.track.height
-		local width = data.width
-		local height = data.size.track.height
+		local left = D.size.sidebar.width
+		local top = D.height - D.size.track.height
+		local width = D.width - left
+		local height = D.size.track.height
 
 		-- Draw panel's background
-		love.graphics.setColor(data.color.window.dark)
+		love.graphics.setColor(D.color.window.dark)
 		love.graphics.rectangle("fill", left, top, width, height)
 
 		-- Draw background image, if applicable
-		drawBoundedImage(left, top, width, height, data.img.track)
+		drawBoundedImage(left, top, width, height, D.img.track)
 
 		-- For every stored cell in the track-panel-GUI table...
-		for k, v in ipairs(data.gui.track.cell) do
+		for k, v in ipairs(D.gui.track.cell) do
 
 			local bgcolor, rl, rt, rw, rh, text, tl, tt = unpack(v)
 
@@ -29,20 +29,20 @@ return {
 
 			-- Draw the cell's text, if any exists
 			if text then
-				love.graphics.setColor(data.color.summary.text_shadow)
+				love.graphics.setColor(D.color.summary.text_shadow)
 				love.graphics.print(text, tl + 1, tt + 1)
-				love.graphics.setColor(data.color.summary.text)
+				love.graphics.setColor(D.color.summary.text)
 				love.graphics.print(text, tl, tt)
 			end
 
 		end
 
 		-- Draw the active-sequence reticule,if a sequence is active
-		if data.active then
-			love.graphics.setColor(data.color.summary.pointer)
-			love.graphics.polygon("fill", data.gui.track.cursor)
-			love.graphics.setColor(data.color.summary.pointer_border)
-			love.graphics.polygon("line", data.gui.track.cursor)
+		if D.active then
+			love.graphics.setColor(D.color.summary.pointer)
+			love.graphics.polygon("fill", D.gui.track.cursor)
+			love.graphics.setColor(D.color.summary.pointer_border)
+			love.graphics.polygon("line", D.gui.track.cursor)
 		end
 
 	end,
@@ -50,16 +50,16 @@ return {
 	-- Build the GUI elements for the track-panel
 	buildTrackPanel = function(left, top, width, height)
 
-		data.gui.track.cell = {} -- Clear old track-cells
+		D.gui.track.cell = {} -- Clear old track-cells
 
-		local left = 0
-		local top = data.height - data.size.track.height
-		local width = data.width
-		local height = data.size.track.height
+		local left = D.size.sidebar.width
+		local top = D.height - D.size.track.height
+		local width = D.width - left
+		local height = D.size.track.height
 
-		local fontheight = data.font.track.raster:getHeight()
+		local fontheight = D.font.track.raster:getHeight()
 
-		local seqs = #data.seq
+		local seqs = #D.seq
 
 		local boxwidth = (height / 3) - 1
 		local coltotal = math.floor(width / (boxwidth + 1))
@@ -68,6 +68,12 @@ return {
 			rowtotal = rowtotal + 1
 		end
 		local boxheight = math.min(boxwidth, (height / rowtotal) - 1)
+
+		-- Get the alternating columns to print text onto, in case many sequences are loaded
+		local displaynum = 4
+		while (coltotal % displaynum) == 0 do
+			displaynum = displaynum + 1
+		end
 
 		local row = 1
 		local col = 1
@@ -81,10 +87,10 @@ return {
 			local boxtop = (boxheight * (row - 1)) + (row - 1)
 
 			local strength = 0
-			local ticks = data.seq[i].total
+			local ticks = D.seq[i].total
 
 			-- Increase color-strength for every note, weighted against ticks/duration
-			local strcheck = getContents(data.seq[i].tick, {pairs, 'note', pairs, pairs})
+			local strcheck = getContents(D.seq[i].tick, {pairs, 'note', pairs, pairs})
 			for _, v in pairs(strcheck) do
 				if v[1] == 'note' then
 					strength = strength + v[3]
@@ -94,12 +100,12 @@ return {
 
 			-- Assemble the track-cell, and set it aside for later rendering
 			local itext = tostring(i)
-			local fontwidth = data.font.track.raster:getWidth(itext)
+			local fontwidth = D.font.track.raster:getWidth(itext)
 			local textleft = left + boxleft + ((boxwidth - fontwidth) / 2)
 			local texttop = top + boxtop + ((boxheight - fontheight) / 2)
 
 			-- Build coordinates of the active-sequence reticule
-			if i == data.active then
+			if i == D.active then
 
 				local boxhalfx = boxwidth / 2
 				local boxhalfy = boxheight / 2
@@ -112,7 +118,7 @@ return {
 				local rby = top + boxtop + boxheight
 
 				-- Save the active-track polygon position for later rendering
-				data.gui.track.cursor = {
+				D.gui.track.cursor = {
 					rlx, rcy,
 					rcx, rty,
 					rrx, rcy,
@@ -122,10 +128,6 @@ return {
 			end
 
 			-- Print a number on the sequence-bar, if space allows
-			local displaynum = 4
-			while (coltotal % displaynum) == 0 do
-				displaynum = displaynum + 1
-			end
 			if (fontheight <= boxheight) or ((i % displaynum) == 0) then
 				text = itext
 			end
@@ -140,7 +142,7 @@ return {
 
 			-- Save all GUI data for this track-cell, for later rendering
 			local cell = {
-				data.color.summary.gradient[roundNum(strength * 15, 0)],
+				D.color.summary.gradient[roundNum(strength * 15, 0)],
 				left + boxleft,
 				top + boxtop,
 				boxwidth,
@@ -149,7 +151,7 @@ return {
 				textleft,
 				texttop,
 			}
-			table.insert(data.gui.track.cell, cell)
+			table.insert(D.gui.track.cell, cell)
 
 		end
 

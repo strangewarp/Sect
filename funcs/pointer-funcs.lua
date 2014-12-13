@@ -3,29 +3,29 @@ return {
 	-- Normalize all pointers (e.g. after a command that changes seq length)
 	normalizePointers = function()
 	
-		local tlimit = (data.active and data.seq[data.active].total) or 1
+		local tlimit = (D.active and D.seq[D.active].total) or 1
 
 		-- Normalize tick and note pointers
-		data.tp = (rangeCheck(data.tp, 1, tlimit) and data.tp) or 1
-		data.np = (rangeCheck(data.np, data.bounds.np) and data.np) or 1
+		D.tp = (rangeCheck(D.tp, 1, tlimit) and D.tp) or 1
+		D.np = (rangeCheck(D.np, D.bounds.np) and D.np) or 1
 
 		-- Normalize Cmd Mode pointer
-		if data.active and (data.cmdmode == 'cmd') then
-			local allcmds = getContents(data.seq[data.active].tick, {data.tp, 'cmd', pairs})
-			data.cmdp = (rangeCheck(data.cmdp, 1, #allcmds) and data.cmdp) or 1
+		if D.active and (D.cmdmode == 'cmd') then
+			local allcmds = getContents(D.seq[D.active].tick, {D.tp, 'cmd', pairs})
+			D.cmdp = (rangeCheck(D.cmdp, 1, #allcmds) and D.cmdp) or 1
 		end
 
 		-- Normalize selection-pointers
-		if data.sel.l ~= false then
-			data.seltop.x = math.min(data.seltop.x, tlimit)
-			data.selbot.x = math.min(data.selbot.x, tlimit)
-			data.sel.l = data.seltop.x
-			data.sel.r = data.selbot.x
+		if D.sel.l ~= false then
+			D.seltop.x = math.min(D.seltop.x, tlimit)
+			D.selbot.x = math.min(D.selbot.x, tlimit)
+			D.sel.l = D.seltop.x
+			D.sel.r = D.selbot.x
 		end
 
 		-- Turn off Play Mode if all sequences have been removed
-		if not data.active then
-			data.playing = false
+		if not D.active then
+			D.playing = false
 		end
 
 	end,
@@ -34,16 +34,16 @@ return {
 	moveCmdPointer = function(dist)
 
 		-- If no sequences are loaded, abort the function
-		if data.active == false then
+		if D.active == false then
 			print("moveCmdPointer: warning: no active sequence!")
 			return nil
 		end
 
-		local allcmds = getContents(data.seq[data.active].tick, {data.tp, "cmd", pairs})
+		local allcmds = getContents(D.seq[D.active].tick, {D.tp, "cmd", pairs})
 
-		data.cmdp = wrapNum(data.cmdp + dist, 1, math.max(1, #allcmds))
+		D.cmdp = wrapNum(D.cmdp + dist, 1, math.max(1, #allcmds))
 
-		print("moveCmdPointer: active command: " .. data.cmdp)
+		print("moveCmdPointer: active command: " .. D.cmdp)
 
 	end,
 
@@ -51,14 +51,14 @@ return {
 	moveTickPointer = function(dist)
 
 		-- If no sequences are loaded, abort the function
-		if data.active == false then
+		if D.active == false then
 			print("moveTickPointer: warning: no active sequence!")
 			return nil
 		end
 
-		data.tp = wrapNum(data.tp + (dist * data.spacing), 1, data.seq[data.active].total)
+		D.tp = wrapNum(D.tp + (dist * D.spacing), 1, D.seq[D.active].total)
 
-		print("moveTickPointer: moved to tick " .. data.tp)
+		print("moveTickPointer: moved to tick " .. D.tp)
 
 	end,
 
@@ -66,12 +66,12 @@ return {
 	moveTickPointerToBeat = function(dist)
 
 		-- If no sequences are loaded, abort the function
-		if data.active == false then
+		if D.active == false then
 			print("moveTickPointerToBeat: warning: no active sequence!")
 			return nil
 		end
 
-		local oldpos, pos = data.tp, data.tp
+		local oldpos, pos = D.tp, D.tp
 		local dir = math.max(-1, math.min(1, dist))
 
 		-- Shift the position in the given dist's direction (negative/positive),
@@ -79,13 +79,13 @@ return {
 		-- for a number of repetitions equal to the given dist's absoute value.
 		repeat
 			repeat
-				pos = wrapNum(pos + dir, 1, data.seq[data.active].total)
-			until ((pos - 1) % (data.tpq * 4)) == 0
+				pos = wrapNum(pos + dir, 1, D.seq[D.active].total)
+			until ((pos - 1) % (D.tpq * 4)) == 0
 			dist = dist - dir
 		until dist == 0
 
 		-- Put the new tick-value into the tick-pointer.
-		data.tp = pos
+		D.tp = pos
 
 		print("moveTickPointerToBeat: moved from tick " .. oldpos .. " to " .. pos)
 
@@ -95,14 +95,14 @@ return {
 	moveTickPointerByNote = function(dist)
 
 		-- If no sequences are loaded, abort the function
-		if data.active == false then
+		if D.active == false then
 			return nil
 		end
 
-		local tick = data.tp
-		local note = data.np
+		local tick = D.tp
+		local note = D.np
 
-		local ticks = data.seq[data.active].total
+		local ticks = D.seq[D.active].total
 		local dir = math.max(-1, math.min(1, dist)) 
 		local goal = math.abs(dist)
 
@@ -118,10 +118,10 @@ return {
 			local found = false
 
 			-- Get the current offset-tick
-			tick = wrapNum(data.tp + offset, 1, ticks)
+			tick = wrapNum(D.tp + offset, 1, ticks)
 
 			-- Populate the lower-notes and higher-notes tabs, based on the tick's notes
-			local ntab = getContents(data.seq[data.active].tick, {tick, "note", pairs, pairs})
+			local ntab = getContents(D.seq[D.active].tick, {tick, "note", pairs, pairs})
 			for _, n in pairs(ntab) do
 				if n[5] < note then
 					table.insert(lower, n[5])
@@ -149,7 +149,7 @@ return {
 			-- change the tick-offset, and set note-val just outside the range.
 			if not found then
 				offset = offset + dir
-				note = data.bounds.np[clampNum(dist, 0, 1) + 1] + dir
+				note = D.bounds.np[clampNum(dist, 0, 1) + 1] + dir
 			else
 				passed = passed + 1
 			end
@@ -160,43 +160,43 @@ return {
 		end
 
 		-- If the note-val is still in a pre-notes-found state, reset it
-		if not rangeCheck(note, data.bounds.np) then
-			note = data.np
+		if not rangeCheck(note, D.bounds.np) then
+			note = D.np
 		end
 
 		-- Update global tick and note pointers with new positions
-		data.tp = tick
-		data.np = note
+		D.tp = tick
+		D.np = note
 
 	end,
 
 	-- Shift the Cmd Mode command-type pointer, bounded to the number of possible commands
 	shiftCmdType = function(dist)
 
-		data.cmdtype = wrapNum(data.cmdtype + dist, 1, #data.cmdtypes)
+		D.cmdtype = wrapNum(D.cmdtype + dist, 1, #D.cmdtypes)
 
-		print("shiftCmdType: command " .. data.cmdtype .. ": " .. table.concat(data.cmdtypes[data.cmdtype], " "))
+		print("shiftCmdType: command " .. D.cmdtype .. ": " .. table.concat(D.cmdtypes[D.cmdtype], " "))
 
 	end,
 
 	-- Shift an internal bounded value, additively or multiplicatively, by a given distance
 	shiftInternalValue = function(vname, multi, dist, emptyabort)
 
-		local bds = data.bounds[vname]
+		local bds = D.bounds[vname]
 
 		-- Add or multiply the value with the internal var (and round off floats)
-		data[vname] = (multi and math.floor(data[vname] * dist)) or (data[vname] + dist)
+		D[vname] = (multi and math.floor(D[vname] * dist)) or (D[vname] + dist)
 
 		-- Wrap or clamp the value to a given range
-		data[vname] = (bds[3] and wrapNum(data[vname], bds)) or clampNum(data[vname], bds)
+		D[vname] = (bds[3] and wrapNum(D[vname], bds)) or clampNum(D[vname], bds)
 
-		print("shiftInternalValue: " .. vname .. " to " .. data[vname])
+		print("shiftInternalValue: " .. vname .. " to " .. D[vname])
 
 	end,
 
 	-- Tab the hotseat-pointer to a given hotseat
 	tabToHotseat = function(seat)
-		data.activeseat = seat
+		D.activeseat = seat
 	end,
 
 }

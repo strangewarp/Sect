@@ -85,10 +85,11 @@ return {
 		},
 
 		seq = { -- Sequence-grid colors
+			active = {255, 0, 0, 200},
 			dark = {10, 5, 108, 50},
 			light = {200, 200, 209, 255},
-			beat = {0, 0, 220, 250},
-			active = {255, 0, 0, 200},
+			beat_dark = {0, 0, 220, 230},
+			beat_light = {50, 50, 200, 50},
 			font = {252, 240, 240, 255},
 			highlight = {0, 100, 255, 200},
 		},
@@ -270,10 +271,6 @@ return {
 			y = 0.7, -- Distance between top and bottom
 		},
 
-		track = { -- Bottom track-bar
-			height = 60,
-		},
-
 		piano = { -- Piano-bar
 			basewidth = 55,
 		},
@@ -290,6 +287,10 @@ return {
 
 		sidebar = { -- Left sidebar
 			width = 100,
+		},
+
+		track = { -- Bottom track-bar
+			height = 60,
 		},
 
 		triangle = { -- Beat-line triangle

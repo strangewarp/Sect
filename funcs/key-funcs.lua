@@ -15,13 +15,13 @@ return {
 			end
 
 		else -- If this isn't a repeating key, add the key to the keypress table
-			table.insert(data.keys, key)
+			table.insert(D.keys, key)
 		end
 
 		local match = false -- Flags whether there is a command-match
 
 		-- Discern whether the only currently-held keys are piano-keyboard keys
-		for k, v in pairs(data.keys) do
+		for k, v in pairs(D.keys) do
 
 			local c = checkKeyChord({v})
 
@@ -38,7 +38,7 @@ return {
 
 		-- Seek out the command that matches currently-active keys and modes,
 		-- or if such a command doesn't exist, stick to the already-existing match.
-		match = checkKeyChord(data.keys) or match
+		match = checkKeyChord(D.keys) or match
 
 		-- If no acceptable match was found, then abort function
 		if not match then
@@ -46,11 +46,11 @@ return {
 		end
 
 		-- Get the function that is linked to the keycommand, and invoke it
-		if data.cmdfuncs[match] ~= nil then
+		if D.cmdfuncs[match] ~= nil then
 
 			print("addKeystroke: received command '" .. match .. "'!")
 
-			executeFunction(unpack(data.cmdfuncs[match]))
+			executeFunction(unpack(D.cmdfuncs[match]))
 
 		end
 
@@ -62,9 +62,9 @@ return {
 		key = stripSidedness(key)
 
 		-- Remove the key from the currently-held-keys table
-		for i = 1, #data.keys do
-			if key == data.keys[i] then
-				table.remove(data.keys, i)
+		for i = 1, #D.keys do
+			if key == D.keys[i] then
+				table.remove(D.keys, i)
 				break
 			end
 		end
@@ -73,14 +73,14 @@ return {
 
 	-- Remove all keystrokes from the keystroke-tracking table
 	removeAllKeystrokes = function()
-		data.keys = {}
+		D.keys = {}
 	end,
 
 	-- Build the keychord-commands for tabbing between hotseat names
 	buildHotseatCommands = function()
 
 		-- For every item in the user-defined hotseats table...
-		for i = 1, math.min(30, #data.hotseats) do
+		for i = 1, math.min(30, #D.hotseats) do
 
 			local buttons = {}
 			local cmdname = "HOTSEAT_" .. i
@@ -101,9 +101,9 @@ return {
 			table.insert(buttons, seat)
 
 			-- Insert a key-command and its active contexts into the command-tables
-			data.cmds[cmdname] = buttons
-			data.cmdgate[cmdname] = {"entry", "gen", "cmd"}
-			data.cmdfuncs[cmdname] = {"tabToHotseat", i}
+			D.cmds[cmdname] = buttons
+			D.cmdgate[cmdname] = {"entry", "gen", "cmd"}
+			D.cmdfuncs[cmdname] = {"tabToHotseat", i}
 
 		end
 
@@ -128,9 +128,9 @@ return {
 				local cmdname = "PIANO_KEY_" .. iter
 
 				-- Insert a key-command and its active contexts into the command-tables
-				data.cmds[cmdname] = {button}
-				data.cmdgate[cmdname] = {"entry", "gen"}
-				data.cmdfuncs[cmdname] = {"insertNote", k - 1, false}
+				D.cmds[cmdname] = {button}
+				D.cmdgate[cmdname] = {"entry", "gen"}
+				D.cmdfuncs[cmdname] = {"insertNote", k - 1, false}
 
 				iter = iter + 1
 
@@ -143,10 +143,10 @@ return {
 	-- Seek out a command that perfectly matches a given keychord.
 	checkKeyChord = function(keytab)
 
-		for k, v in pairs(data.cmds) do
+		for k, v in pairs(D.cmds) do
 			if crossCompare(keytab, v) then
-				for kk, vv in pairs(data.cmdgate[k]) do
-					if vv == data.cmdmode then
+				for kk, vv in pairs(D.cmdgate[k]) do
+					if vv == D.cmdmode then
 						return k
 					end
 				end
@@ -159,15 +159,15 @@ return {
 
 	-- Sort all key-command tables, to allow simple comparison
 	sortKeyComboTables = function()
-		for i = 1, #data.cmds do
-			table.sort(data.cmds[i])
+		for i = 1, #D.cmds do
+			table.sort(D.cmds[i])
 		end
 	end,
 
 	-- Strip left/right sidedness information from specific keys
 	stripSidedness = function(key)
 
-		for k, v in pairs(data.sidekeys) do
+		for k, v in pairs(D.sidekeys) do
 			if key == v then
 				return key:sub(2)
 			end

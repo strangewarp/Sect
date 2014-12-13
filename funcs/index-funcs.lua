@@ -152,26 +152,26 @@ return {
 
 		local tick = n[2] + 1
 
-		if data.seq[s].tick[tick] ~= nil then
-			if data.seq[s].tick[tick][kind] ~= nil then
+		if D.seq[s].tick[tick] ~= nil then
+			if D.seq[s].tick[tick][kind] ~= nil then
 				if cmdkey and (kind == 'cmd') then -- Cascade-unset a value in the cmd table
-					if data.seq[s].tick[tick][kind][cmdkey] ~= nil then
-						table.remove(data.seq[s].tick[tick][kind], cmdkey)
+					if D.seq[s].tick[tick][kind][cmdkey] ~= nil then
+						table.remove(D.seq[s].tick[tick][kind], cmdkey)
 					end
 				elseif kind == 'note' then -- Cascade-unset a value in the note table
-					if data.seq[s].tick[tick][kind][n[4]] ~= nil then
-						if data.seq[s].tick[tick][kind][n[4]][n[5]] ~= nil then
-							data.seq[s].tick[tick][kind][n[4]][n[5]] = nil
+					if D.seq[s].tick[tick][kind][n[4]] ~= nil then
+						if D.seq[s].tick[tick][kind][n[4]][n[5]] ~= nil then
+							D.seq[s].tick[tick][kind][n[4]][n[5]] = nil
 						end
 					end
-					if next(data.seq[s].tick[tick][kind][n[4]]) then return nil end
-					data.seq[s].tick[tick][kind][n[4]] = nil
+					if next(D.seq[s].tick[tick][kind][n[4]]) then return nil end
+					D.seq[s].tick[tick][kind][n[4]] = nil
 				end
-				if next(data.seq[s].tick[tick][kind]) then return nil end
-				data.seq[s].tick[tick][kind] = nil
+				if next(D.seq[s].tick[tick][kind]) then return nil end
+				D.seq[s].tick[tick][kind] = nil
 			end
-			if next(data.seq[s].tick[tick]) then return nil end
-			data.seq[s].tick[tick] = nil
+			if next(D.seq[s].tick[tick]) then return nil end
+			D.seq[s].tick[tick] = nil
 		end
 
 	end,
@@ -181,16 +181,16 @@ return {
 
 		local tick = n[2] + 1
 
-		if data[kind][tick] ~= nil then
-			if data[kind][tick][n[4]] ~= nil then
-				if data[kind][tick][n[4]][n[5]] ~= nil then
-					data[kind][tick][n[4]][n[5]] = nil
+		if D[kind][tick] ~= nil then
+			if D[kind][tick][n[4]] ~= nil then
+				if D[kind][tick][n[4]][n[5]] ~= nil then
+					D[kind][tick][n[4]][n[5]] = nil
 				end
-				for _, _ in pairs(data[kind][tick][n[4]]) do return nil end
-				data[kind][tick][n[4]] = nil
+				for _, _ in pairs(D[kind][tick][n[4]]) do return nil end
+				D[kind][tick][n[4]] = nil
 			end
-			for _, _ in pairs(data[kind][tick]) do return nil end
-			data[kind][tick] = nil
+			for _, _ in pairs(D[kind][tick]) do return nil end
+			D[kind][tick] = nil
 		end
 
 	end,

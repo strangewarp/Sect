@@ -99,7 +99,7 @@ return {
 	generateSeqNotes = function(seq, dist, undo)
 
 		-- If recording isn't toggled, abort function
-		if not data.recording then
+		if not D.recording then
 			return nil
 		end
 
@@ -108,29 +108,29 @@ return {
 		local genwheels = {}
 		local putticks = {}
 
-		local ticks = data.seq[data.active].total
+		local ticks = D.seq[D.active].total
 
-		local npoffset = dist + (data.np - (data.np % 12))
+		local npoffset = dist + (D.np - (D.np % 12))
 
 		-- Convert percentage-based generator vars into floats
-		local consonance = data.consonance / 100
-		local density = data.density / 100
-		local beatstick = data.beatstick / 100
+		local consonance = D.consonance / 100
+		local density = D.density / 100
+		local beatstick = D.beatstick / 100
 
 		-- Limit wheel-species to wheel lengths that have been generated
-		local wheelspecies = math.min(7, data.kspecies)
+		local wheelspecies = math.min(7, D.kspecies)
 
 		-- If there are fewer scales in the k-species than in scalenum, grab all scales
-		if data.scalenum >= #data.scales[data.kspecies].s then
+		if D.scalenum >= #D.scales[D.kspecies].s then
 
-			genscales = deepCopy(data.scales[data.kspecies].s)
+			genscales = deepCopy(D.scales[D.kspecies].s)
 
 		else -- Else, choose scales based on proximity to the consonance val
 
 			-- Get a copy of the given k-species' scales
-			local tempscales = deepCopy(data.scales[data.kspecies].s)
+			local tempscales = deepCopy(D.scales[D.kspecies].s)
 
-			-- Until genscales is filled with a "data.scalenum" number of scales...
+			-- Until genscales is filled with a "D.scalenum" number of scales...
 			repeat
 
 				local consodist = 0
@@ -138,7 +138,7 @@ return {
 
 				-- Find all scales with consonance-ranks closest to the desired consonance
 				for k, v in pairs(tempscales) do
-					local target = v.rank / data.scales[data.kspecies].ranks
+					local target = v.rank / D.scales[D.kspecies].ranks
 					local thisconsodist = math.abs(target - consonance)
 					if thisconsodist > consodist then
 						closest = {k}
@@ -151,7 +151,7 @@ return {
 				-- Put the closest found scales into the genscales table,
 				-- until closest-tab is empty, or genscales-tab is full.
 				while (#closest >= 1)
-				and (#genscales < data.scalenum)
+				and (#genscales < D.scalenum)
 				do
 					local randkey = math.random(1, #closest)
 					local chosen = table.remove(closest, randkey)
@@ -159,7 +159,7 @@ return {
 					table.insert(genscales, outscale)
 				end
 
-			until #genscales == data.scalenum
+			until #genscales == D.scalenum
 
 		end
 
@@ -182,37 +182,37 @@ return {
 		end
 
 		-- If there are fewer wheels in the wheel-species than in wheelnum, grab them
-		if data.wheelnum >= #data.wheels[wheelspecies] then
+		if D.wheelnum >= #D.wheels[wheelspecies] then
 
-			genwheels = deepCopy(data.wheels[wheelspecies])
+			genwheels = deepCopy(D.wheels[wheelspecies])
 
 		else -- Else, choose wheels from the wheel-species at random
 
 			-- Get a copy of a given wheel-species
-			local tempwheels = deepCopy(data.wheels[wheelspecies])
+			local tempwheels = deepCopy(D.wheels[wheelspecies])
 
-			-- Grab random wheels from the wheel-species, until "data.wheelnum" is reached
+			-- Grab random wheels from the wheel-species, until "D.wheelnum" is reached
 			repeat
 				local randkey = math.random(1, #tempwheels)
 				local outwheel = table.remove(tempwheels, randkey)
 				table.insert(genwheels, outwheel)
-			until #genwheels == data.wheelnum
+			until #genwheels == D.wheelnum
 
 		end
 
 		local beatfactors, beatweights, bwtotal = getGrainFactors(
-			data.beatlength, -- Factor source: non-TPQ secondary beat-length
-			data.beatgrain, -- Minimal acceptable factor size
-			data.beatbound * data.tpq * 4, -- Doubling limit: beatmod times beats
+			D.beatlength, -- Factor source: non-TPQ secondary beat-length
+			D.beatgrain, -- Minimal acceptable factor size
+			D.beatbound * D.tpq * 4, -- Doubling limit: beatmod times beats
 			beatstick, -- Modifies stickiness of prominent beats
 			true, -- Insert a 0 into the factor list's first position
 			true -- Increase each factor by 1
 		)
 
 		local notefactors, _, _ = getGrainFactors(
-			data.beatlength,
-			data.notegrain,
-			data.beatlength,
+			D.beatlength,
+			D.notegrain,
+			D.beatlength,
 			beatstick,
 			false,
 			false
@@ -253,7 +253,7 @@ return {
 
 			end
 
-		until ((#putticks * data.beatgrain) >= (ticks * density))
+		until ((#putticks * D.beatgrain) >= (ticks * density))
 		or (#beatfactors == 0)
 
 		-- Sort the selected ticks by position
@@ -271,13 +271,13 @@ return {
 		for _, tick in ipairs(putticks) do
 
 			-- Wrap all putticks to the sequence range
-			tick = wrapNum(data.tp + tick - 1, 1, ticks)
+			tick = wrapNum(D.tp + tick - 1, 1, ticks)
 
 			-- Get a random duration from the acceptable note-lengths
 			local dur = notefactors[math.random(#notefactors)]
 
 			-- Get a pitch, bounded within an octave from the given note
-			local pitch = wrapNum(npoffset + sp - 1, data.bounds.np)
+			local pitch = wrapNum(npoffset + sp - 1, D.bounds.np)
 
 			local note = {
 				'insert',
@@ -285,20 +285,20 @@ return {
 					'note',
 					tick - 1,
 					dur,
-					data.chan,
+					D.chan,
 					pitch,
-					data.velo,
+					D.velo,
 				},
 			}
 
 			table.insert(outnotes, note)
 
 			-- Increment notetotal, which modifies note likelihood elsewhere
-			notetotal = notetotal + data.beatgrain
+			notetotal = notetotal + D.beatgrain
 
 			-- Increment all scale and wheel positions
-			snum = getNewThresholdKey(genscales, snum, data.scaleswitch / 100)
-			wnum = getNewThresholdKey(genwheels, wnum, data.wheelswitch / 100)
+			snum = getNewThresholdKey(genscales, snum, D.scaleswitch / 100)
+			wnum = getNewThresholdKey(genwheels, wnum, D.wheelswitch / 100)
 			scale = genscales[snum]
 			wheel = genwheels[wnum]
 			wp = wheel[wp]
@@ -306,7 +306,7 @@ return {
 
 		end
 
-		setNotes(data.active, outnotes, undo)
+		setNotes(D.active, outnotes, undo)
 
 	end,
 

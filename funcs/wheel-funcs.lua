@@ -1,22 +1,22 @@
 
 return {
 
-	-- Directly call anonymizeKeys for data.scales
+	-- Directly call anonymizeKeys for D.scales
 	anonymizeScaleKeys = function()
-		data.scales = anonymizeKeys(data.scales)
+		D.scales = anonymizeKeys(D.scales)
 	end,
 
 	-- Assign a consonance rating to each given scale
 	buildConsonanceRatings = function()
 
 		-- For every k-species...
-		for k, v in pairs(data.scales) do
+		for k, v in pairs(D.scales) do
 
-			data.scales[k].con = math.huge
-			data.scales[k].dis = 0
-			data.scales[k].avg = 0
-			data.scales[k].median = 0
-			data.scales[k].ranks = 0
+			D.scales[k].con = math.huge
+			D.scales[k].dis = 0
+			D.scales[k].avg = 0
+			D.scales[k].median = 0
+			D.scales[k].ranks = 0
 
 			local medianlist = {}
 			local kavg = 0
@@ -77,35 +77,35 @@ return {
 				table.insert(medianlist, conso)
 
 				-- Test consonance-value against most-consonant and most-dissonant vals
-				data.scales[k].con = math.min(data.scales[k].con, conso)
-				data.scales[k].dis = math.max(data.scales[k].dis, conso)
+				D.scales[k].con = math.min(D.scales[k].con, conso)
+				D.scales[k].dis = math.max(D.scales[k].dis, conso)
 
 				-- Save consonance-data into the scale-table
-				data.scales[k].s[sk].gaps = gaps
-				data.scales[k].s[sk].adjs = adjs
-				data.scales[k].s[sk].conso = conso
+				D.scales[k].s[sk].gaps = gaps
+				D.scales[k].s[sk].adjs = adjs
+				D.scales[k].s[sk].conso = conso
 
 			end
 
 			-- Calculate the k-species' average and median consonance vals
-			data.scales[k].avg = kavg / #v.s
-			data.scales[k].median = medianlist[math.max(1, roundNum(#medianlist, 0))]
+			D.scales[k].avg = kavg / #v.s
+			D.scales[k].median = medianlist[math.max(1, roundNum(#medianlist, 0))]
 
 			-- Sort each k-species' scale-table by scale-consonance
-			table.sort(data.scales[k].s, function(a, b) return a.conso < b.conso end)
+			table.sort(D.scales[k].s, function(a, b) return a.conso < b.conso end)
 
 			-- Assign consonance ranks to each scale
 			local prev = false
-			for i = 1, #data.scales[k].s do
-				if prev ~= data.scales[k].s[i].conso then
+			for i = 1, #D.scales[k].s do
+				if prev ~= D.scales[k].s[i].conso then
 					rank = rank + 1
-					prev = data.scales[k].s[i].conso
+					prev = D.scales[k].s[i].conso
 				end
-				data.scales[k].s[i].rank = rank
+				D.scales[k].s[i].rank = rank
 			end
 
 			-- Set the k-species' scale-rank total
-			data.scales[k].ranks = rank
+			D.scales[k].ranks = rank
 
 		end		
 
@@ -115,14 +115,14 @@ return {
 	buildIntervalSpectrum = function()
 
 		-- For every given scale...
-		for k, s in pairs(data.scales) do
+		for k, s in pairs(D.scales) do
 
-			data.scales[k].ints = {}
+			D.scales[k].ints = {}
 
 			-- For every possible interval size within the scale...
 			for i = 1, 12 do
 
-				data.scales[k].ints[i] = 0
+				D.scales[k].ints[i] = 0
 
 				-- Rotate a scale by the interval size, to match against
 				local r = rotateScale(s, i - 1)
@@ -132,7 +132,7 @@ return {
 					if (s.notes[ii] == 1)
 					and (s.notes[ii] == r.notes[ii])
 					then
-						data.scales[k].ints[i] = data.scales[k].ints[i] + 1
+						D.scales[k].ints[i] = D.scales[k].ints[i] + 1
 					end
 				end
 
@@ -186,9 +186,9 @@ return {
 
 	end,
 
-	-- Function-call for buildScales that acts directly upon the current data.scales
+	-- Function-call for buildScales that acts directly upon the current D.scales
 	buildDataScales = function()
-		data.scales = buildScales()
+		D.scales = buildScales()
 	end,
 
 	-- Build all fully cyclic combinatoric wheels
@@ -197,7 +197,7 @@ return {
 		local wheels = {}
 
 		-- For every k-species of scales...
-		for k, _ in pairs(data.scales) do
+		for k, _ in pairs(D.scales) do
 
 			-- Limit wheel size to 7 notes, to quash exponential data requirements
 			if k > 7 then
@@ -235,7 +235,7 @@ return {
 
 		end
 
-		data.wheels = wheels
+		D.wheels = wheels
 
 	end,
 
@@ -259,13 +259,13 @@ return {
 
 	end,
 
-	-- Index data.scales by their binary note-presence identities
+	-- Index D.scales by their binary note-presence identities
 	indexScalesByBin = function()
 
-		for k, v in pairs(data.scales) do
-			data.scales[k].s = {}
+		for k, v in pairs(D.scales) do
+			D.scales[k].s = {}
 			for sk, s in pairs(v.s) do
-				data.scales[k].s[s.bin] = v
+				D.scales[k].s[s.bin] = v
 			end
 		end
 
@@ -279,35 +279,35 @@ return {
 			out[i] = {s = {}}
 		end
 
-		for k, v in pairs(data.scales) do
+		for k, v in pairs(D.scales) do
 			table.insert(out[v.ints[1]].s, v)
 		end
 
-		data.scales = out
+		D.scales = out
 
 	end,
 
 	-- Remove scales that are empty
 	purgeEmptyScales = function()
-		table.remove(data.scales, 0)
+		table.remove(D.scales, 0)
 	end,
 
 	-- Remove scales that are the same combinatoric k-species as other scales
 	purgeIdenticalScales = function()
 
 		-- For every scale...
-		for i = #data.scales - 1, 1, -1 do
+		for i = #D.scales - 1, 1, -1 do
 
 			-- For each possible position of a given scale...
 			for p = 1, 11 do
 
 				-- Rotate the scale to that position
-				local rotated = rotateScale(data.scales[i], p)
+				local rotated = rotateScale(D.scales[i], p)
 
 				-- If any scales match the rotated scale, remove them
-				for c = i + 1, #data.scales do
-					if rotated.bin == data.scales[c].bin then
-						table.remove(data.scales, c)
+				for c = i + 1, #D.scales do
+					if rotated.bin == D.scales[c].bin then
+						table.remove(D.scales, c)
 						break
 					end
 				end
@@ -348,21 +348,21 @@ return {
 
 	end,
 
-	-- Rotate all data.scales so that their first note is a filled position
+	-- Rotate all D.scales so that their first note is a filled position
 	rotateScalesToFilledPosition = function()
 
-		for k, v in pairs(data.scales) do
+		for k, v in pairs(D.scales) do
 
 			local count = 0
 			while (
 				not (
-					(data.scales[k].notes[1] == 1)
-					and (data.scales[k].notes[12] == 0)
+					(D.scales[k].notes[1] == 1)
+					and (D.scales[k].notes[12] == 0)
 				)
 			)
 			and (count < 12)
 			do
-				data.scales[k] = rotateScale(data.scales[k], 1)
+				D.scales[k] = rotateScale(D.scales[k], 1)
 				count = count + 1
 			end
 

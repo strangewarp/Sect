@@ -5,7 +5,7 @@ return {
 	checkMouseDrag = function(left, top, width, height, x, y)
 
 		-- If no sequences exist, abort function
-		if not data.active then
+		if not D.active then
 			return nil
 		end
 
@@ -19,30 +19,30 @@ return {
 		local yfull = height - top
 
 		-- Get anchor-position information
-		local xanchor = xfull * data.size.anchor.x
-		local yanchor = yfull * data.size.anchor.y
+		local xanchor = xfull * D.size.anchor.x
+		local yanchor = yfull * D.size.anchor.y
 
 		-- Get the cursor's tick and note coordinates
 		local newtick, newnote = getCursorCell(xanchor, yanchor, x, y)
 
 		-- If dragx and dragy are empty, set them to the current position
-		data.dragx = data.dragx or {newtick, newtick}
-		data.dragy = data.dragy or {newnote, newnote}
+		D.dragx = D.dragx or {newtick, newtick}
+		D.dragy = D.dragy or {newnote, newnote}
 
 		-- Keep old values for comparison
-		local oldtick = data.dragx[2]
-		local oldnote = data.dragy[2]
+		local oldtick = D.dragx[2]
+		local oldnote = D.dragy[2]
 
 		-- Set the target dragx and dragy based on cursor position
-		data.dragx[2] = newtick
-		data.dragy[2] = newnote
+		D.dragx[2] = newtick
+		D.dragy[2] = newnote
 
 		-- Enlarge the select-area according to new dragx,dragy ranges
-		if (oldtick ~= data.dragx[2])
-		or (oldnote ~= data.dragy[2])
+		if (oldtick ~= D.dragx[2])
+		or (oldnote ~= D.dragy[2])
 		then
-			toggleSelect("top", data.dragx[1], data.dragy[1])
-			toggleSelect("bottom", data.dragx[2], data.dragy[2])
+			toggleSelect("top", D.dragx[1], D.dragy[1])
+			toggleSelect("bottom", D.dragx[2], D.dragy[2])
 		end
 
 	end,
@@ -51,12 +51,12 @@ return {
 	getCursorCell = function(xanchor, yanchor, x, y)
 
 		-- Get mouse-position offsets
-		local xoffset = roundNum((x - xanchor) / data.cellwidth, 0)
-		local yoffset = roundNum((yanchor - y) / data.cellheight, 0)
+		local xoffset = roundNum((x - xanchor) / D.cellwidth, 0)
+		local yoffset = roundNum((yanchor - y) / D.cellheight, 0)
 
 		-- Get new tick and note positions
-		local newtick = wrapNum(data.tp + xoffset, 1, data.seq[data.active].total)
-		local newnote = wrapNum(data.np + yoffset, data.bounds.np)
+		local newtick = wrapNum(D.tp + xoffset, 1, D.seq[D.active].total)
+		local newnote = wrapNum(D.np + yoffset, D.bounds.np)
 
 		return newtick, newnote
 
@@ -70,24 +70,24 @@ return {
 
 			-- Set the cursor to one of the two click-type images
 			if button == 'l' then
-				love.mouse.setCursor(data.cursor.leftclick.c)
-				data.dragging = true
+				love.mouse.setCursor(D.cursor.leftclick.c)
+				D.dragging = true
 			elseif button == 'r' then
-				love.mouse.setCursor(data.cursor.rightclick.c)
+				love.mouse.setCursor(D.cursor.rightclick.c)
 			end
 
 		else -- Else, if the mouse-click is an upstroke...
 
 			-- If the mouse was dragged, reset the drag-trackers, and clear selection
-			if data.dragging then
-				data.dragging = false
-				data.dragx = false
-				data.dragy = false
+			if D.dragging then
+				D.dragging = false
+				D.dragx = false
+				D.dragy = false
 				toggleSelect("clear")
 			end
 
 			-- Set the cursor to its default image
-			love.mouse.setCursor(data.cursor.default.c)
+			love.mouse.setCursor(D.cursor.default.c)
 
 		end
 
@@ -96,10 +96,10 @@ return {
 	-- Pick out the location of the mouse on-screen, and react to it
 	mousePick = function(x, y, width, height, button)
 
-		local left = data.size.sidebar.width
+		local left = D.size.sidebar.width
 		local top = 0
 		local right = left + width
-		local middle = height - data.size.track.height
+		local middle = height - D.size.track.height
 
 		if collisionCheck(x, y, 0, 0, left, top, right, middle) then
 			reactToGridClick(left, top, width, middle, x - left, y - top, button)
@@ -113,7 +113,7 @@ return {
 	reactToGridClick = function(left, top, width, height, x, y, button)
 
 		-- If no sequences exist, abort function
-		if not data.active then
+		if not D.active then
 			return nil
 		end
 
@@ -122,11 +122,11 @@ return {
 		local yfull = height - top
 
 		-- Get anchor-position information
-		local xanchor = xfull * data.size.anchor.x
-		local yanchor = yfull * data.size.anchor.y
+		local xanchor = xfull * D.size.anchor.x
+		local yanchor = yfull * D.size.anchor.y
 
 		-- Get total number of ticks
-		local ticks = data.seq[data.active].total
+		local ticks = D.seq[D.active].total
 
 		-- Get the cursor's tick and note coordinates
 		local newtick, newnote = getCursorCell(xanchor, yanchor, x, y)
@@ -134,7 +134,7 @@ return {
 		local bestmatch = false
 
 		-- Figure out whether the mouse-position overlaps with a note
-		local ntab = getContents(data.seq[data.active].tick, {pairs, 'note', pairs, pairs})
+		local ntab = getContents(D.seq[D.active].tick, {pairs, 'note', pairs, pairs})
 		for _, n in pairs(ntab) do
 
 			-- If the pitch matches the new-note-position...
@@ -146,14 +146,14 @@ return {
 				-- If the note contains the clicked tick, check it against other candidates
 				if rangeCheck(newtick, low, high) then
 					if bestmatch then
-						if bestmatch[4] == data.chan then
-							if n[4] == data.chan then
+						if bestmatch[4] == D.chan then
+							if n[4] == D.chan then
 								if n[3] < bestmatch[3] then
 									bestmatch = n
 								end
 							end
 						else
-							if n[4] == data.chan then
+							if n[4] == D.chan then
 								bestmatch = n
 							elseif n[4] < bestmatch[4] then
 								bestmatch = n
@@ -176,18 +176,18 @@ return {
 		if button == 'r' then
 
 			-- Set tick and note pointers to new positions
-			data.tp = modtick
-			data.np = modnote
+			D.tp = modtick
+			D.np = modnote
 
 			-- Set mouse-position to the anchor point
-			if data.mousetocenter then
+			if D.mousetocenter then
 				love.mouse.setPosition(left + xanchor, top + yanchor)
 			end
 
 		else -- Else, if the left button was clicked...
 
 			-- Check whether the Shift key is being held down
-			local shiftheld = entryExists(data.keys, "shift")
+			local shiftheld = entryExists(D.keys, "shift")
 
 			-- If a note overlapped the mouse-click...
 			if bestmatch then
@@ -196,7 +196,7 @@ return {
 				toggleSelect("clear")
 
 				-- Check whether the clicked note is already within the select-table
-				local exists = getIndex(data.seldat, {modtick, bestmatch[4], modnote})
+				local exists = getIndex(D.seldat, {modtick, bestmatch[4], modnote})
 
 				if exists then -- If the selection-index exists...
 
@@ -208,7 +208,7 @@ return {
 					else -- If shift isn't being held...
 
 						-- Get currently-existing select items
-						local selitems = getContents(data.seldat, {pairs, pairs, pairs})
+						local selitems = getContents(D.seldat, {pairs, pairs, pairs})
 
 						-- Clear the select memory
 						toggleSelect("clear")
@@ -217,7 +217,7 @@ return {
 						-- If the matching note wasn't the only active select note,
 						-- then build a select-index for it.
 						if #selitems ~= 1 then
-							buildTable(data.seldat, {modtick, bestmatch[4], modnote}, bestmatch)
+							buildTable(D.seldat, {modtick, bestmatch[4], modnote}, bestmatch)
 						end
 
 					end
@@ -231,7 +231,7 @@ return {
 					end
 
 					-- Build the note's selection-index
-					buildTable(data.seldat, {modtick, bestmatch[4], modnote}, bestmatch)
+					buildTable(D.seldat, {modtick, bestmatch[4], modnote}, bestmatch)
 
 				end
 
@@ -253,11 +253,11 @@ return {
 	reactToTrackClick = function(left, top, width, height, x, y)
 
 		-- If no sequences exist, abort function
-		if not data.active then
+		if not D.active then
 			return nil
 		end
 
-		local seqs = #data.seq
+		local seqs = #D.seq
 
 		-- Get box-size information
 		local boxwidth = (height / 3) - 1
@@ -284,7 +284,7 @@ return {
 		-- If sequence exists, tab to it, and sanitize data structures
 		if xhit and yhit then
 			if newseq <= seqs then
-				data.active = newseq
+				D.active = newseq
 				sanitizeDataStructures()
 			end
 		end

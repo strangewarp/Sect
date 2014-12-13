@@ -4,11 +4,11 @@ return {
 	-- Draw a table of piano-key rectangles, with text overlay
 	drawPianoRoll = function()
 
-		love.graphics.setFont(data.font.piano.raster)
+		love.graphics.setFont(D.font.piano.raster)
 
-		local tab = data.gui.piano
+		local tab = D.gui.piano
 
-		local fontheight = data.font.piano.raster:getHeight()
+		local fontheight = D.font.piano.raster:getHeight()
 
 		for _, v in ipairs(tab) do
 
@@ -19,7 +19,7 @@ return {
 			end
 
 			-- Draw the polygon's outline
-			love.graphics.setColor(data.color.piano.border)
+			love.graphics.setColor(D.color.piano.border)
 			love.graphics.polygon("line", v.poly)
 
 			-- Get key height from its positional data
@@ -44,33 +44,33 @@ return {
 	-- Draw the column of piano-keys in the sequence window
 	buildPianoRoll = function()
 
-		data.gui.piano = {} -- Empty the old piano-roll table
+		D.gui.piano = {} -- Empty the old piano-roll table
 
-		local left = data.size.sidebar.width
-		local kwidth = data.size.piano.basewidth + (data.width / 40)
-		local width = data.width - left
-		local height = data.height - data.size.track.height
+		local left = D.size.sidebar.width
+		local kwidth = D.size.piano.basewidth + (D.width / 40)
+		local width = D.width - left
+		local height = D.height - D.size.track.height
 
 		-- Get key heights, and half-key heights, and note-row heights
-		local yflare = data.cellheight * 1.5
-		local ymid = data.cellheight
-		local khalf = data.cellheight / 2
+		local yflare = D.cellheight * 1.5
+		local ymid = D.cellheight
+		local khalf = D.cellheight / 2
 
 		-- Get the center-point, on which the sequence grid (and by extension, the piano-roll) are fixed
-		local ycenter = height * data.size.anchor.y
+		local ycenter = height * D.size.anchor.y
 
 		-- Add the active note, in center position, with highlighted color, to the gui-table
-		pianoNoteToDrawTable(data.np, left, ycenter, ymid, yflare, kwidth, true)
+		pianoNoteToDrawTable(D.np, left, ycenter, ymid, yflare, kwidth, true)
 
 		-- Moving outwards from center, add piano-keys to the gui-table, until fully passing the stencil border
-		local upkey, downkey, uppos, downpos = data.np, data.np, ycenter, ycenter
+		local upkey, downkey, uppos, downpos = D.np, D.np, ycenter, ycenter
 		while uppos >= (0 - khalf) do
 
 			-- Update position and pointer values
-			upkey = wrapNum(upkey + 1, data.bounds.np)
-			downkey = wrapNum(downkey - 1, data.bounds.np)
-			uppos = uppos - data.cellheight
-			downpos = downpos + data.cellheight
+			upkey = wrapNum(upkey + 1, D.bounds.np)
+			downkey = wrapNum(downkey - 1, D.bounds.np)
+			uppos = uppos - D.cellheight
+			downpos = downpos + D.cellheight
 
 			-- Add the two outermost notes, with normal color, to the gui-table
 			pianoNoteToDrawTable(upkey, left, uppos, ymid, yflare, kwidth, false)
@@ -89,18 +89,18 @@ return {
 
 		local key = wrapNum(note + 1, 1, 12)
 		local octave = math.floor(note / 12)
-		local oanchor = math.floor(data.np / 12) * 12
-		local shape = data.pianometa[key][1]
+		local oanchor = math.floor(D.np / 12) * 12
+		local shape = D.pianometa[key][1]
 
 		-- Change flag for key coloration, based on key's keyboard-piano position
 		local kind = false
-		if rangeCheck(note, oanchor, oanchor + (#data.pianokeys - 1)) then
+		if rangeCheck(note, oanchor, oanchor + (#D.pianokeys - 1)) then
 			kind = true
 		end
 
 		local intab = {
-			color = (kind and data.color.piano.active_light) or data.color.piano.inactive_light,
-			tcolor = (kind and data.color.piano.text_active_light) or data.color.piano.text_inactive_light,
+			color = (kind and D.color.piano.active_light) or D.color.piano.inactive_light,
+			tcolor = (kind and D.color.piano.text_active_light) or D.color.piano.text_inactive_light,
 			kind = (kind and "white") or "black",
 			l = left,
 			t = center - midhalf,
@@ -110,14 +110,14 @@ return {
 		}
 
 		-- If the piano-font is smaller than the key size, print the key-name onto the key
-		if data.font.piano.height <= (midhalf * 2) then
-			intab.text = data.pianometa[key][2] .. "-" .. octave
+		if D.font.piano.height <= (midhalf * 2) then
+			intab.text = D.pianometa[key][2] .. "-" .. octave
 		end
 
 		-- Insert color type and rectangle polygon, based on key type
 		if shape == 0 then -- Black note poly
-			intab.color = (kind and data.color.piano.active_dark) or data.color.piano.inactive_dark
-			intab.tcolor = (kind and data.color.piano.text_active_dark) or data.color.piano.text_inactive_dark
+			intab.color = (kind and D.color.piano.active_dark) or D.color.piano.inactive_dark
+			intab.tcolor = (kind and D.color.piano.text_active_dark) or D.color.piano.text_inactive_dark
 			intab.fl = 0
 			intab.fr = kcenter
 			intab.poly = {
@@ -126,7 +126,7 @@ return {
 				left + kcenter, center - midhalf,
 				left + kcenter, center + midhalf,
 			}
-		elseif (shape == 3) or (note == data.bounds.np[2]) then -- White note poly 3 (E, B)
+		elseif (shape == 3) or (note == D.bounds.np[2]) then -- White note poly 3 (E, B)
 			intab.b = center + flarehalf
 			intab.poly = {
 				left, center + midhalf,
@@ -163,15 +163,15 @@ return {
 
 		-- If a highlight command has been received, highlight the key's colors
 		if highlight then
-			intab.color = data.color.piano.highlight
-			intab.tcolor = data.color.piano.text_highlight
+			intab.color = D.color.piano.highlight
+			intab.tcolor = D.color.piano.text_highlight
 		end
 
 		-- Simplify the possibly-concave polygon into triangles
 		intab.tri = love.math.triangulate(intab.poly)
 
 		-- Put the key-table into either end of the draw-table, to preserve correct draw-ordering
-		table.insert(data.gui.piano, (kind and 1) or (#data.gui.piano + 1), intab)
+		table.insert(D.gui.piano, (kind and 1) or (#D.gui.piano + 1), intab)
 
 	end,
 

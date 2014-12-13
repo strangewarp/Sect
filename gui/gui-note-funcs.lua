@@ -5,21 +5,21 @@ return {
 	-- apply highlights to its note and border colors.
 	applyNoteHighlight = function(n, c1, c2)
 
-		local nindex = n[data.acceptmidi[n[1]][1]]
-		local linecolor = deepCopy(data.color.note.border)
-		local highlight = data.color.note.highlight
+		local nindex = n[D.acceptmidi[n[1]][1]]
+		local linecolor = deepCopy(D.color.note.border)
+		local highlight = D.color.note.highlight
 
 		-- If the note is on both axes, highlight it distinctly
-		if ((n[2] + 1) == data.tp) and (nindex == data.np) then
+		if ((n[2] + 1) == D.tp) and (nindex == D.np) then
 
 			c1, c2 = mixColors(c1, highlight, 0.6), mixColors(c2, highlight, 0.6)
-			linecolor = deepCopy(data.color.note.lightborder)
+			linecolor = deepCopy(D.color.note.lightborder)
 
 		-- Else if the note is on one axis, highlight it moderately
-		elseif (n.tick == data.tp) or (nindex == data.np) then
+		elseif (n.tick == D.tp) or (nindex == D.np) then
 
 			c1, c2 = mixColors(c1, highlight, 0.25), mixColors(c2, highlight, 0.25)
-			linecolor = deepCopy(data.color.note.adjborder)
+			linecolor = deepCopy(D.color.note.adjborder)
 
 		end
 
@@ -41,14 +41,14 @@ return {
 
 		local c1, c2, linecolor = {}, {}, {}
 
-		local fontheight = data.font.note.raster:getHeight()
-		love.graphics.setFont(data.font.note.raster)
+		local fontheight = D.font.note.raster:getHeight()
+		love.graphics.setFont(D.font.note.raster)
 
 		-- If Cmd Mode is active, set all the active seq's NOTE commands to Shadow Mode
-		if data.cmdmode == "cmd" then
+		if D.cmdmode == "cmd" then
 			for i = 1, #notes do
 				if notes[i][3][1] == 'note' then
-					if notes[i][2] == data.active then
+					if notes[i][2] == D.active then
 						notes[i][1] = 'other-chan'
 					end
 				end
@@ -105,29 +105,29 @@ return {
 
 			-- Set quiet/loud colors differently, for shadow/select/active notes
 			if (kind == 'shadow') or (kind == 'other-chan') then
-				c1 = deepCopy(data.color.note.overlay_quiet)
-				c2 = deepCopy(data.color.note.overlay_loud)
+				c1 = deepCopy(D.color.note.overlay_quiet)
+				c2 = deepCopy(D.color.note.overlay_loud)
 			elseif kind == 'cmd-shadow' then
-				c1 = deepCopy(data.color.note.cmd_bg1)
-				c2 = deepCopy(data.color.note.cmd_bg2)
+				c1 = deepCopy(D.color.note.cmd_bg1)
+				c2 = deepCopy(D.color.note.cmd_bg2)
 			elseif kind == 'select' then
-				c1 = deepCopy(data.color.note.select_quiet)
-				c2 = deepCopy(data.color.note.select_loud)
+				c1 = deepCopy(D.color.note.select_quiet)
+				c2 = deepCopy(D.color.note.select_loud)
 			elseif kind == 'other-chan-select' then
-				c1 = deepCopy(data.color.note.overlay_select_quiet)
-				c2 = deepCopy(data.color.note.overlay_select_loud)
+				c1 = deepCopy(D.color.note.overlay_select_quiet)
+				c2 = deepCopy(D.color.note.overlay_select_loud)
 			else
-				c1 = deepCopy(data.color.note.quiet)
-				c2 = deepCopy(data.color.note.loud)
+				c1 = deepCopy(D.color.note.quiet)
+				c2 = deepCopy(D.color.note.loud)
 			end
 
 			-- Highlight note-colors for notes on the tp/np axes
-			if (data.cmdmode ~= 'cmd') and (n[1] == 'note') then
+			if (D.cmdmode ~= 'cmd') and (n[1] == 'note') then
 				c1, c2, linecolor = applyNoteHighlight(n, c1, c2)
 			else
-				c1 = deepCopy(data.color.note.cmd_bg1)
-				c2 = deepCopy(data.color.note.cmd_bg2)
-				linecolor = deepCopy(data.color.note.cmd_border)
+				c1 = deepCopy(D.color.note.cmd_bg1)
+				c2 = deepCopy(D.color.note.cmd_bg2)
+				linecolor = deepCopy(D.color.note.cmd_border)
 			end
 
 			-- Get the note's velocity-color
@@ -142,7 +142,7 @@ return {
 
 				-- If the note isn't other-chan, or cmd in non-cmd-mode, then draw a border around the note
 				if (kind ~= 'other-chan')
-				and (not ((data.cmdmode ~= 'cmd') and (kind == 'cmd-shadow')))
+				and (not ((D.cmdmode ~= 'cmd') and (kind == 'cmd-shadow')))
 				then
 					love.graphics.setColor(linecolor)
 					love.graphics.rectangle("line", nleft, ntop, nx, ny)
@@ -151,10 +151,10 @@ return {
 				-- Draw the note's velocity-bar
 				local barcomp = getVelocityColor(
 					n,
-					data.color.note.bar_quiet,
-					data.color.note.bar_loud
+					D.color.note.bar_quiet,
+					D.color.note.bar_loud
 				)
-				local bartop = ny - (ny * (n[data.acceptmidi[n[1]][2]] / data.bounds.velo[2]))
+				local bartop = ny - (ny * (n[D.acceptmidi[n[1]][2]] / D.bounds.velo[2]))
 				love.graphics.setColor(barcomp)
 				love.graphics.line(
 					nleft, ntop + bartop,
@@ -162,14 +162,14 @@ return {
 				)
 
 				-- If chanview mode is enabled, print the note's channel number.
-				if data.chanview and (n[1] == 'note') then
+				if D.chanview and (n[1] == 'note') then
 
 					local notename = tostring(n[4])
-					local textleft = (nleft + (nx / 2)) - (data.font.note.raster:getWidth(tostring(n[4])) / 2)
+					local textleft = (nleft + (nx / 2)) - (D.font.note.raster:getWidth(tostring(n[4])) / 2)
 					local texttop = (ntop + (ny / 2)) - (fontheight / 2)
 
 					-- Draw the text's shadow
-					love.graphics.setColor(data.color.font.note_shadow)
+					love.graphics.setColor(D.color.font.note_shadow)
 					love.graphics.print(notename, textleft, texttop - 1)
 					love.graphics.print(notename, textleft, texttop + 1)
 					love.graphics.print(notename, textleft - 1, texttop)
@@ -179,10 +179,10 @@ return {
 					love.graphics.setColor(barcomp)
 					love.graphics.print(notename, textleft, texttop)
 
-				elseif (data.cmdmode == "cmd") and ((n[2] + 1) == data.tp) then
+				elseif (D.cmdmode == "cmd") and ((n[2] + 1) == D.tp) then
 
 					local outstr = ""
-					for ck, cv in pairs(data.cmdtypes) do
+					for ck, cv in pairs(D.cmdtypes) do
 						if cv[3] == n[1] then
 							outstr = cv[2]
 							break
@@ -196,16 +196,16 @@ return {
 						end
 					end
 
-					love.graphics.setColor(data.color.font.cmd_shadow)
+					love.graphics.setColor(D.color.font.cmd_shadow)
 					love.graphics.rectangle(
 						"fill",
 						nleft - 1,
 						(ntop + (ny / 2)) - (fontheight / 2),
-						data.font.note.raster:getWidth(outstr) + 1,
-						data.font.note.raster:getHeight()
+						D.font.note.raster:getWidth(outstr) + 1,
+						D.font.note.raster:getHeight()
 					)
 
-					love.graphics.setColor(data.color.font.cmd)
+					love.graphics.setColor(D.color.font.cmd)
 					love.graphics.print(
 						outstr,
 						nleft,
@@ -224,9 +224,9 @@ return {
 	-- c1, c2: "quiet" and "loud" colors.
 	getVelocityColor = function(n, c1, c2)
 
-		local veloval = n[data.acceptmidi[n[1]][2]]
-		local velomap = veloval / data.bounds.velo[2]
-		local velorev = (data.bounds.velo[2] - veloval) / data.bounds.velo[2]
+		local veloval = n[D.acceptmidi[n[1]][2]]
+		local velomap = veloval / D.bounds.velo[2]
+		local velorev = (D.bounds.velo[2] - veloval) / D.bounds.velo[2]
 
 		return mixColors(c2, c1, velorev)
 
@@ -250,7 +250,7 @@ return {
 			local hist, n = unpack(two)
 
 			-- Get the pitch-value, or pitch-corresponding value, of a given note
-			local vp = n[data.acceptmidi[n[1]][1]]
+			local vp = n[D.acceptmidi[n[1]][1]]
 
 			-- Duplicate the kind-of-note val, in case of changes
 			local render = kind
@@ -259,13 +259,13 @@ return {
 			if kind ~= 'shadow' then
 
 				-- If the note is within the select-table, set it to render as selected
-				if getIndex(data.seldat, {n[2] + 1, n[4], n[5]}) then
+				if getIndex(D.seldat, {n[2] + 1, n[4], n[5]}) then
 					render = 'select'
 				end
 
 				-- If the note isn't on the active channel...
 				if (n[1] == 'note')
-				and (n[4] ~= data.chan)
+				and (n[4] ~= D.chan)
 				then
 
 					-- If the note is selected, render as other-chan-select.
@@ -291,31 +291,31 @@ return {
 				for _, yr in pairs(yranges) do
 
 					-- Get note's width, via duration, or default to 1 for non-note cmds
-					local xwidth = ((n[1] == 'note') and (data.cellwidth * n[3])) or data.cellwidth
+					local xwidth = ((n[1] == 'note') and (D.cellwidth * n[3])) or D.cellwidth
 
 					-- Get note's inner-grid-concrete and absolute left offsets
-					local ol = xr.a + (n[2] * data.cellwidth)
+					local ol = xr.a + (n[2] * D.cellwidth)
 					local cl = left + ol
 					local ot
 
 					-- If Cmd Mode is active, render the note with a "stacked" top-offset
-					if data.cmdmode == 'cmd' then
+					if D.cmdmode == 'cmd' then
 						if n[1] == 'note' then
-							ot = yr.b + ((tally[n[2] + 1] + 1) * data.cellheight)
+							ot = yr.b + ((tally[n[2] + 1] + 1) * D.cellheight)
 						else
-							ot = yr.b - (((cmdtally[n[2] + 1] + 1) - data.cmdp) * data.cellheight)
+							ot = yr.b - (((cmdtally[n[2] + 1] + 1) - D.cmdp) * D.cellheight)
 						end
 					else -- Else, render the note with a "wrapping grid" top-offset
 						if n[1] == 'note' then
-							ot = yr.b - ((vp - yr.o) * data.cellheight)
+							ot = yr.b - ((vp - yr.o) * D.cellheight)
 						else
-							ot = yr.b - ((tally[n[2] + 1] + data.np - yr.o) * data.cellheight)
+							ot = yr.b - ((tally[n[2] + 1] + D.np - yr.o) * D.cellheight)
 						end
 					end
 					local ct = top + ot
 
 					-- If the note is onscreen in this chunk, display it
-					if collisionCheck(left, top, xfull, yfull, cl, ct, xwidth, data.cellheight) then
+					if collisionCheck(left, top, xfull, yfull, cl, ct, xwidth, D.cellheight) then
 
 						-- If the note's leftmost boundary falls outside of frame,
 						-- clip its left-position, and its width to match.
@@ -325,7 +325,7 @@ return {
 						end
 
 						-- Add the note to the draw-table
-						table.insert(notes, {render, seq, n, cl, ct, xwidth, data.cellheight})
+						table.insert(notes, {render, seq, n, cl, ct, xwidth, D.cellheight})
 
 					end
 

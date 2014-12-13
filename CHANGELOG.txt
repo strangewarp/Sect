@@ -12,6 +12,7 @@
 ---- sub-task: Generate all GUI elements on-keystroke using new functions containing the GUI-element-generation-parts of some of the old GUI functions.
 ---- sub-task: Rewrite the actual rendering of GUI elements to act upon the saved GUI-element tables.
 ---- sub-task: Re-render on mouse-movement and mouse-drag.
+---- sub-task: Clarify commented-out code block in gui-misc-funcs.lua that used to draw a line to the left of the piano-roll
 
 -- TODO: Remove unnecessary 'undo-suppression' vars from function-calls and undo-funcs.
 
@@ -27,7 +28,7 @@
 
 -- TODO: Remove "debugging" messages
 -- TODO: Comment out console again
--- TODO: Change data.version back to "1.1" in data-table.lua!
+-- TODO: Change D.version back to "1.1" in data-table.lua!
 
 * New features:
 -- Added "Saveload mode", which allows the user to enter a filename or directory-name, and perform save/load/directory-change commands in a dedicated panel.
@@ -35,7 +36,7 @@
 -- Added "Factor" commands, which toggle highlighting of factor-ticks within the current beat-value, with TPQ*4 as its default setting.
 -- Added an "Entry-Quantize" toggle, which makes incoming notes and cmds stick to the nearest Factor-Display-tick.
 -- Added "Stretch" command, which multiplies the duration and the starting tick of every selected note (or every note in the sequence, if none are selected), by global spacing/duration, rounded to the nearest tick-value.
--- Added "Quantize" command, which snaps all selected notes in the active sequence to ticks that are multiples of data.spacing.
+-- Added "Quantize" command, which snaps all selected notes in the active sequence to ticks that are multiples of D.spacing.
 -- Added "Text Paste" command, which uses love.system.setClipboardText to convert copied text into MIDI notes.
 -- Added "Select Chan" command, a version of Select-All that only applies to notes in the active seq's active channel.
 -- Added a "Destructive Load" command, to overwrite all currently-existing sequences and load a given hotseat file.
@@ -63,11 +64,11 @@
 -- On hotseat-ordering-change, the active hotseat will revert to the first hotseat in the list, to stay aligned with the previously accessed file.
 -- Started moving tick-pointer forward by 1 spacing-unit on note-delete, in both deleteNote and deleteTickNotes.
 -- Made hotseat-toggling and loadFile commands available when no sequences are loaded.
--- Changed all modNotes/modCmds calls to use a "multiply" value, as some calls need to multiply the shift-value by data.spacing, while others don't.
+-- Changed all modNotes/modCmds calls to use a "multiply" value, as some calls need to multiply the shift-value by D.spacing, while others don't.
 -- Refactored data-structures so that tick tables themselves are also sparse; and added a "total" variable to each seq table to keep track of how many ticks are in a sequence.
 -- Wrote buildTable, getIndex, getContents, seqUnsetCascade, and copyUnsetCascade, which manipulate strictly-defined sparse tables within the new data-structure-space. This allows notes to be stored explicitly, rather than in unordered tables; and yet also prevents said storage from incurring massive lag.
--- Converted all manipulations within the space of "data.seq[n].tick" to use the new functions in index-funcs.lua, rather than touching the tables directly.
--- Changed data-structures to be in the format of "data.seq[a].tick[b].note[c][d]", "data.seq[a].tick[b].cmd[c]", "data.seldat[a][b][c]", and "data.copydat[a][b][c]".
+-- Converted all manipulations within the space of "D.seq[n].tick" to use the new functions in index-funcs.lua, rather than touching the tables directly.
+-- Changed data-structures to be in the format of "D.seq[a].tick[b].note[c][d]", "D.seq[a].tick[b].cmd[c]", "D.seldat[a][b][c]", and "D.copydat[a][b][c]".
 -- Simplified and debugged all copypaste commands.
 -- Bounded Generator Mode scale-size and wheel-size to 7 (used to be 8), to make active data tables more sane.
 -- Changed Play Mode behavior, to repeat the contents of smaller sequences across larger sequences.
@@ -76,7 +77,7 @@
 -- Fixed a potentially fatal bug in the interaction of deleteBeatNotes and getNotes.
 -- normalizePointers will now halt Play Mode if all sequences are deleted.
 -- Added a "funcgate" mechanism to executeFunction, so that undo commands stay functional during the proper times, due to changes incurred by its command-blocking mechanism.
--- Modified executeFunction to start blocking commands that try to access or modify the data.seq table, whenever data.active is false. Also removed more primitive versions of this functionality from some individual commands.
+-- Modified executeFunction to start blocking commands that try to access or modify the D.seq table, whenever D.active is false. Also removed more primitive versions of this functionality from some individual commands.
 -- Changed all data-structures and data-handling involved with mode-based interpretation of key-commands.
 -- Removed old OSC and Extrovert-API code, which was clunky and extraneous.
 -- Changed all note-deletion commands to only act upon notes of the currently active channel.
