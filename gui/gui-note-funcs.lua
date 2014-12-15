@@ -136,12 +136,10 @@ return {
 
 					end
 
-					-- If Cmd Mode is active, set render type to Shadow Mode
+					-- If Cmd Mode is active, set NOTE-render type to Shadow Mode
 					if D.cmdmode == "cmd" then
 						if n[1] == 'note' then
-							if n[2] == D.active then
-								render = 'other_chan'
-							end
+							render = 'shadow'
 						end
 					else -- If Cmd Mode is inactive, de-prioritize the rendering of all non-NOTE commands
 						if n[1] ~= 'note' then
@@ -179,18 +177,16 @@ return {
 							local ol = xr.a + (n[2] * D.cellwidth)
 							local cl = left + ol
 							local ot
-
-							-- If Cmd Mode is active, render the note with a "stacked" top-offset
-							if D.cmdmode == 'cmd' then
-								if n[1] == 'note' then
+							if D.cmdmode == 'cmd' then -- If Cmd Mode is active...
+								if n[1] == 'note' then -- Render notes with a "down-stacked" top-offset
 									ot = yr.b + ((tally[n[2] + 1] + 1) * D.cellheight)
-								else
+								else -- Render cmds with an "up-stacked" top-offset
 									ot = yr.b - (((cmdtally[n[2] + 1] + 1) - D.cmdp) * D.cellheight)
 								end
-							else -- Else, render the note with a "wrapping grid" top-offset
-								if n[1] == 'note' then
+							else -- Else, if Cmd Mode is inactive...
+								if n[1] == 'note' then -- Render notes with a "wrapping-grid" top-offset
 									ot = yr.b - ((vp - yr.o) * D.cellheight)
-								else
+								else -- Render cmds with an "up-stacked" top offset
 									ot = yr.b - ((tally[n[2] + 1] + D.np - yr.o) * D.cellheight)
 								end
 							end
@@ -243,40 +239,6 @@ return {
 
 		local fontheight = D.font.note.raster.height
 
-
-		-- Seperate notes into tables, which will be used to divide render ordering
-		local shadownotes = {}
-		local cmdnotes = {}
-		local sbordernotes = {}
-		local sbselectnotes = {}
-		local othernotes = {}
-		for _, v in pairs(notes) do
-			if v[1] == 'cmd-shadow' then
-				table.insert(cmdnotes, v)
-			elseif v[1] == 'shadow' then
-				table.insert(shadownotes, v)
-			elseif v[1] == 'other-chan' then
-				table.insert(sbordernotes, v)
-			elseif v[1] == 'other-chan-select' then
-				table.insert(sbselectnotes, v)
-			else
-				table.insert(othernotes, v)
-			end
-		end
-
-		-- Sort notes by channel and tick position
-		table.sort(shadownotes, drawChanTickSort)
-		table.sort(cmdnotes, drawChanTickSort)
-		table.sort(sbordernotes, drawChanTickSort)
-		table.sort(sbselectnotes, drawChanTickSort)
-		table.sort(othernotes, drawChanTickSort)
-
-		-- Recombine the sorted tables, to render them in the order of:
-		-- shadow, other-chan, shadow-select, other.
-		notes = tableCombine(cmdnotes, shadownotes)
-		notes = tableCombine(notes, sbordernotes)
-		notes = tableCombine(notes, sbselectnotes)
-		notes = tableCombine(notes, othernotes)
 
 		-- For every note in the render-table...
 		for k, v in pairs(notes) do
