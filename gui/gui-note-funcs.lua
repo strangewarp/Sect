@@ -116,24 +116,23 @@ return {
 					local render = kind
 
 					local color
+					local text = false
 
 					-- Pick out selected notes, and other-chan notes, from within normal notes
 					if kind ~= 'shadow' then
-
-						-- If the note is within the select-table, set it to render as selected
-						if getIndex(D.seldat, {n[2] + 1, n[4], n[5]}) then
+						if getIndex(D.seldat, {n[2] + 1, n[4], n[5]}) then -- If the note is selected, set it to render as such
 							render = 'select'
 						end
-
-						-- If the note isn't on the active channel...
-						if (n[1] == 'note') and (n[4] ~= D.chan) then
-							if render == 'select' then -- If the note is selected, render as other-chan-select.
-								render = 'other_chan_select'
-							else -- If the note isn't selected, render as other-chan.
-								render = 'other_chan'
+						if n[1] == 'note' then -- If the note is a NOTE...
+							if n[4] ~= D.chan then -- If the note isn't on the active channel...
+								if render == 'select' then -- If the note is selected, render as other-chan-select.
+									render = 'other_chan_select'
+								else -- If the note isn't selected, render as other-chan.
+									render = 'other_chan'
+								end
 							end
+							text = n[4] -- Set the text to the note's channel
 						end
-
 					end
 
 					-- If Cmd Mode is active, set NOTE-render type to Shadow Mode
