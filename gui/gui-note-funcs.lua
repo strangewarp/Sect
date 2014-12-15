@@ -24,50 +24,69 @@ return {
 
 	end,
 
-	-- Sort two items based first upon channel, and second upon tick position
+	-- Sort two render-note items based first upon channel, and second upon tick position
 	drawChanTickSort = function(a, b)
-		if a[3][4] == b[3][4] then
-			return a[3][2] < b[3][2]
+		if a[4][4] == b[4][4] then
+			return a[4][2] < b[4][2]
 		else
-			return a[3][4] > b[3][4]
+			return a[4][4] > b[4][4]
 		end
 	end,
 
 	-- Draw a table of GUI notes
 	drawNoteTable = function()
 
+		love.graphics.setFont(D.font.note.raster)
+
+
+
 	end,
 
 	-- Build a table of GUI-notes
 	buildNoteTable = function()
 
+		D.gui.seq.note = {} -- Empty out old render-notes
+
 		-- Left/top boundaries of sequence's current, non-wrapped chunk
-		local tboundary = xanchor - ((D.cellwidth * (D.tp - 1)) + xcellhalf)
-		local nboundary = yanchor - ((D.cellheight * (D.bounds.np[2] - D.np)) + ycellhalf)
+		local tboundary = D.c.tboundary
+		local nboundary = D.c.nboundary
 
 		-- Sequence's full width and height, in pixels
 		local fullwidth = D.c.fullwidth
-		local fullheight = D.c.fullwidth
+		local fullheight = D.c.fullheight
 
 		-- All boundaries for wrapping the sequence's display
-		local xranges = getTileAxisBounds(0, xfull, tboundary, fullwidth)
-		local yranges = getTileAxisBounds(0, yfull, nboundary, fullheight)
+		local xranges = deepCopy(D.c.xwrap)
+		local yranges = deepCopy(D.c.ywrap)
+
+		-- Anchor-points for sequence-reticule
+		local xanchor = D.c.xanchor
+		local yanchor = D.c.yanchor
+
+		local metanotes = {{},{},{},{},{}}
+
+		-- If Cmd Mode is active, use only one vertical render-range, and change getContents path type
+		local path = {pairs, 'note', pairs, pairs} -- Path for note-table's getContents call
+		if D.cmdmode == "cmd" then
+			yranges = {{a = -math.huge, b = yanchor - ycellhalf, o = 0}}
+			path = {pairs, 'cmd', pairs}
+		end
 
 		-- Get render-note data from all visible sequences
 		for snum, s in pairs(D.seq) do
 
-			local render = false
+			local kind = false
 
-			-- Assign render type based on notedraw and shadow activity
+			-- Assign kind type based on notedraw and shadow activity
 			if D.drawnotes then
 				if snum == D.active then
-					render = 'normal'
+					kind = 'normal'
 				elseif s.overlay then
-					render = 'shadow'
+					kind = 'shadow'
 				end
 			else
 				if s.overlay then
-					render = 'shadow'
+					kind = 'shadow'
 				end
 			end
 
@@ -80,39 +99,140 @@ return {
 				end
 			end
 
-			-- If the sequence is to be rendered...
-			if render then
+			-- If the sequence has a render-type...
+			if kind then
 
-				-- If Cmd Mode is active, use only one vertical render-range
-				if D.cmdmode == "cmd" then
-					yranges = {{a = -math.huge, b = yanchor - ycellhalf, o = 0}}
-					drawnotes = tableCombine(
-						drawnotes,
-						makeNoteRenderTable(
-							render,
-							snum, getContents(s.tick, {pairs, 'cmd', pairs}, true),
-							left, top, xfull, yfull,
-							tempxr, yranges
-						)
-					)
-				else -- Else add visible notes to the drawnotes table normally
-					drawnotes = tableCombine(
-						drawnotes,
-						makeNoteRenderTable(
-							render,
-							snum, getContents(s.tick, {pairs, 'note', pairs, pairs}, true),
-							left, top, xfull, yfull,
-							tempxr, yranges
-						)
-					)
+				-- Get all notes from the relevant section of the active sequence
+				local ntab = getContents(s.tick, path, false)
+
+				local tally, cmdtally = {}, {}
+
+				for _, n in pairs(ntab) do
+
+					-- Get the pitch-value, or pitch-corresponding value, of a given note
+					local vp = n[D.acceptmidi[n[1]][1]]
+
+					-- Duplicate the kind-of-note val, in case of changes
+					local render = kind
+
+					local color
+
+					-- Pick out selected notes, and other-chan notes, from within normal notes
+					if kind ~= 'shadow' then
+
+						-- If the note is within the select-table, set it to render as selected
+						if getIndex(D.seldat, {n[2] + 1, n[4], n[5]}) then
+							render = 'select'
+						end
+
+						-- If the note isn't on the active channel...
+						if (n[1] == 'note') and (n[4] ~= D.chan) then
+							if render == 'select' then -- If the note is selected, render as other-chan-select.
+								render = 'other_chan_select'
+							else -- If the note isn't selected, render as other-chan.
+								render = 'other_chan'
+							end
+						end
+
+					end
+
+					-- If Cmd Mode is active, set render type to Shadow Mode
+					if D.cmdmode == "cmd" then
+						if n[1] == 'note' then
+							if n[2] == D.active then
+								render = 'other_chan'
+							end
+						end
+					else -- If Cmd Mode is inactive, de-prioritize the rendering of all non-NOTE commands
+						if n[1] ~= 'note' then
+							render = 'cmd_shadow'
+						end
+					end
+
+					if n[1] == 'note' then -- If the note is a NOTE...
+
+						-- Get a shade of gradient-color based on the note's velocity
+						color = D.color.note[render .. "_gradient"][math.floor(n[6] / 8)]
+
+						-- Count an offset-tally for notes in cmd-mode, or cmds in note-mode
+						tally[n[2] + 1] = (tally[n[2] + 1] and (tally[n[2] + 1] + 1)) or 0
+
+					else -- Else, if the note isn't a NOTE...
+
+						-- Set the color plainly, to a non-gradient render-type
+						color = D.color.note[render]
+
+						-- Count an offset-tally for cmds in cmd-mode
+						cmdtally[n[2] + 1] = (cmdtally[n[2] + 1] and (cmdtally[n[2] + 1] + 1)) or 0
+
+					end
+
+					-- For every combination of on-screen X-ranges and Y-ranges,
+					-- check the note's visibility there, and render if visible.
+					for _, xr in pairs(tempxr) do
+						for _, yr in pairs(yranges) do
+
+							-- Get note's width, via duration, or default to 1 for non-note cmds
+							local xwidth = ((n[1] == 'note') and (D.cellwidth * n[3])) or D.cellwidth
+
+							-- Get note's inner-grid-concrete and absolute left offsets
+							local ol = xr.a + (n[2] * D.cellwidth)
+							local cl = left + ol
+							local ot
+
+							-- If Cmd Mode is active, render the note with a "stacked" top-offset
+							if D.cmdmode == 'cmd' then
+								if n[1] == 'note' then
+									ot = yr.b + ((tally[n[2] + 1] + 1) * D.cellheight)
+								else
+									ot = yr.b - (((cmdtally[n[2] + 1] + 1) - D.cmdp) * D.cellheight)
+								end
+							else -- Else, render the note with a "wrapping grid" top-offset
+								if n[1] == 'note' then
+									ot = yr.b - ((vp - yr.o) * D.cellheight)
+								else
+									ot = yr.b - ((tally[n[2] + 1] + D.np - yr.o) * D.cellheight)
+								end
+							end
+							local ct = top + ot
+
+							-- If the note is onscreen in this chunk, display it
+							if collisionCheck(left, top, fullwidth, fullheight, cl, ct, xwidth, D.cellheight) then
+
+								-- If the note's leftmost boundary falls outside of frame,
+								-- clip its left-position, and its width to match.
+								if cl < left then
+									xwidth = xwidth + ol
+									cl = left
+								end
+
+								-- Add the note to the meta-notes-table, to be sorted and combined later
+								local onote = {color, text and D.color.note[render .. "_text"], text, n, cl, ct, xwidth}
+								table.insert(metanotes[D.renderorder[kind]], onote)
+
+							end
+
+						end
+					end
+
 				end
 
 			end
 
 		end
 
-		-- Draw all overlay-notes on top of the sequence grid
-		drawNoteTable(drawnotes)
+		-- Sort the top 3 metanotes tables by channel and tick,
+		-- and put all metanotes into the GUI-note table, for later rendering.
+		for k, v in ipairs(metanotes) do
+			if k >= 3 then
+				table.sort(v, drawChanTickSort)
+			end
+			for _, vv in ipairs(v) do
+				table.insert(D.gui.seq.note, vv)
+			end
+		end
+
+
 
 
 
@@ -121,25 +241,8 @@ return {
 
 		local c1, c2, linecolor = {}, {}, {}
 
-		local fontheight = D.font.note.raster:getHeight()
-		love.graphics.setFont(D.font.note.raster)
+		local fontheight = D.font.note.raster.height
 
-		-- If Cmd Mode is active, set all the active seq's NOTE commands to Shadow Mode
-		if D.cmdmode == "cmd" then
-			for i = 1, #notes do
-				if notes[i][3][1] == 'note' then
-					if notes[i][2] == D.active then
-						notes[i][1] = 'other-chan'
-					end
-				end
-			end
-		else -- If Cmd Mode is inactive, de-prioritize the rendering of all non-NOTE commands
-			for i = #notes, 1, -1 do
-				if notes[i][3][1] ~= 'note' then
-					notes[i][1] = 'cmd-shadow'
-				end
-			end
-		end
 
 		-- Seperate notes into tables, which will be used to divide render ordering
 		local shadownotes = {}
@@ -297,112 +400,6 @@ return {
 			end
 
 		end
-
-	end,
-
-	-- Build a render-table for a given sequence of notes, wrapped to the screen
-	makeNoteRenderTable = function(
-		kind,
-		seq, ntab,
-		left, top,
-		xfull, yfull,
-		xranges, yranges
-	)
-
-		local notes = {}
-		local tally = {}
-		local cmdtally = {}
-
-		for _, two in pairs(ntab) do
-
-			local hist, n = unpack(two)
-
-			-- Get the pitch-value, or pitch-corresponding value, of a given note
-			local vp = n[D.acceptmidi[n[1]][1]]
-
-			-- Duplicate the kind-of-note val, in case of changes
-			local render = kind
-
-			-- Pick out selected notes, and other-chan notes, from within normal notes
-			if kind ~= 'shadow' then
-
-				-- If the note is within the select-table, set it to render as selected
-				if getIndex(D.seldat, {n[2] + 1, n[4], n[5]}) then
-					render = 'select'
-				end
-
-				-- If the note isn't on the active channel...
-				if (n[1] == 'note')
-				and (n[4] ~= D.chan)
-				then
-
-					-- If the note is selected, render as other-chan-select.
-					if render == 'select' then
-						render = 'other-chan-select'
-					else -- If the note isn't selected, render as other-chan.
-						render = 'other-chan'
-					end
-
-				end
-
-			end
-
-			if n[1] == 'note' then
-				tally[n[2] + 1] = (tally[n[2] + 1] and (tally[n[2] + 1] + 1)) or 0
-			else
-				cmdtally[n[2] + 1] = (cmdtally[n[2] + 1] and (cmdtally[n[2] + 1] + 1)) or 0
-			end
-
-			-- For every combination of on-screen X-ranges and Y-ranges,
-			-- check the note's visibility there, and render if visible.
-			for _, xr in pairs(xranges) do
-				for _, yr in pairs(yranges) do
-
-					-- Get note's width, via duration, or default to 1 for non-note cmds
-					local xwidth = ((n[1] == 'note') and (D.cellwidth * n[3])) or D.cellwidth
-
-					-- Get note's inner-grid-concrete and absolute left offsets
-					local ol = xr.a + (n[2] * D.cellwidth)
-					local cl = left + ol
-					local ot
-
-					-- If Cmd Mode is active, render the note with a "stacked" top-offset
-					if D.cmdmode == 'cmd' then
-						if n[1] == 'note' then
-							ot = yr.b + ((tally[n[2] + 1] + 1) * D.cellheight)
-						else
-							ot = yr.b - (((cmdtally[n[2] + 1] + 1) - D.cmdp) * D.cellheight)
-						end
-					else -- Else, render the note with a "wrapping grid" top-offset
-						if n[1] == 'note' then
-							ot = yr.b - ((vp - yr.o) * D.cellheight)
-						else
-							ot = yr.b - ((tally[n[2] + 1] + D.np - yr.o) * D.cellheight)
-						end
-					end
-					local ct = top + ot
-
-					-- If the note is onscreen in this chunk, display it
-					if collisionCheck(left, top, xfull, yfull, cl, ct, xwidth, D.cellheight) then
-
-						-- If the note's leftmost boundary falls outside of frame,
-						-- clip its left-position, and its width to match.
-						if cl < left then
-							xwidth = xwidth + ol
-							cl = left
-						end
-
-						-- Add the note to the draw-table
-						table.insert(notes, {render, seq, n, cl, ct, xwidth, D.cellheight})
-
-					end
-
-				end
-			end
-
-		end
-
-		return notes
 
 	end,
 

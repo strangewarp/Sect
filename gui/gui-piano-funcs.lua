@@ -10,7 +10,8 @@ return {
 
 		local fontheight = D.font.piano.raster:getHeight()
 
-		for _, v in ipairs(tab) do
+		-- Draw the filled piano-polygons
+		for _, v in pairs(tab) do
 
 			-- Draw the triangles that comprise the piano-key polygon
 			love.graphics.setColor(v.color)
@@ -18,15 +19,17 @@ return {
 				love.graphics.polygon("fill", t)
 			end
 
-			-- Draw the polygon's outline
+		end
+
+		-- Draw the polygons' outlines and text on top of the filled polygons
+		for _, v in pairs(tab) do
+
 			love.graphics.setColor(D.color.piano.border)
 			love.graphics.polygon("line", v.poly)
 
-			-- Get key height from its positional data
-			local kh = v.b - v.t
-
 			-- If text was given, print the key-name onto the key
 			if v.text then
+				local kh = v.b - v.t
 				love.graphics.setColor(v.tcolor)
 				love.graphics.printf(
 					v.text,
@@ -53,6 +56,7 @@ return {
 
 		-- Get key heights, and half-key heights, and note-row heights
 		local yflare = D.cellheight * 1.5
+		local yflarehalf = yflare / 2
 		local ymid = D.cellheight
 		local khalf = D.cellheight / 2
 
@@ -74,7 +78,9 @@ return {
 
 			-- Add the two outermost notes, with normal color, to the gui-table
 			pianoNoteToDrawTable(upkey, left, uppos, ymid, yflare, kwidth, false)
-			pianoNoteToDrawTable(downkey, left, downpos, ymid, yflare, kwidth, false)
+			if (downpos - yflarehalf) < height then
+				pianoNoteToDrawTable(downkey, left, downpos, ymid, yflare, kwidth, false)
+			end
 
 		end
 

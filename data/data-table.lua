@@ -160,6 +160,13 @@ T.gui = { -- Table for saving pre-generated GUI elements
 		cursor = {}, -- Active-sequence reticule
 	},
 }
+T.renderorder = { -- Render-order for GUI-note types. Higher numbers = rendered last.
+	cmd_shadow = 1,
+	shadow = 2,
+	other_chan = 3,
+	other_chan_select = 4,
+	normal = 5,
+}
 T.gradients = { -- Gradients to build within the D.color table
 	{"note", "quiet", "loud", "ql_gradient"},
 	{"note", "select_quiet", "select_loud", "s_ql_gradient"},

@@ -17,6 +17,8 @@
 
 -- TODO: Remove unnecessary 'undo-suppression' vars from function-calls and undo-funcs.
 
+-- TODO: Allow toggling into note-by-note manual control in Generator Mode.
+
 -- TODO: Test all commands thoroughly again, to check for bugs caused by refactoring / new features.
 
 -- TODO: Update tutorial content for the following things:
