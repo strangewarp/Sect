@@ -1,29 +1,6 @@
 
 return {
 
-	-- If a note is on either of the pointer axes,
-	-- apply highlights to its note and border colors.
-	applyNoteHighlight = function(n, c1, c2)
-
-		-- TODO: Simplify and move into draw function
-
-		local linecolor = deepCopy(D.color.note.border)
-		local highlight = D.color.note.highlight
-
-		if ((n[2] + 1) == D.tp) and (n[5] == D.np) then -- If the note is on both axes, highlight it distinctly
-			c1 = D.color.note.highlight_bg_bright
-			c2 = D.color.note.highlight_text_bright
-			linecolor = D.color.note.highlight_border_bright
-		elseif (n.tick == D.tp) or (n[5] == D.np) then -- Else if the note is on one axis, highlight it moderately
-			c1 = D.color.note.highlight_bg
-			c2 = D.color.note.highlight_text
-			linecolor = D.color.note.highlight_border
-		end
-
-		return c1, c2, linecolor
-
-	end,
-
 	-- Sort two render-note items based first upon channel, and second upon tick position
 	drawChanTickSort = function(a, b)
 		if a[4][4] == b[4][4] then
@@ -38,7 +15,25 @@ return {
 
 		love.graphics.setFont(D.font.note.raster)
 
+		for _, v in ipairs(D.gui.seq.note) do -- For every note in the render-table...
 
+			local ncolor, tcolor, text, n, nleft, ntop, nwidth, tleft, ttop, border = unpack(v)
+
+			-- Draw the note-rectangle
+			love.graphics.setColor(ncolor)
+			love.graphics.rectangle("fill", nleft, ntop, nwidth, D.cellheight)
+
+			if border then -- If a border exists, draw it
+				love.graphics.setColor(D.color.note.border)
+				love.graphics.rectangle("line", nleft, ntop, nwidth, D.cellheight)
+			end
+
+			if text then -- If text exists, draw it
+				love.graphics.setColor(D.color.note.text)
+				love.graphics.print(text, tleft, ttop)
+			end
+
+		end
 
 	end,
 
@@ -46,6 +41,12 @@ return {
 	buildNoteTable = function()
 
 		D.gui.seq.note = {} -- Empty out old render-notes
+
+		local fontheight = D.font.note.raster.height
+
+		-- Get all notes' height and text-top-positions
+		local nheight = D.cellheight
+		local tyoffset = (nheight - fontheight) / 2
 
 		-- Left/top boundaries of sequence's current, non-wrapped chunk
 		local tboundary = D.c.tboundary
@@ -112,10 +113,14 @@ return {
 					-- Get the pitch-value, or pitch-corresponding value, of a given note
 					local vp = n[D.acceptmidi[n[1]][1]]
 
+					-- Get the note's start-position in 1-indexed format
+					local nplus = n[2] + 1
+
 					-- Duplicate the kind-of-note val, in case of changes
 					local render = kind
 
 					local color
+					local border = false
 					local text = false
 
 					-- Pick out selected notes, and other-chan notes, from within normal notes
@@ -131,12 +136,10 @@ return {
 									render = 'other_chan'
 								end
 							end
-							text = n[4] -- Set the text to the note's channel
 						end
 					end
 
-					-- If Cmd Mode is active, set NOTE-render type to Shadow Mode
-					if D.cmdmode == "cmd" then
+					if D.cmdmode == "cmd" then -- If Cmd Mode is active, set NOTE-render type to Shadow Mode
 						if n[1] == 'note' then
 							render = 'shadow'
 						end
@@ -146,31 +149,58 @@ return {
 						end
 					end
 
+					-- Get note's width
+					local nwidth = ((n[1] == 'note') and (D.cellwidth * n[3])) or D.cellwidth
+
 					if n[1] == 'note' then -- If the note is a NOTE...
+
+						if D.chanview then -- If chan-view is toggled, set the text to the note's channel
+							text = tostring(n[4])
+						end
+
+						if nplus == D.tp then -- If the note starts on the active tick, highlight it
+							render = render .. "_active"
+						end
 
 						-- Get a shade of gradient-color based on the note's velocity
 						color = D.color.note[render .. "_gradient"][math.floor(n[6] / 8)]
+						border = true -- Set the note's border-rendering to true
 
 						-- Count an offset-tally for notes in cmd-mode, or cmds in note-mode
-						tally[n[2] + 1] = (tally[n[2] + 1] and (tally[n[2] + 1] + 1)) or 0
+						tally[nplus] = (tally[nplus] and (tally[nplus] + 1)) or 0
 
 					else -- Else, if the note isn't a NOTE...
+
+						if D.chanview then -- If chan-view is toggled, set the text to the note's channel
+							if nplus == D.tp then -- If cmd is on active tick, expand its contents
+								for _, cv in pairs(D.cmdtypes) do
+									if cv[3] == n[1] then
+										text = cv[2]
+										break
+									end
+								end
+								text = table.concat({n[3], text, n[4] or nil, n[5] or nil}, ",")
+								nwidth = D.font.note.raster:getWidth(text) -- Replace note-width with text-width
+							else -- Else, leave contents collapsed to chan-number
+								text = tostring(n[3])
+							end
+						end
 
 						-- Set the color plainly, to a non-gradient render-type
 						color = D.color.note[render]
 
 						-- Count an offset-tally for cmds in cmd-mode
-						cmdtally[n[2] + 1] = (cmdtally[n[2] + 1] and (cmdtally[n[2] + 1] + 1)) or 0
+						cmdtally[nplus] = (cmdtally[nplus] and (cmdtally[nplus] + 1)) or 0
 
 					end
+
+					-- Get note's text-X-offset
+					local txoffset = text and ((nwidth - D.font.note.raster:getWidth(text)) / 2)
 
 					-- For every combination of on-screen X-ranges and Y-ranges,
 					-- check the note's visibility there, and render if visible.
 					for _, xr in pairs(tempxr) do
 						for _, yr in pairs(yranges) do
-
-							-- Get note's width, via duration, or default to 1 for non-note cmds
-							local xwidth = ((n[1] == 'note') and (D.cellwidth * n[3])) or D.cellwidth
 
 							-- Get note's inner-grid-concrete and absolute left offsets
 							local ol = xr.a + (n[2] * D.cellwidth)
@@ -178,31 +208,35 @@ return {
 							local ot
 							if D.cmdmode == 'cmd' then -- If Cmd Mode is active...
 								if n[1] == 'note' then -- Render notes with a "down-stacked" top-offset
-									ot = yr.b + ((tally[n[2] + 1] + 1) * D.cellheight)
+									ot = yr.b + ((tally[nplus] + 1) * D.cellheight)
 								else -- Render cmds with an "up-stacked" top-offset
-									ot = yr.b - (((cmdtally[n[2] + 1] + 1) - D.cmdp) * D.cellheight)
+									ot = yr.b - (((cmdtally[nplus] + 1) - D.cmdp) * D.cellheight)
 								end
 							else -- Else, if Cmd Mode is inactive...
 								if n[1] == 'note' then -- Render notes with a "wrapping-grid" top-offset
 									ot = yr.b - ((vp - yr.o) * D.cellheight)
 								else -- Render cmds with an "up-stacked" top offset
-									ot = yr.b - ((tally[n[2] + 1] + D.np - yr.o) * D.cellheight)
+									ot = yr.b - ((tally[nplus] + D.np - yr.o) * D.cellheight)
 								end
 							end
 							local ct = top + ot
 
 							-- If the note is onscreen in this chunk, display it
-							if collisionCheck(left, top, fullwidth, fullheight, cl, ct, xwidth, D.cellheight) then
+							if collisionCheck(left, top, fullwidth, fullheight, cl, ct, nwidth, D.cellheight) then
 
 								-- If the note's leftmost boundary falls outside of frame,
 								-- clip its left-position, and its width to match.
 								if cl < left then
-									xwidth = xwidth + ol
+									nwidth = nwidth + ol
 									cl = left
 								end
 
+								-- If note has text, get note-text position
+								local tleft = text and (cl + txoffset)
+								local ttop = text and (ct + tyoffset)
+
 								-- Add the note to the meta-notes-table, to be sorted and combined later
-								local onote = {color, text and D.color.note[render .. "_text"], text, n, cl, ct, xwidth}
+								local onote = {color, text and D.color.note[render .. "_text"], text, n, cl, ct, nwidth, tleft, ttop, border}
 								table.insert(metanotes[D.renderorder[kind]], onote)
 
 							end
@@ -225,141 +259,6 @@ return {
 			for _, vv in ipairs(v) do
 				table.insert(D.gui.seq.note, vv)
 			end
-		end
-
-
-
-
-
-
-
-
-		local c1, c2, linecolor = {}, {}, {}
-
-		local fontheight = D.font.note.raster.height
-
-
-		-- For every note in the render-table...
-		for k, v in pairs(notes) do
-
-			-- Unpack the note-vars and render-vars
-			local kind, seq, n, nleft, ntop, nx, ny = unpack(v)
-			local nxhalf = nx / 2
-			local nyhalf = ny / 2
-
-			-- Set quiet/loud colors differently, for shadow/select/active notes
-			if (kind == 'shadow') or (kind == 'other-chan') then
-				c1 = deepCopy(D.color.note.overlay_quiet)
-				c2 = deepCopy(D.color.note.overlay_loud)
-			elseif kind == 'cmd-shadow' then
-				c1 = deepCopy(D.color.note.cmd_bg1)
-				c2 = deepCopy(D.color.note.cmd_bg2)
-			elseif kind == 'select' then
-				c1 = deepCopy(D.color.note.select_quiet)
-				c2 = deepCopy(D.color.note.select_loud)
-			elseif kind == 'other-chan-select' then
-				c1 = deepCopy(D.color.note.overlay_select_quiet)
-				c2 = deepCopy(D.color.note.overlay_select_loud)
-			else
-				c1 = deepCopy(D.color.note.quiet)
-				c2 = deepCopy(D.color.note.loud)
-			end
-
-			-- Highlight note-colors for notes on the tp/np axes
-			if (D.cmdmode ~= 'cmd') and (n[1] == 'note') then
-				c1, c2, linecolor = applyNoteHighlight(n, c1, c2)
-			else
-				c1 = deepCopy(D.color.note.cmd_bg1)
-				c2 = deepCopy(D.color.note.cmd_bg2)
-				linecolor = deepCopy(D.color.note.cmd_border)
-			end
-
-			-- Get the note's velocity-color
-			local notecolor = getVelocityColor(n, c1, c2)
-
-			-- Draw the note-rectangle
-			love.graphics.setColor(notecolor)
-			love.graphics.rectangle("fill", nleft, ntop, nx, ny)
-
-			-- If the note isn't to be rendered in shadow mode...
-			if kind ~= 'shadow' then
-
-				-- If the note isn't other-chan, or cmd in non-cmd-mode, then draw a border around the note
-				if (kind ~= 'other-chan')
-				and (not ((D.cmdmode ~= 'cmd') and (kind == 'cmd-shadow')))
-				then
-					love.graphics.setColor(linecolor)
-					love.graphics.rectangle("line", nleft, ntop, nx, ny)
-				end
-
-				-- Draw the note's velocity-bar
-				local barcomp = getVelocityColor(
-					n,
-					D.color.note.bar_quiet,
-					D.color.note.bar_loud
-				)
-				local bartop = ny - (ny * (n[D.acceptmidi[n[1]][2]] / D.bounds.velo[2]))
-				love.graphics.setColor(barcomp)
-				love.graphics.line(
-					nleft, ntop + bartop,
-					nleft + nx, ntop + bartop
-				)
-
-				-- If chanview mode is enabled, print the note's channel number.
-				if D.chanview and (n[1] == 'note') then
-
-					local notename = tostring(n[4])
-					local textleft = (nleft + (nx / 2)) - (D.font.note.raster:getWidth(tostring(n[4])) / 2)
-					local texttop = (ntop + (ny / 2)) - (fontheight / 2)
-
-					-- Draw the text's shadow
-					love.graphics.setColor(D.color.font.note_shadow)
-					love.graphics.print(notename, textleft, texttop - 1)
-					love.graphics.print(notename, textleft, texttop + 1)
-					love.graphics.print(notename, textleft - 1, texttop)
-					love.graphics.print(notename, textleft + 1, texttop)
-
-					-- Draw the text itself
-					love.graphics.setColor(barcomp)
-					love.graphics.print(notename, textleft, texttop)
-
-				elseif (D.cmdmode == "cmd") and ((n[2] + 1) == D.tp) then
-
-					local outstr = ""
-					for ck, cv in pairs(D.cmdtypes) do
-						if cv[3] == n[1] then
-							outstr = cv[2]
-							break
-						end
-					end
-					outstr = outstr .. " " .. n[3]
-					if n[4] ~= nil then
-						outstr = outstr .. " " .. n[4]
-						if n[5] ~= nil then
-							outstr = outstr .. " " .. n[5]
-						end
-					end
-
-					love.graphics.setColor(D.color.font.cmd_shadow)
-					love.graphics.rectangle(
-						"fill",
-						nleft - 1,
-						(ntop + (ny / 2)) - (fontheight / 2),
-						D.font.note.raster:getWidth(outstr) + 1,
-						D.font.note.raster:getHeight()
-					)
-
-					love.graphics.setColor(D.color.font.cmd)
-					love.graphics.print(
-						outstr,
-						nleft,
-						(ntop + (ny / 2)) - (fontheight / 2)
-					)
-
-				end
-
-			end
-
 		end
 
 	end,
