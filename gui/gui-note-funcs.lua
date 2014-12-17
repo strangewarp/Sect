@@ -232,7 +232,7 @@ return {
 									local diff = left - cl
 									nwidth = nwidth - diff
 									cl = left
-									txoffset = txoffset + (diff / 2)
+									txoffset = text and (txoffset - (diff / 2))
 								end
 
 								-- If note has text, get note-text position
