@@ -55,6 +55,7 @@ return {
 			buildSaveLoadPanel()
 		else
 			buildSeqGrid()
+			buildNoteTable()
 			buildSelectionTable()
 			buildReticules()
 		end
@@ -66,6 +67,7 @@ return {
 			drawSaveLoadPanel()
 		else
 			drawSeqGrid()
+			drawNoteTable()
 			drawSelectionTable()
 			drawReticules()
 		end
@@ -74,14 +76,9 @@ return {
 	-- Generate the constants used by the seq-panel-building functions
 	buildConstants = function()
 
-		-- If there is no active sequence, abort function
-		if not D.active then
-			return nil
-		end
-
 		-- Get the number of ticks in the active sequence, and global notes
-		D.c.ticks = D.seq[D.active].total
-		D.c.notes = D.bounds.np[2] - D.bounds.np[1]
+		D.c.ticks = (D.active and D.seq[D.active].total) or 0
+		D.c.notes = (D.active and (D.bounds.np[2] - D.bounds.np[1])) or 0
 
 		-- Seq-panel boundaries
 		D.c.sqleft = D.size.sidebar.width
@@ -98,16 +95,16 @@ return {
 		D.c.ycellhalf = D.cellheight / 2
 
 		-- Sequence's full width and height, in pixels
-		D.c.fullwidth = D.cellwidth * D.c.ticks
-		D.c.fullheight = D.cellheight * D.c.notes
+		D.c.fullwidth = (D.active and (D.cellwidth * D.c.ticks)) or D.c.sqwidth
+		D.c.fullheight = (D.active and (D.cellheight * D.c.notes)) or D.c.sqheight
 
 		-- Left/top boundaries of sequence's current, non-wrapped chunk
-		D.c.tboundary = D.c.xanchor - ((D.cellwidth * (D.tp - 1)) + D.c.xcellhalf)
-		D.c.nboundary = D.c.yanchor - ((D.cellheight * (D.bounds.np[2] - D.np)) + D.c.ycellhalf)
+		D.c.tboundary = (D.active and (D.c.xanchor - ((D.cellwidth * (D.tp - 1)) + D.c.xcellhalf))) or D.c.sqleft
+		D.c.nboundary = (D.active and (D.c.yanchor - ((D.cellheight * (D.bounds.np[2] - D.np)) + D.c.ycellhalf))) or D.c.sqtop
 
 		-- Tables of all boundaries for wrapping the sequence's display
-		D.c.xwrap = getTileAxisBounds(0, D.c.sqwidth, D.c.tboundary, D.c.fullwidth)
-		D.c.ywrap = getTileAxisBounds(0, D.c.sqheight, D.c.nboundary, D.c.fullheight)
+		D.c.xwrap = (D.active and getTileAxisBounds(0, D.c.sqwidth, D.c.tboundary, D.c.fullwidth)) or {}
+		D.c.ywrap = (D.active and getTileAxisBounds(0, D.c.sqheight, D.c.nboundary, D.c.fullheight)) or {}
 
 	end,
 

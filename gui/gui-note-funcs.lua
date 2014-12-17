@@ -42,7 +42,7 @@ return {
 
 		D.gui.seq.note = {} -- Empty out old render-notes
 
-		local fontheight = D.font.note.raster.height
+		local fontheight = D.font.note.raster:getHeight()
 
 		-- Get all notes' height and text-top-positions
 		local nheight = D.cellheight
