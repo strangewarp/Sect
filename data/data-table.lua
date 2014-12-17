@@ -2,7 +2,7 @@
 local T = {}
 
 -- VERSIONING VARS --
-T.version = "1.1-a96" -- Holds Sect's current version-number
+T.version = "1.1-a100" -- Holds Sect's current version-number
 
 -- LOVE ENGINE VARS --
 T.updatespeed = 0.01 -- Speed at which to attempt to update program-state
@@ -166,13 +166,15 @@ T.renderorder = { -- Render-order for GUI-note types. Higher numbers = rendered 
 	other_chan = 3,
 	other_chan_select = 4,
 	normal = 5,
+	sel = 6,
 }
 T.gradients = { -- Gradients to build within the D.color table
-	{"note", "quiet", "loud", "ql_gradient"},
-	{"note", "select_quiet", "select_loud", "s_ql_gradient"},
-	{"note", "overlay_quiet", "overlay_loud", "o_ql_gradient"},
-	{"note", "overlay_select_quiet", "overlay_select_loud", "o_s_ql_gradient"},
-	{"note", "bar_quiet", "bar_loud", "b_gradient"},
+	{"note", "normal_quiet", "normal", "normal_gradient"},
+	{"note", "highlight_quiet", "highlight", "highlight_gradient"},
+	{"note", "sel_quiet", "sel", "sel_gradient"},
+	{"note", "shadow_quiet", "shadow", "shadow_gradient"},
+	{"note", "other_chan_quiet", "other_chan", "other_chan_gradient"},
+	{"note", "other_chan_select_quiet", "other_chan_select", "other_chan_select_gradient"},
 	{"save", "background", "background_fade", "bg_gradient"},
 	{"seq", "beat_dark", "beat_light", "beat_gradient"},
 	{"summary", "empty", "full", "gradient"},

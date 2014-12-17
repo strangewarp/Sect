@@ -42,6 +42,9 @@ return {
 
 		D.gui.seq.note = {} -- Empty out old render-notes
 
+		local left = D.c.sqleft
+		local top = D.c.sqtop
+
 		local fontheight = D.font.note.raster:getHeight()
 
 		-- Get all notes' height and text-top-positions
@@ -126,11 +129,11 @@ return {
 					-- Pick out selected notes, and other-chan notes, from within normal notes
 					if kind ~= 'shadow' then
 						if getIndex(D.seldat, {n[2] + 1, n[4], n[5]}) then -- If the note is selected, set it to render as such
-							render = 'select'
+							render = 'sel'
 						end
 						if n[1] == 'note' then -- If the note is a NOTE...
 							if n[4] ~= D.chan then -- If the note isn't on the active channel...
-								if render == 'select' then -- If the note is selected, render as other-chan-select.
+								if render == 'sel' then -- If the note is selected, render as other-chan-select.
 									render = 'other_chan_select'
 								else -- If the note isn't selected, render as other-chan.
 									render = 'other_chan'
@@ -159,7 +162,7 @@ return {
 						end
 
 						if nplus == D.tp then -- If the note starts on the active tick, highlight it
-							render = render .. "_active"
+							render = "highlight"
 						end
 
 						-- Get a shade of gradient-color based on the note's velocity
@@ -203,23 +206,22 @@ return {
 						for _, yr in pairs(yranges) do
 
 							-- Get note's inner-grid-concrete and absolute left offsets
-							local ol = xr.a + (n[2] * D.cellwidth)
-							local cl = left + ol
-							local ot
+							local cl = left + xr.a + (n[2] * D.cellwidth)
+							local ct
 							if D.cmdmode == 'cmd' then -- If Cmd Mode is active...
 								if n[1] == 'note' then -- Render notes with a "down-stacked" top-offset
-									ot = yr.b + ((tally[nplus] + 1) * D.cellheight)
+									ct = yr.b + ((tally[nplus] + 1) * D.cellheight)
 								else -- Render cmds with an "up-stacked" top-offset
-									ot = yr.b - (((cmdtally[nplus] + 1) - D.cmdp) * D.cellheight)
+									ct = yr.b - (((cmdtally[nplus] + 1) - D.cmdp) * D.cellheight)
 								end
 							else -- Else, if Cmd Mode is inactive...
 								if n[1] == 'note' then -- Render notes with a "wrapping-grid" top-offset
-									ot = yr.b - ((vp - yr.o) * D.cellheight)
+									ct = yr.b - ((vp - yr.o) * D.cellheight)
 								else -- Render cmds with an "up-stacked" top offset
-									ot = yr.b - ((tally[nplus] + D.np - yr.o) * D.cellheight)
+									ct = yr.b - ((tally[nplus] + D.np - yr.o) * D.cellheight)
 								end
 							end
-							local ct = top + ot
+							ct = top + ct
 
 							-- If the note is onscreen in this chunk, display it
 							if collisionCheck(left, top, fullwidth, fullheight, cl, ct, nwidth, D.cellheight) then
@@ -227,8 +229,10 @@ return {
 								-- If the note's leftmost boundary falls outside of frame,
 								-- clip its left-position, and its width to match.
 								if cl < left then
-									nwidth = nwidth + ol
+									local diff = left - cl
+									nwidth = nwidth - diff
 									cl = left
+									txoffset = txoffset + (diff / 2)
 								end
 
 								-- If note has text, get note-text position

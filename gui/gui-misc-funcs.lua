@@ -105,6 +105,7 @@ return {
 		-- Tables of all boundaries for wrapping the sequence's display
 		D.c.xwrap = (D.active and getTileAxisBounds(0, D.c.sqwidth, D.c.tboundary, D.c.fullwidth)) or {}
 		D.c.ywrap = (D.active and getTileAxisBounds(0, D.c.sqheight, D.c.nboundary, D.c.fullheight)) or {}
+		print(#D.c.xwrap .. " " .. #D.c.ywrap)--debugging
 
 	end,
 
