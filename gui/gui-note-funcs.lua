@@ -44,6 +44,9 @@ return {
 
 		local left = D.c.sqleft
 		local top = D.c.sqtop
+		local right = left + D.c.sqwidth
+		local width = D.c.sqwidth
+		local height = D.c.sqheight
 
 		local fontheight = D.font.note.raster:getHeight()
 
@@ -197,8 +200,9 @@ return {
 
 					end
 
-					-- Get note's text-X-offset
-					local txoffset = text and ((nwidth - D.font.note.raster:getWidth(text)) / 2)
+					-- Get note's text-width and text-X-offset
+					local twidth = D.font.note.raster:getWidth(text)
+					local txoffset = text and ((nwidth - twidth) / 2)
 
 					-- For every combination of on-screen X-ranges and Y-ranges,
 					-- check the note's visibility there, and render if visible.
@@ -224,23 +228,38 @@ return {
 							ct = top + ct
 
 							-- If the note is onscreen in this chunk, display it
-							if collisionCheck(left, top, fullwidth, fullheight, cl, ct, nwidth, D.cellheight) then
+							if collisionCheck(left, top, width, height, cl, ct, nwidth, D.cellheight) then
 
-								-- If the note's leftmost boundary falls outside of frame,
-								-- clip its left-position, and its width to match.
+								local otext = text
+
+								-- If text goes beyond the seq-panel border, remove it
+								if text then
+									if ((cl + txoffset) < left)
+									or ((cl + txoffset + twidth) > right)
+									then
+										otext = false
+									end
+								end
+
+								-- If the note's X-boundary falls outside of frame, clip its left-position and/or width.
 								if cl < left then
 									local diff = left - cl
 									nwidth = nwidth - diff
 									cl = left
-									txoffset = text and (txoffset - (diff / 2))
+								elseif (cl + nwidth) > right then
+									local diff = cl - right
+									nwidth = right - cl
+									txoffset = otext and (txoffset - (diff / 2))
 								end
 
+								print(cl)--debugging
+
 								-- If note has text, get note-text position
-								local tleft = text and (cl + txoffset)
-								local ttop = text and (ct + tyoffset)
+								local tleft = otext and (cl + txoffset)
+								local ttop = otext and (ct + tyoffset)
 
 								-- Add the note to the meta-notes-table, to be sorted and combined later
-								local onote = {color, text and D.color.note[render .. "_text"], text, n, cl, ct, nwidth, tleft, ttop, border}
+								local onote = {color, text and D.color.note[render .. "_text"], otext, n, cl, ct, nwidth, tleft, ttop, border}
 								table.insert(metanotes[D.renderorder[kind]], onote)
 
 							end
