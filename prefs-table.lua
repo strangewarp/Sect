@@ -240,7 +240,7 @@ return {
 		},
 
 		note = { -- Sequence-note font
-			file = "font/Milavregarian.ttf",
+			file = "font/candal/Candal.ttf",
 			height = 8,
 		},
 

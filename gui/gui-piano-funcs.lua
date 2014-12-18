@@ -19,14 +19,6 @@ return {
 				love.graphics.polygon("fill", t)
 			end
 
-		end
-
-		-- Draw the polygons' outlines and text on top of the filled polygons
-		for _, v in pairs(tab) do
-
-			love.graphics.setColor(D.color.piano.border)
-			love.graphics.polygon("line", v.poly)
-
 			-- If text was given, print the key-name onto the key
 			if v.text then
 				local kh = v.b - v.t

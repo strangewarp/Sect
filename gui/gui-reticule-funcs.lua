@@ -30,14 +30,6 @@ return {
 		local xcellhalf = D.cellwidth / 2
 		local ycellhalf = D.cellheight / 2
 
-		local trh = D.size.reticule.breadth
-		local trl = left + xhalf - (D.size.reticule.breadth / 2)
-		local trt = top + yhalf - (D.size.reticule.breadth / 2)
-		local trr = trl + trh
-		local trb = trt + trh
-		trt = trt - ycellhalf
-		trb = trb + ycellhalf
-		
 		local nrh = ycellhalf
 		local nrlr = left + xhalf - xcellhalf
 		local nrll = nrlr - nrh
@@ -66,23 +58,7 @@ return {
 			end
 		end
 
-		local poly1 = {
-			color,
-			{
-				trl, trt,
-				trr, trt,
-				left + xhalf, top + yhalf - ycellhalf
-			},
-		}
 		local poly2 = {
-			color,
-			{
-				trl, trb,
-				trr, trb,
-				left + xhalf, top + yhalf + ycellhalf
-			},
-		}
-		local poly3 = {
 			(D.recording and color) or D.color.reticule.light,
 			{
 				nrll, nrt,
@@ -90,14 +66,12 @@ return {
 				nrll, nrb
 			},
 		}
-		table.insert(D.gui.reticule, poly1)
 		table.insert(D.gui.reticule, poly2)
-		table.insert(D.gui.reticule, poly3)
 
 		-- Only draw right reticule arrow if Cmd Mode is inactive
 		if D.cmdmode ~= "cmd" then
 			if nrrl < right then
-				local poly4 = {
+				local poly3 = {
 					(D.recording and color) or D.color.reticule.light,
 					{
 						nrrr, nrt,
@@ -105,7 +79,7 @@ return {
 						nrrr, nrb
 					},
 				}
-				table.insert(D.gui.reticule, poly4)
+				table.insert(D.gui.reticule, poly3)
 			end
 		end
 

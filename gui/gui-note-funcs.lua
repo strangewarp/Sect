@@ -44,9 +44,9 @@ return {
 
 		local left = D.c.sqleft
 		local top = D.c.sqtop
-		local right = left + D.c.sqwidth
 		local width = D.c.sqwidth
 		local height = D.c.sqheight
+		local right = left + width
 
 		local fontheight = D.font.note.raster:getHeight()
 
@@ -231,35 +231,33 @@ return {
 							if collisionCheck(left, top, width, height, cl, ct, nwidth, D.cellheight) then
 
 								local otext = text
+								local owidth = nwidth
+								local otxoffset = txoffset
+
+								-- If the note's X-boundary falls outside the left boundary, clip its left-position and width.
+								if cl < 0 then
+									owidth = owidth + cl
+									if text then
+										otxoffset = (owidth + twidth + cl) / 2
+									end
+									cl = 0
+								end
 
 								-- If text goes beyond the seq-panel border, remove it
 								if text then
-									if ((cl + txoffset) < left)
-									or ((cl + txoffset + twidth) > right)
+									if ((cl + otxoffset) < 0)
+									or ((cl + otxoffset) > D.width)
 									then
 										otext = false
 									end
 								end
 
-								-- If the note's X-boundary falls outside of frame, clip its left-position and/or width.
-								if cl < left then
-									local diff = left - cl
-									nwidth = nwidth - diff
-									cl = left
-								elseif (cl + nwidth) > right then
-									local diff = cl - right
-									nwidth = right - cl
-									txoffset = otext and (txoffset - (diff / 2))
-								end
-
-								print(cl)--debugging
-
 								-- If note has text, get note-text position
-								local tleft = otext and (cl + txoffset)
+								local tleft = otext and (cl + otxoffset)
 								local ttop = otext and (ct + tyoffset)
 
 								-- Add the note to the meta-notes-table, to be sorted and combined later
-								local onote = {color, text and D.color.note[render .. "_text"], otext, n, cl, ct, nwidth, tleft, ttop, border}
+								local onote = {color, text and D.color.note[render .. "_text"], otext, n, cl, ct, owidth, tleft, ttop, border}
 								table.insert(metanotes[D.renderorder[kind]], onote)
 
 							end
