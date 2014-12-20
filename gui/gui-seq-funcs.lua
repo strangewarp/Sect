@@ -17,16 +17,11 @@ return {
 		-- Render the seq-window's background-image
 		drawBoundedImage(left, top, width, height, D.img.grid)
 
-		-- If Cmd Mode isn't active, draw highlighted rows
-		if D.cmdmode ~= "cmd" then
-
-			-- Draw all tinted rows
-			for _, v in pairs(D.gui.seq.row) do
-				local color, rl, rt, rw = unpack(v)
-				love.graphics.setColor(color)
-				love.graphics.rectangle("fill", rl, rt, rw, D.cellheight)
-			end
-
+		-- Draw all tinted rows
+		for _, v in pairs(D.gui.seq.row) do
+			local color, rl, rt, rw = unpack(v)
+			love.graphics.setColor(color)
+			love.graphics.rectangle("fill", rl, rt, rw, D.cellheight)
 		end
 
 		-- Draw all tinted columns
@@ -150,8 +145,10 @@ return {
 					color = D.color.seq.beat_gradient[0]
 					render = true
 				elseif ((tick - 1) % D.factors[D.fp]) == 0 then
-					color = D.color.seq.beat_gradient[roundNum(15 * (1 / D.factors[D.fp]), 0)]
-					render = true
+					if D.fp > 1 then
+						color = D.color.seq.beat_gradient[roundNum(15 * (1 - (D.fp / #D.factors)), 0)]
+						render = true
+					end
 				end
 			else -- Else, if active column, table active color for later rendering
 				render = true

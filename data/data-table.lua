@@ -2,7 +2,7 @@
 local T = {}
 
 -- VERSIONING VARS --
-T.version = "1.1-a103" -- Holds Sect's current version-number
+T.version = "1.1-a105" -- Holds Sect's current version-number
 
 -- LOVE ENGINE VARS --
 T.updatespeed = 0.01 -- Speed at which to attempt to update program-state
@@ -10,6 +10,7 @@ T.updatespeed = 0.01 -- Speed at which to attempt to update program-state
 -- DATA VARS --
 T.seq = {} -- Sequence-data table
 T.keys = {} -- Keystroke-tracking table
+T.funcactive = false -- Keystroke-triggered-function-activity tracking flag
 T.active = false -- Currently active sequence (false if nothing loaded)
 T.tp = 0 -- Current tick-pointer position
 T.np = 0 -- Current note-pointer position
@@ -157,12 +158,10 @@ T.gui = { -- Table for saving pre-generated GUI elements
 	},
 }
 T.renderorder = { -- Render-order for GUI-note types. Higher numbers = rendered last.
-	cmd_shadow = 1,
-	shadow = 2,
-	other_chan = 3,
-	other_chan_select = 4,
-	normal = 5,
-	sel = 6,
+	shadow = 1,
+	other_chan = 2,
+	normal = 3,
+	sel = 4,
 }
 T.gradients = { -- Gradients to build within the D.color table
 	{"note", "normal_quiet", "normal", "normal_gradient"},
@@ -170,7 +169,6 @@ T.gradients = { -- Gradients to build within the D.color table
 	{"note", "sel_quiet", "sel", "sel_gradient"},
 	{"note", "shadow_quiet", "shadow", "shadow_gradient"},
 	{"note", "other_chan_quiet", "other_chan", "other_chan_gradient"},
-	{"note", "other_chan_select_quiet", "other_chan_select", "other_chan_select_gradient"},
 	{"save", "background", "background_fade", "background_gradient"},
 	{"seq", "beat_dark", "beat_light", "beat_gradient"},
 	{"summary", "empty", "full", "gradient"},

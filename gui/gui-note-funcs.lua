@@ -70,7 +70,7 @@ return {
 		local xanchor = D.c.xanchor
 		local yanchor = D.c.yanchor
 
-		local metanotes = {{},{},{},{},{}}
+		local metanotes = {{},{},{},{}}
 
 		-- If Cmd Mode is active, use only one vertical render-range, and change getContents path type
 		local path = {pairs, 'note', pairs, pairs} -- Path for note-table's getContents call
@@ -129,30 +129,26 @@ return {
 					local border = false
 					local text = false
 
-					-- Pick out selected notes, and other-chan notes, from within normal notes
+					-- If this isn't a shadow-note...
 					if kind ~= 'shadow' then
-						if getIndex(D.seldat, {n[2] + 1, n[4], n[5]}) then -- If the note is selected, set it to render as such
-							render = 'sel'
-						end
-						if n[1] == 'note' then -- If the note is a NOTE...
-							if n[4] ~= D.chan then -- If the note isn't on the active channel...
-								if render == 'sel' then -- If the note is selected, render as other-chan-select.
-									render = 'other_chan_select'
-								else -- If the note isn't selected, render as other-chan.
-									render = 'other_chan'
-								end
-							end
-						end
-					end
 
-					if D.cmdmode == "cmd" then -- If Cmd Mode is active, set NOTE-render type to Shadow Mode
-						if n[1] == 'note' then
+						border = true
+
+						-- If the note is selected, render it as such; else, if it's on another channel, render it as an other-chan-note
+						if getIndex(D.seldat, {n[2] + 1, n[4], n[5]}) then
+							render = 'sel'
+						elseif (n[1] == 'note') and (n[4] ~= D.chan) then
+							render = 'other_chan'
+						end
+
+						-- If the note-type is from the opposite mode, render it as shadow
+						if ((D.cmdmode == 'cmd') and (n[1] == 'note'))
+						or ((D.cmdmode ~= 'cmd') and (n[1] ~= 'note'))
+						then
 							render = 'shadow'
+							border = false
 						end
-					else -- If Cmd Mode is inactive, de-prioritize the rendering of all non-NOTE commands
-						if n[1] ~= 'note' then
-							render = 'cmd_shadow'
-						end
+
 					end
 
 					-- Get note's width
@@ -160,17 +156,18 @@ return {
 
 					if n[1] == 'note' then -- If the note is a NOTE...
 
-						if D.chanview then -- If chan-view is toggled, set the text to the note's channel
+						if D.chanview and (snum == D.active) then -- If chan-view is toggled, and this note is from the active-seq, set the text to the note's channel
 							text = tostring(n[4])
 						end
 
-						if nplus == D.tp then -- If the note starts on the active tick, highlight it
-							render = "highlight"
+						if nplus == D.tp then -- If the note starts on the active tick, and is normal or other-chan, highlight it
+							if (render == 'normal') or (render == 'other_chan') then
+								render = "highlight"
+							end
 						end
 
 						-- Get a shade of gradient-color based on the note's velocity
 						color = D.color.note[render .. "_gradient"][math.floor(n[6] / 8)]
-						border = true -- Set the note's border-rendering to true
 
 						-- Count an offset-tally for notes in cmd-mode, or cmds in note-mode
 						tally[nplus] = (tally[nplus] and (tally[nplus] + 1)) or 0
@@ -274,7 +271,7 @@ return {
 		-- Sort the top 3 metanotes tables by channel and tick,
 		-- and put all metanotes into the GUI-note table, for later rendering.
 		for k, v in ipairs(metanotes) do
-			if k >= 3 then
+			if k ~= 1 then
 				table.sort(v, drawChanTickSort)
 			end
 			for _, vv in ipairs(v) do

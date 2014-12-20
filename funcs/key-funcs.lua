@@ -50,7 +50,9 @@ return {
 
 			print("addKeystroke: received command '" .. match .. "'!")
 
+			D.funcactive = match ~= 'TOGGLE_PLAY_MODE'
 			executeFunction(unpack(D.cmdfuncs[match]))
+			D.funcactive = false
 
 		end
 

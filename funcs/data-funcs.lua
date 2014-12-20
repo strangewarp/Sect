@@ -222,12 +222,16 @@ return {
 
 	-- Sanitize all data-structures
 	sanitizeDataStructures = function()
+
 		normalizePointers()
 		removeOldSelectItems()
 		getBeatFactors()
-		if (not D.loading) and (not D.playing) then -- If not loading or in Play Mode, refresh GUI and canvas contents
+
+		-- If not loading, and either not in Play Mode or a command is being held, refresh GUI and canvas contents
+		if (not D.loading) and ((not D.playing) or D.funcactive) then
 			D.rebuild = true
 		end
+
 	end,
 
 }

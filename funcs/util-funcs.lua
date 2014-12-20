@@ -242,7 +242,7 @@ return {
 		-- Sanitize data structures, which may have been changed
 		sanitizeDataStructures()
 
-		-- Reduce and/or unset the funcgate, so that 
+		-- Reduce and/or unset the funcgate, so that the undo chunk is completed
 		D.funcgate = D.funcgate - 1
 		if D.funcgate == 0 then
 			D.funcgate = false

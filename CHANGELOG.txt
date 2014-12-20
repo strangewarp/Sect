@@ -8,8 +8,6 @@
 1.1
 
 -- TODO: Fix vertical offset of cmds in Cmd Mode
--- TODO: Get shadow-cmds rendering properly in Entry Mode
--- TODO: Get shadow-notes rendering properly in Cmd Mode
 
 -- TODO: Remove unnecessary 'undo-suppression' vars from function-calls and undo-funcs.
 

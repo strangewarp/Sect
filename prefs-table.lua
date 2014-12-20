@@ -107,8 +107,6 @@ return {
 			shadow_quiet = {6, 10, 160, 110},
 			other_chan = {225, 10, 20, 150},
 			other_chan_quiet = {6, 20, 235, 150},
-			other_chan_select = {225, 20, 225, 150},
-			other_chan_select_quiet = {140, 140, 140, 150},
 		},
 
 		selection = { -- Selection colors
