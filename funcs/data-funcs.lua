@@ -225,7 +225,7 @@ return {
 		normalizePointers()
 		removeOldSelectItems()
 		getBeatFactors()
-		if not D.loading then -- If not loading, refresh GUI and canvas contents
+		if (not D.loading) and (not D.playing) then -- If not loading or in Play Mode, refresh GUI and canvas contents
 			D.rebuild = true
 		end
 	end,

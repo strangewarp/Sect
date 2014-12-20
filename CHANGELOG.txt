@@ -7,15 +7,11 @@
 
 1.1
 
--- TODO: Refactor GUI rendering pathway to reduce lag.
----- sub-task: Re-render on mouse-movement and mouse-drag.
----- sub-task: In Play Mode, re-render whenever the play-pointer passes a point defined by D.factors[D.fp].
----- sub-task: Clarify commented-out code block in gui-misc-funcs.lua that used to draw a line to the left of the piano-roll
----- sub-task: render beat-columns, and active row, in Cmd Mode
+-- TODO: Fix vertical offset of cmds in Cmd Mode
+-- TODO: Get shadow-cmds rendering properly in Entry Mode
+-- TODO: Get shadow-notes rendering properly in Cmd Mode
 
 -- TODO: Remove unnecessary 'undo-suppression' vars from function-calls and undo-funcs.
-
--- TODO: Allow note-by-note manual control in Generator Mode.
 
 -- TODO: Test all commands thoroughly again, to check for bugs caused by refactoring / new features.
 
@@ -27,7 +23,6 @@
 ---- Copy/Paste simplifications
 ---- Updated MIDI-listener system
 
--- TODO: Remove "debugging" messages
 -- TODO: Comment out console again
 -- TODO: Change D.version back to "1.1" in data-table.lua!
 
@@ -46,6 +41,8 @@
 -- Created a two-way MIDI-over-UDP communications system, designed to send MIDI between Sect and user devices, via SectMidiClient.
 
 * GUI changes:
+-- Refactored GUI rendering pathway to reduce CPU usage.
+-- Changed Play Mode so that the GUI will only update when a given frame's ticks intersect with a user-defined Factor-tick. Additionally, when Play Mode is untoggled, the tick-pointer will snap back to the previous Factor-tick.
 -- Started clipping off the right edge of long hotseat-filenames, to prevent intrusion into sequence-panel.
 -- Started rendering notes on non-active channels in reverse channel order, with highest channels underneath, and lowest channels on top. Active channel's notes are rendered on top of that.
 -- Started showing the active sequence's Cmd Mode commands as Shadow Mode notes, with unique coloration, when Cmd Mode isn't active; and also when a sequence with non-NOTE commands is a Shadow Mode sequence.

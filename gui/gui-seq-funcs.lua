@@ -27,13 +27,13 @@ return {
 				love.graphics.rectangle("fill", rl, rt, rw, D.cellheight)
 			end
 
-			-- Draw all tinted columns
-			for _, v in pairs(D.gui.seq.col) do
-				local color, cl, ct, cw, ch = unpack(v)
-				love.graphics.setColor(color)
-				love.graphics.rectangle("fill", cl, ct, cw, ch)
-			end
+		end
 
+		-- Draw all tinted columns
+		for _, v in pairs(D.gui.seq.col) do
+			local color, cl, ct, cw, ch = unpack(v)
+			love.graphics.setColor(color)
+			love.graphics.rectangle("fill", cl, ct, cw, ch)
 		end
 
 		love.graphics.setFont(D.font.beat.raster)

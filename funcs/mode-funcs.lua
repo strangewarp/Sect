@@ -47,6 +47,7 @@ return {
 			D.updatespeed = 60 / (D.bpm * D.tpq * 4)
 		else
 			D.updatespeed = 0.01
+			D.tp = D.tp - (wrapNum(D.tp, 1, D.factors[D.fp]) - 1)
 		end
 	end,
 

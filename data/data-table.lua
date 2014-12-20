@@ -113,7 +113,6 @@ T.beatgrain = 12 -- Smallest beatlength factor to which notes will stick
 T.notegrain = 4 -- Minimum note size, in ticks
 
 -- SEQ-PLAY VARS --
-T.playing = false -- Toggles whether the tickline is playing or not
 T.playoffset = 0 -- Holds the sub-delta time offset for tick-playing
 T.playskip = 0 -- Holds the ticks to skip on the next frame of play-iterations
 

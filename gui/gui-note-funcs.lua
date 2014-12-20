@@ -75,7 +75,7 @@ return {
 		-- If Cmd Mode is active, use only one vertical render-range, and change getContents path type
 		local path = {pairs, 'note', pairs, pairs} -- Path for note-table's getContents call
 		if D.cmdmode == "cmd" then
-			yranges = {{a = -math.huge, b = yanchor - ycellhalf, o = 0}}
+			yranges = {{a = -math.huge, b = yanchor - (D.cellwidth / 2), o = 0}}
 			path = {pairs, 'cmd', pairs}
 		end
 
