@@ -8,16 +8,14 @@
 1.1
 
 -- TODO: Refactor GUI rendering pathway to reduce lag.
----- sub-task: Pre-generate all liminal color palettes in preloadGradients, add this function to the loading-list, and modify all liminal-color-systems to use pregenerated colors instead of generating them on-the-fly.
----- sub-task: Generate all GUI elements on-keystroke using new functions containing the GUI-element-generation-parts of some of the old GUI functions.
----- sub-task: Rewrite the actual rendering of GUI elements to act upon the saved GUI-element tables.
 ---- sub-task: Re-render on mouse-movement and mouse-drag.
+---- sub-task: In Play Mode, re-render whenever the play-pointer passes a point defined by D.factors[D.fp].
 ---- sub-task: Clarify commented-out code block in gui-misc-funcs.lua that used to draw a line to the left of the piano-roll
 ---- sub-task: render beat-columns, and active row, in Cmd Mode
 
 -- TODO: Remove unnecessary 'undo-suppression' vars from function-calls and undo-funcs.
 
--- TODO: Allow toggling into note-by-note manual control in Generator Mode.
+-- TODO: Allow note-by-note manual control in Generator Mode.
 
 -- TODO: Test all commands thoroughly again, to check for bugs caused by refactoring / new features.
 
@@ -87,6 +85,7 @@
 -- Changed some note-functions so they won't overwrite notes that sit on different channels within the same sequence, when they share pitch values.
 -- Changed shiftInternalValue so that values multiplied by numbers less than 1 will be floored, rather than rounded. This will allow for easier reduction of Spacing to 0.
 -- Started locally keeping track of userprefs' version number, and added a mechanism to update old userprefs versions.
+-- Changed the name of global variable "data" to "D".
 
 1.0.3
 -- Fixed savefile corruption that would be caused by switchSequences under certain circumstances.

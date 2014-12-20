@@ -2,7 +2,7 @@
 local T = {}
 
 -- VERSIONING VARS --
-T.version = "1.1-a101" -- Holds Sect's current version-number
+T.version = "1.1-a103" -- Holds Sect's current version-number
 
 -- LOVE ENGINE VARS --
 T.updatespeed = 0.01 -- Speed at which to attempt to update program-state
@@ -115,6 +115,7 @@ T.notegrain = 4 -- Minimum note size, in ticks
 -- SEQ-PLAY VARS --
 T.playing = false -- Toggles whether the tickline is playing or not
 T.playoffset = 0 -- Holds the sub-delta time offset for tick-playing
+T.playskip = 0 -- Holds the ticks to skip on the next frame of play-iterations
 
 -- MODE VARS --
 T.modenames = { -- Full names of the various mode types
@@ -134,17 +135,13 @@ T.entryquant = false -- Toggles auto-quantization of note-entry
 -- GUI VARS --
 T.width = 800 -- Global width
 T.height = 600 -- Global height
-T.redraw = false -- Toggles whether to redraw the GUI on the next frame
+T.rebuild = false -- Toggles whether to rebuild the GUI on next love.update tick
+T.redraw = false -- Toggles whether to redraw the GUI to canvas on next love.draw tick
 T.c = {} -- Holds various GUI constants
 T.gui = { -- Table for saving pre-generated GUI elements
 	piano = {}, -- Vertical piano-roll keys
 	reticule = {}, -- Pointer-reticules and other reticule-layer polys
-	saveload = { -- Saveload-panel elements
-		bg = {}, -- Background box
-		rect = {}, -- Rectangle panels
-		text = {}, -- Text overlays
-		line = {}, -- Line-cursor
-	},
+	save = {}, -- Saveload-panel elements
 	sel = {}, -- Selection boxes
 	seq = { -- Sequence-grid elements
 		col = {}, -- Highlighted columns
@@ -175,7 +172,7 @@ T.gradients = { -- Gradients to build within the D.color table
 	{"note", "shadow_quiet", "shadow", "shadow_gradient"},
 	{"note", "other_chan_quiet", "other_chan", "other_chan_gradient"},
 	{"note", "other_chan_select_quiet", "other_chan_select", "other_chan_select_gradient"},
-	{"save", "background", "background_fade", "bg_gradient"},
+	{"save", "background", "background_fade", "background_gradient"},
 	{"seq", "beat_dark", "beat_light", "beat_gradient"},
 	{"summary", "empty", "full", "gradient"},
 }

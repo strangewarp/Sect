@@ -284,6 +284,13 @@ function love.update(dt)
 		iteratePlayMode(dt)
 	end
 
+	-- If rebuild has been flagged, rebuild the visible GUI elements accordingly, to be rendered on-draw-frame
+	if D.rebuild then
+		D.rebuild = false
+		D.redraw = true
+		buildGUI()
+	end
+
 end
 
 ---------------
@@ -300,17 +307,12 @@ function love.draw()
 		return nil
 	end
 
-	-- If redraw has been flagged, or width or height has been resized, rebuild the visible GUI elements accordingly
-	if D.redraw
-	or (width ~= D.width)
-	or (height ~= D.height)
-	then
-		D.redraw = false
+	-- If width or height has been resized, reset width/height/canvas, and flag a redraw
+	if (width ~= D.width) or (height ~= D.height) then
+		D.rebuild = true
 		D.width = width
 		D.height = height
 		canvas = love.graphics.newCanvas(D.width, D.height)
-		buildGUI()
-		drawGUI()
 	end
 
 	-- If the mouse is being dragged, check drag boundaries
@@ -333,13 +335,10 @@ function love.draw()
 
 	end
 
-	-- In play-mode, rebuild and redraw the seq-panel and sidebar on every frame
-	if D.playing then
-		buildSidebar()
-		buildMetaSeqPanel()
-		drawMetaSeqPanel()
-		drawSidebar()
-		drawPianoRoll()
+	-- If redraw is flagged, redraw the pre-built GUI items to canvas
+	if D.redraw then
+		D.redraw = false
+		drawGUI()
 	end
 
 	-- Draw canvas to screen
@@ -435,6 +434,8 @@ function love.textinput(t)
 			return nil
 		end
 	end
+
+	D.rebuild = true
 
 	if t == "backspace" then
 		removeSaveChar(-1)

@@ -226,7 +226,7 @@ return {
 		removeOldSelectItems()
 		getBeatFactors()
 		if not D.loading then -- If not loading, refresh GUI and canvas contents
-			D.redraw = true
+			D.rebuild = true
 		end
 	end,
 

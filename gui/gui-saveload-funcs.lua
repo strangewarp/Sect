@@ -7,18 +7,18 @@ return {
 
 		-- Draw frame's background
 		love.graphics.setColor(D.color.saveload.background)
-		local bgl, bgt, bgw, bgh = unpack(D.gui.saveload.bg)
+		local bgl, bgt, bgw, bgh = unpack(D.gui.save.bg)
 		love.graphics.rectangle("fill", bgl, bgt, bgw, bgh)
 
 		-- Draw every rectangle-panel
-		for k, v in pairs(D.gui.saveload.rect) do
+		for k, v in pairs(D.gui.save.rect) do
 			local color, l, t, w, h = unpack(v)
 			love.graphics.setColor(color)
 			love.graphics.rectangle("fill", l, t, w, h)
 		end
 
 		-- Draw every text-slice
-		for k, v in pairs(D.gui.saveload.rect) do
+		for k, v in pairs(D.gui.save.text) do
 			local color, text, l, t, w, align = unpack(v)
 			love.graphics.setColor(color)
 			love.graphics.printf(text, l, t, w, align)
@@ -27,15 +27,20 @@ return {
 		-- Draw the reticule-line
 		love.graphics.setColor(D.color.saveload.reticule)
 		love.graphics.setLineWidth(2)
-		love.graphics.line(D.gui.saveload.line)
+		love.graphics.line(D.gui.save.line)
 		love.graphics.setLineWidth(1)
 
 	end,
 
-	buildSaveLoadPanel = function(left, top, width, height)
+	buildSaveLoadPanel = function()
 
 		-- Get save-font's height per line, as rendered on screen
 		local textheight = D.font.save.raster:getHeight()
+
+		local left = D.c.sqleft
+		local top = D.c.sqtop
+		local width = D.c.sqwidth
+		local height = D.c.sqheight
 
 		-- Get dir-validity-panel size
 		local dleft = left + 15
@@ -85,8 +90,10 @@ return {
 		-- Draw file-existence confirmation panel
 		local vrect = {D.color.saveload.exist, vleft, vtop, vwidth, vheight}
 		local vmsg = "File already exists.\r\nSaving will overwrite it! Loading is OK!"
+		local vcolor = D.color.saveload.text_exist
 		if not D.savevalid then
 			vrect[1] = D.color.saveload.not_exist
+			vcolor = D.color.saveload.text_not_exist
 			vmsg = "Enter a valid directory before using saveload commands!"
 			if D.saveok then
 				if D.savestring:len() > 0 then
@@ -96,7 +103,7 @@ return {
 				end
 			end
 		end
-		local vtext = {vmsg, vtextleft, vtexttop, vtextwidth, "center"}
+		local vtext = {vcolor, vmsg, vtextleft, vtexttop, vtextwidth, "center"}
 
 		local text = D.savestring
 		local overflow = ""
@@ -136,7 +143,7 @@ return {
 		local dtext = {D.color.saveload.text, text, etextleft, etexttop + 1, etextwidth, "left"}
 
 		-- Save the panel-items for later rendering
-		D.gui.saveload = {
+		D.gui.save = {
 			bg = {left, top, width, height},
 			rect = {trect, vrect, drect},
 			text = {trtext, vtext, dtext},

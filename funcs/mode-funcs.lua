@@ -42,6 +42,7 @@ return {
 	-- Toggle whether to be actively playing through the sequence's ticks
 	togglePlayMode = function()
 		D.playing = not D.playing
+		D.playskip = 0
 		if D.playing then
 			D.updatespeed = 60 / (D.bpm * D.tpq * 4)
 		else

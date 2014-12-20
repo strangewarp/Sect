@@ -45,6 +45,8 @@ return {
 			toggleSelect("bottom", D.dragx[2], D.dragy[2])
 		end
 
+		D.rebuild = true -- Redraw the screen to reflect the changes
+
 	end,
 
 	-- Get the tick-column and note-row that the cursor currently occupies
@@ -91,6 +93,8 @@ return {
 
 		end
 
+		D.rebuild = true
+
 	end,
 
 	-- Pick out the location of the mouse on-screen, and react to it
@@ -103,8 +107,10 @@ return {
 
 		if collisionCheck(x, y, 0, 0, left, top, right, middle) then
 			reactToGridClick(left, top, width, middle, x - left, y - top, button)
+			D.rebuild = true
 		elseif collisionCheck(x, y, 0, 0, left, middle, right, height) then
 			reactToTrackClick(left, middle, width - left, height - middle, x - left, y - middle)
+			D.rebuild = true
 		end
 
 	end,

@@ -9,8 +9,16 @@ return {
 			return nil
 		end
 
+		-- Track whether to remake GUI elements
+		local remake = false
+
 		-- Get number of ticks in sequence
 		local ticks = D.seq[D.active].total
+
+		D.tp = D.tp + D.playskip
+		D.playskip = 0
+
+		local subtp = D.tp
 
 		-- Adjust delta-time by remainder-time-offset from previous iteration
 		local dtadj = D.playoffset + dt
@@ -35,7 +43,7 @@ return {
 					if seq.overlay or (s == D.active) then
 
 						-- Wrap the tick-pointer to the sequence's size
-						local twrap = wrapNum(D.tp, 1, seq.total)
+						local twrap = wrapNum(subtp, 1, seq.total)
 
 						-- Send the tick's items to the MIDI-listener via MIDI-over-UDP,
 						-- in the order of: cmds first, then notes.
@@ -49,9 +57,30 @@ return {
 				end
 
 				-- Increment the tick-pointer
-				D.tp = wrapNum(D.tp + 1, 1, ticks)
+				subtp = wrapNum(subtp + 1, 1, ticks)
+
+				if remake then
+					D.playskip = D.playskip + 1
+				else
+
+					-- If the actively-playing tick landed on a user-defined beat-factor, update tick-pointer, and toggle local flag for updating GUI
+					if ((subtp - 1) % D.factors[D.fp]) == 0 then
+						remake = true
+						D.tp = subtp
+					end
+
+				end
 
 			end
+		end
+
+		-- If local GUI-update flag is true, rebuild the GUI and set a flag for redrawing
+		if remake then
+			buildGUI()
+			D.redraw = true
+		else
+			D.tp = subtp
+			D.playskip = 0
 		end
 
 	end,

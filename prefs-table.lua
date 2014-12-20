@@ -96,19 +96,19 @@ return {
 
 		note = { -- Note colors
 			border = {4, 253, 255, 255},
-			text = {0, 0, 0, 255},
+			text = {255, 255, 255, 255},
 			normal = {255, 10, 20, 255},
 			normal_quiet = {6, 20, 235, 255},
 			highlight = {255, 100, 100, 255},
 			highlight_quiet = {60, 70, 245, 255},
 			sel = {225, 20, 225, 255},
-			sel_quiet = {200, 200, 200, 255},
+			sel_quiet = {160, 160, 160, 255},
 			shadow = {160, 16, 16, 110},
 			shadow_quiet = {6, 10, 160, 110},
 			other_chan = {225, 10, 20, 150},
 			other_chan_quiet = {6, 20, 235, 150},
 			other_chan_select = {225, 20, 225, 150},
-			other_chan_select_quiet = {200, 200, 200, 150},
+			other_chan_select_quiet = {140, 140, 140, 150},
 		},
 
 		selection = { -- Selection colors
@@ -240,7 +240,7 @@ return {
 		},
 
 		note = { -- Sequence-note font
-			file = "font/candal/Candal.ttf",
+			file = "font/Milavregarian.ttf",
 			height = 8,
 		},
 

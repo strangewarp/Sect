@@ -44,7 +44,7 @@ return {
 		D.gui.sidebar.text = {} -- Clear old sidebar text
 
 		-- Gather the metadata info
-		local oticks = (D.active and #D.seq[D.active].tick) or 0
+		local oticks = (D.active and D.seq[D.active].total) or 0
 		local obeats = tostring(roundNum(oticks / (D.tpq * 4), 2))
 		local notelet = D.pianometa[wrapNum(D.np + 1, 1, 12)][2]
 		local octave = math.floor(D.np / 12)

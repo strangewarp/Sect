@@ -14,8 +14,8 @@ return {
 
 		drawSidebar()
 
-		-- If not in Cmd Mode, draw the vertical piano-roll
-		if D.cmdmode ~= "cmd" then
+		-- If not in Cmd Mode or Saveload Mode, draw the vertical piano-roll
+		if (D.cmdmode ~= "cmd") and (D.cmdmode ~= "saveload") then
 			drawPianoRoll()
 		end
 
@@ -34,8 +34,8 @@ return {
 
 		buildMetaSeqPanel()
 
-		-- If not in Cmd Mode, build the vertical piano-roll
-		if D.cmdmode ~= "cmd" then
+		-- If not in Cmd Mode or Saveload Mode, build the vertical piano-roll
+		if (D.cmdmode ~= "cmd") and (D.cmdmode ~= "saveload") then
 			buildPianoRoll()
 		end
 

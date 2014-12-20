@@ -102,7 +102,7 @@ return {
 			local tempxr = deepCopy(xranges)
 			if snum ~= D.active then
 				if s.total ~= ticks then
-					tempxr = getTileAxisBounds(0, xfull, tboundary, D.cellwidth * s.total)
+					tempxr = getTileAxisBounds(0, width, tboundary, D.cellwidth * s.total)
 				end
 			end
 
@@ -201,7 +201,7 @@ return {
 					end
 
 					-- Get note's text-width and text-X-offset
-					local twidth = D.font.note.raster:getWidth(text)
+					local twidth = text and D.font.note.raster:getWidth(text)
 					local txoffset = text and ((nwidth - twidth) / 2)
 
 					-- For every combination of on-screen X-ranges and Y-ranges,
