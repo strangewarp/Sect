@@ -72,12 +72,7 @@ return {
 
 		local metanotes = {{},{},{},{}}
 
-		-- If Cmd Mode is active, use only one vertical render-range, and change getContents path type
-		local path = {pairs, 'note', pairs, pairs} -- Path for note-table's getContents call
-		if D.cmdmode == "cmd" then
-			yranges = {{a = -math.huge, b = yanchor - (D.cellwidth / 2), o = 0}}
-			path = {pairs, 'cmd', pairs}
-		end
+		local cmdyranges = {{a = -math.huge, b = yanchor - D.c.xcellhalf, o = 0}}
 
 		-- Get render-note data from all visible sequences
 		for snum, s in pairs(D.seq) do
@@ -110,7 +105,9 @@ return {
 			if kind then
 
 				-- Get all notes from the relevant section of the active sequence
-				local ntab = getContents(s.tick, path, false)
+				local ntab = getContents(s.tick, {pairs, 'note', pairs, pairs}, false)
+				local cmdtab = getContents(s.tick, {pairs, 'cmd', pairs}, false)
+				ntab = tableCombine(ntab, cmdtab)
 
 				local tally, cmdtally = {}, {}
 
@@ -211,7 +208,7 @@ return {
 							local ct
 							if D.cmdmode == 'cmd' then -- If Cmd Mode is active...
 								if n[1] == 'note' then -- Render notes with a "down-stacked" top-offset
-									ct = yr.b + ((tally[nplus] + 1) * D.cellheight)
+									ct = yr.b + ((tally[nplus] + D.cmdp) * D.cellheight)
 								else -- Render cmds with an "up-stacked" top-offset
 									ct = yr.b - (((cmdtally[nplus] + 1) - D.cmdp) * D.cellheight)
 								end
@@ -219,7 +216,7 @@ return {
 								if n[1] == 'note' then -- Render notes with a "wrapping-grid" top-offset
 									ct = yr.b - ((vp - yr.o) * D.cellheight)
 								else -- Render cmds with an "up-stacked" top offset
-									ct = yr.b - ((tally[nplus] + D.np - yr.o) * D.cellheight)
+									ct = yr.b - ((cmdtally[nplus] + D.np - yr.o) * D.cellheight)
 								end
 							end
 							ct = top + ct
