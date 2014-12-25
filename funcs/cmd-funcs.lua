@@ -64,10 +64,7 @@ return {
 		local ctick = cmd[3][2] + 1
 
 		-- Check whether the index is already filled
-		local filled = false
-		if getIndex(D.seq[p].tick, {ctick, "cmd", cmd[2]}) then
-			filled = true
-		end
+		local filled = getIndex(D.seq[p].tick, {ctick, "cmd", cmd[2]}) ~= nil
 
 		-- If cmd is flagged for removal, remove it
 		if cmd[1] == 'remove' then
