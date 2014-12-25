@@ -10,6 +10,51 @@ return {
 		end
 	end,
 
+	-- Check whether a given item is in the seq-panel, and add it to a given metaseq render-table
+	checkOnScreen = function(metanotes, color, text, kind, render, border, n, cl, ct, nwidth, twidth, txoffset, tyoffset, otext, otxoffset)
+
+		local left = D.c.sqleft
+		local top = D.c.sqtop
+		local width = D.c.sqwidth
+		local height = D.c.sqheight
+
+		-- If the note is onscreen in this chunk, display it
+		if collisionCheck(left, top, width, height, cl, ct, nwidth, D.cellheight) then
+
+			local otext = text
+			local owidth = nwidth
+			local otxoffset = txoffset
+
+			-- If the note's X-boundary falls outside the left boundary, clip its left-position and width.
+			if cl < 0 then
+				owidth = owidth + cl
+				if text then
+					otxoffset = (owidth + twidth + cl) / 2
+				end
+				cl = 0
+			end
+
+			-- If text goes beyond the seq-panel border, remove it
+			if text then
+				if ((cl + otxoffset) < 0)
+				or ((cl + otxoffset) > D.width)
+				then
+					otext = false
+				end
+			end
+
+			-- If note has text, get note-text position
+			local tleft = otext and (cl + otxoffset)
+			local ttop = otext and (ct + tyoffset)
+
+			-- Add the note to the meta-notes-table, to be sorted and combined later
+			local onote = {color, text and D.color.note[render .. "_text"], otext, n, cl, ct, owidth, tleft, ttop, border}
+			table.insert(metanotes[D.renderorder[kind]], onote)
+
+		end
+
+	end,
+
 	-- Draw a table of GUI notes
 	drawNoteTable = function()
 
@@ -63,16 +108,16 @@ return {
 		local fullheight = D.c.fullheight
 
 		-- All boundaries for wrapping the sequence's display
-		local xranges = deepCopy(D.c.xwrap)
-		local yranges = deepCopy(D.c.ywrap)
+		local xranges = D.c.xwrap
+		local yranges = D.c.ywrap
 
 		-- Anchor-points for sequence-reticule
 		local xanchor = D.c.xanchor
 		local yanchor = D.c.yanchor
 
-		local metanotes = {{},{},{},{}}
+		local cyanchor = yanchor - D.c.ycellhalf
 
-		local cmdyranges = {{a = -math.huge, b = yanchor - D.c.xcellhalf, o = 0}}
+		local metanotes = {{},{},{},{}}
 
 		-- Get render-note data from all visible sequences
 		for snum, s in pairs(D.seq) do
@@ -198,65 +243,35 @@ return {
 					local twidth = text and D.font.note.raster:getWidth(text)
 					local txoffset = text and ((nwidth - twidth) / 2)
 
-					-- For every combination of on-screen X-ranges and Y-ranges,
-					-- check the note's visibility there, and render if visible.
+					-- For every on-screen X-range, check the note's visibility there, and render if visible.
 					for _, xr in pairs(tempxr) do
-						for _, yr in pairs(yranges) do
 
-							-- Get note's inner-grid-concrete and absolute left offsets
-							local cl = left + xr.a + (n[2] * D.cellwidth)
-							local ct
-							if D.cmdmode == 'cmd' then -- If Cmd Mode is active...
-								if n[1] == 'note' then -- Render notes with a "down-stacked" top-offset
-									ct = yr.b + ((tally[nplus] + D.cmdp) * D.cellheight)
-								else -- Render cmds with an "up-stacked" top-offset
-									ct = yr.b - (((cmdtally[nplus] + 1) - D.cmdp) * D.cellheight)
-								end
-							else -- Else, if Cmd Mode is inactive...
-								if n[1] == 'note' then -- Render notes with a "wrapping-grid" top-offset
-									ct = yr.b - ((vp - yr.o) * D.cellheight)
-								else -- Render cmds with an "up-stacked" top offset
-									ct = yr.b - ((cmdtally[nplus] + D.np - yr.o) * D.cellheight)
+						local cl = left + xr.a + (n[2] * D.cellwidth)
+						local ct
+						if D.cmdmode == 'cmd' then -- If Cmd Mode is active...
+							if n[1] == 'note' then -- Render notes with a "down-stacked" top-offset
+								ct = cyanchor + ((tally[nplus] + D.cmdp) * D.cellheight)
+							else -- Render cmds with an "up-stacked" top-offset
+								ct = cyanchor - (((cmdtally[nplus] + 1) - D.cmdp) * D.cellheight)
+							end
+							checkOnScreen(metanotes, color, text, kind, render, border, n, cl, ct, nwidth, twidth, txoffset, tyoffset, otext, otxoffset)
+						else -- Else, if Cmd Mode is inactive...
+							if n[1] ~= 'note' then -- Render cmds with a "down-stacked" top offset
+								ct = cyanchor + ((cmdtally[nplus] + 1) * D.cellheight)
+								checkOnScreen(metanotes, color, text, kind, render, border, n, cl, ct, nwidth, twidth, txoffset, tyoffset, otext, otxoffset)
+							else -- If this is a note, then for every combination of on-screen X-ranges and Y-ranges, check note visibility and render.
+								for _, yr in pairs(yranges) do
+									if D.cmdmode ~= 'cmd' then -- Else, if Cmd Mode is inactive...
+										if n[1] == 'note' then -- Render notes with a "wrapping-grid" top-offset
+											ct = yr.b - ((vp - yr.o) * D.cellheight)
+										end
+									end
+									ct = top + ct
+									checkOnScreen(metanotes, color, text, kind, render, border, n, cl, ct, nwidth, twidth, txoffset, tyoffset, otext, otxoffset)
 								end
 							end
-							ct = top + ct
-
-							-- If the note is onscreen in this chunk, display it
-							if collisionCheck(left, top, width, height, cl, ct, nwidth, D.cellheight) then
-
-								local otext = text
-								local owidth = nwidth
-								local otxoffset = txoffset
-
-								-- If the note's X-boundary falls outside the left boundary, clip its left-position and width.
-								if cl < 0 then
-									owidth = owidth + cl
-									if text then
-										otxoffset = (owidth + twidth + cl) / 2
-									end
-									cl = 0
-								end
-
-								-- If text goes beyond the seq-panel border, remove it
-								if text then
-									if ((cl + otxoffset) < 0)
-									or ((cl + otxoffset) > D.width)
-									then
-										otext = false
-									end
-								end
-
-								-- If note has text, get note-text position
-								local tleft = otext and (cl + otxoffset)
-								local ttop = otext and (ct + tyoffset)
-
-								-- Add the note to the meta-notes-table, to be sorted and combined later
-								local onote = {color, text and D.color.note[render .. "_text"], otext, n, cl, ct, owidth, tleft, ttop, border}
-								table.insert(metanotes[D.renderorder[kind]], onote)
-
-							end
-
 						end
+
 					end
 
 				end

@@ -7,6 +7,8 @@
 
 1.1
 
+-- TODO: Fix cmd-deletion in Cmd Mode
+
 -- TODO: Remove unnecessary 'undo-suppression' vars from function-calls and undo-funcs.
 
 -- TODO: Test all commands thoroughly again, to check for bugs caused by refactoring / new features.
