@@ -57,7 +57,7 @@ return {
 	end,
 
 	-- Load the current active savefile in the hotseats list
-	loadFile = function(filename, add, undo)
+	loadFile = function(filename, undo)
 
 		-- If the save-directory doesn't exist, abort function
 		if not D.saveok then
@@ -84,20 +84,10 @@ return {
 		local rawmidi = midifile:read('*all')
 		midifile:close()
 
-		-- If this isn't an additive-load, unset all currently existing seqs
-		if add == false then
-			while D.active do
-				removeActiveSequence(undo)
-			end
-		end
-
 		-- Get the score, stats, and TPQ
 		local score = MIDI.midi2score(rawmidi)
 		local stats = MIDI.score2stats(score)
 		tpq = table.remove(score, 1)
-
-		-- Set the active-sequence pointer to the new seq's location
-		D.active = ((D.active ~= false) and (D.active + 1)) or 1
 
 		-- Read every track in the MIDI file's score table
 		for tracknum, track in ipairs(score) do
@@ -105,7 +95,7 @@ return {
 			local newnotes, newcmds = {}, {}
 			local cmdcount = {}
 			local endpoint = 0
-			local inseq = D.active + (tracknum - 1)
+			local inseq = (D.active or 1) + (tracknum - 1)
 
 			-- Add a sequence in the new insert-position, and send an undo-task accordingly
 			addSequence(inseq, undo)
@@ -132,7 +122,6 @@ return {
 					else
 						cmdcount[v[2]] = (cmdcount[v[2]] and (cmdcount[v[2]] + 1)) or 1
 						table.insert(newcmds, {'insert', cmdcount[v[2]], v})
-						print(cmdcount[v[2]])--debugging
 					end
 				else
 					print("loadFile: Discarded unsupported command: " .. v[1])
@@ -191,6 +180,11 @@ return {
 			return nil
 		end
 
+		-- If no sequences are loaded, abort function
+		if #D.seq == 0 then
+			return nil
+		end
+
 		-- If no filename was given, use the current hotseat filename
 		if not filename then
 			filename = D.hotseats[D.activeseat]
@@ -209,10 +203,10 @@ return {
 			-- Copy over all notes and cmds to the score-track-table
 			local cmdtrack = getContents(track, {'tick', pairs, 'cmd', pairs})
 			local notetrack = getContents(track, {'tick', pairs, 'note', pairs, pairs})
-			score[tracknum] = tableCombine(cmdtrack, notetrack)
+			score[#score + 1] = tableCombine(cmdtrack, notetrack)
 
 			-- Insert an end_track command, so MIDI.lua knows how long the sequence is.
-			table.insert(score[tracknum], {'end_track', track.total})
+			table.insert(score[#score], {'end_track', track.total})
 
 			print("saveFile: copied sequence " .. tracknum .. " to save-table. " .. #score[tracknum] .. " items!")
 
@@ -277,9 +271,9 @@ return {
 	end,
 
 	-- Load a file with a user-entered string from Saveload Mode
-	loadSLStringFile = function(add, undo)
+	loadSLStringFile = function(undo)
 		if D.savestring:len() > 0 then
-			loadFile(D.savestring, add, undo)
+			loadFile(D.savestring, undo)
 		end
 	end,
 

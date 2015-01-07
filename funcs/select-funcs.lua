@@ -269,7 +269,6 @@ return {
 		if kind == "poly" then
 			local k = 0
 			for v in cdata:gmatch("%g+") do
-				print("ping!")--debugging
 				k = k + 1
 				for i = 1, #v do
 					local byte = v:byte(i)

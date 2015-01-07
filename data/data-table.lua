@@ -2,7 +2,7 @@
 local T = {}
 
 -- VERSIONING VARS --
-T.version = "1.1-a105" -- Holds Sect's current version-number
+T.version = "1.1-a108" -- Holds Sect's current version-number
 
 -- LOVE ENGINE VARS --
 T.updatespeed = 0.01 -- Speed at which to attempt to update program-state
@@ -265,8 +265,7 @@ T.pianometa = {
 -- Links between command-names and functions (with args as needed)
 T.cmdfuncs = {
 
-	LOAD_HOTSEAT_FILE = {"loadFile", false, true, false},
-	LOAD_HOTSEAT_FILE_OVERWRITE = {"loadFile", false, false, false},
+	LOAD_HOTSEAT_FILE = {"loadFile", false, false},
 	SAVE_FILE_TO_HOTSEAT = {"saveFile", false},
 
 	TOGGLE_SAVELOAD_MODE = {"toggleSaveLoad"},
@@ -275,8 +274,7 @@ T.cmdfuncs = {
 	SL_POINTER_RIGHT = {"moveSavePointer", 1},
 	SL_CHAR_BACKSPACE = {"removeSaveChar", -1},
 	SL_CHAR_DELETE = {"removeSaveChar", 1},
-	LOAD_SL_FILE = {"loadSLStringFile", true, false},
-	LOAD_SL_FILE_OVERWRITE = {"loadSLStringFile", false, false},
+	LOAD_SL_FILE = {"loadSLStringFile", false},
 	SAVE_SL_FILE = {"saveSLStringFile"},
 	SET_SAVE_PATH = {"setUserSavePath"},
 
@@ -470,7 +468,6 @@ T.cmdfuncs = {
 T.cmdgate = {
 
 	LOAD_HOTSEAT_FILE = {"entry", "gen", "cmd"},
-	LOAD_HOTSEAT_FILE_OVERWRITE = {"entry", "gen", "cmd"},
 	SAVE_FILE_TO_HOTSEAT = {"entry", "gen", "cmd"},
 
 	TOGGLE_SAVELOAD_MODE = {"entry", "gen", "cmd"},
@@ -480,7 +477,6 @@ T.cmdgate = {
 	SL_CHAR_BACKSPACE = {"saveload"},
 	SL_CHAR_DELETE = {"saveload"},
 	LOAD_SL_FILE = {"saveload"},
-	LOAD_SL_FILE_OVERWRITE = {"saveload"},
 	SAVE_SL_FILE = {"saveload"},
 	SET_SAVE_PATH = {"saveload"},
 
@@ -727,8 +723,12 @@ T.undocmds = {
 -- Functions that are allowed when D.active is false
 T.inactivecmds = {
 	
+	["addSequence"] = true,
 	["addActiveSequence"] = true,
+	["toggleSaveLoad"] = true,
+	["setUserSavePath"] = true,
 	["loadFile"] = true,
+	["loadSLStringFile"] = true,
 	["shiftInternalValue"] = true,
 	["tabToHotseat"] = true,
 	["traverseUndo"] = true,

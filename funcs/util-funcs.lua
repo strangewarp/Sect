@@ -461,6 +461,8 @@ return {
 	-- ibool states: true to copy indexes, or false to create new indexes.
 	tableCombine = function(t, t2, ibool)
 
+		t = t or {}
+		t2 = t2 or {}
 		ibool = ibool or false
 
 		for k, v in pairs(t2) do

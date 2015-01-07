@@ -177,9 +177,9 @@ return {
 
 	end,
 
-	-- Add a new sequence at the active sequence-location
+	-- Add a new sequence just after the active sequence-location
 	addActiveSequence = function(undo)
-		addSequence(D.active, undo)
+		addSequence(D.active and (D.active + 1), undo)
 	end,
 
 	-- Remove the currently active sequence, with proper undo-wrapping

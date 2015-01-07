@@ -96,7 +96,7 @@ return {
 					strength = strength + v[3]
 				end
 			end
-			strength = math.min(ticks, strength) / ticks
+			strength = math.max(0, math.min(ticks, strength)) / ticks
 
 			-- Assemble the track-cell, and set it aside for later rendering
 			local itext = tostring(i)
