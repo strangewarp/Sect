@@ -422,11 +422,13 @@ return {
 		MOD_DUR_INCREASE = {"shift", "tab", "right"},
 		MOD_DUR_DECREASE = {"shift", "tab", "left"},
 
-		MOD_CHANNEL_UP = {"shift", "tab", "up"},
-		MOD_CHANNEL_DOWN = {"shift", "tab", "down"},
+		MOD_CHANNEL_UP = {"ctrl", "tab", "up"},
+		MOD_CHANNEL_DOWN = {"ctrl", "tab", "down"},
 
-		MOD_NOTE_UP = {"tab", "up"},
-		MOD_NOTE_DOWN = {"tab", "down"},
+		MOD_NOTE_UP_1 = {"tab", "up"},
+		MOD_NOTE_DOWN_1 = {"tab", "down"},
+		MOD_NOTE_UP_12 = {"shift", "tab", "up"},
+		MOD_NOTE_DOWN_12 = {"shift", "tab", "down"},
 		MOD_NOTE_LEFT = {"tab", "left"},
 		MOD_NOTE_RIGHT = {"tab", "right"},
 

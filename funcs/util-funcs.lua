@@ -231,9 +231,15 @@ return {
 		D.funcgate = (D.funcgate and (D.funcgate + 1)) or 1
 
 		-- If the function will create an undo entry, create a new undo block
-		if D.undocmds[t[1]] and (not t[#t]) then
+		if D.undocmds[t[1]]
+		and (not t[#t])
+		and (not ((t[1] == "insertNote") and (not D.recording)))
+		then
 			addUndoBlock()
 		end
+
+		print(t[1]:sub(1, 10))--debugging
+		print(tostring(D.recording))--debugging
 
 		-- Get the func-name, and call it in data namespace with all of its args
 		local fname = table.remove(t, 1)

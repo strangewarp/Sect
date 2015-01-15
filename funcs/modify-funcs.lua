@@ -3,11 +3,23 @@ return {
 	
 	-- Modify the selected notes by a given amount
 	modSelectedNotes = function(byte, dist, undo)
+
 		local seldup = getContents(D.seldat, {pairs, pairs, pairs})
+		local mult = true
+
+		if byte == "tp" then -- If this was called to modify the tick-byte, then multiply the distance by the current beat-factor, and disable auto-multiply
+			dist = dist * D.factors[D.fp]
+			mult = false
+		elseif byte == "np" then -- If modifying a note-byte, set multiply to false
+			mult = false
+		end
+
 		for k, v in pairs(seldup) do
 			seldup[k] = {v, byte, dist}
 		end
-		modNotes(D.active, seldup, true, true, undo)
+
+		modNotes(D.active, seldup, true, mult, undo)
+
 	end,
 
 	-- Modify a collection of various cmds, according to their given mod-commands

@@ -2,7 +2,7 @@
 local T = {}
 
 -- VERSIONING VARS --
-T.version = "1.1-a108" -- Holds Sect's current version-number
+T.version = "1.1-a109" -- Holds Sect's current version-number
 
 -- LOVE ENGINE VARS --
 T.updatespeed = 0.01 -- Speed at which to attempt to update program-state
@@ -417,8 +417,10 @@ T.cmdfuncs = {
 	MOD_VELOCITY_UP_10 = {"modSelectedNotes", "velo", 10, false},
 	MOD_VELOCITY_DOWN_10 = {"modSelectedNotes", "velo", -10, false},
 
-	MOD_NOTE_UP = {"modSelectedNotes", "np", 1, false},
-	MOD_NOTE_DOWN = {"modSelectedNotes", "np", -1, false},
+	MOD_NOTE_UP_1 = {"modSelectedNotes", "np", 1, false},
+	MOD_NOTE_DOWN_1 = {"modSelectedNotes", "np", -1, false},
+	MOD_NOTE_UP_12 = {"modSelectedNotes", "np", 12, false},
+	MOD_NOTE_DOWN_12 = {"modSelectedNotes", "np", -12, false},
 	MOD_NOTE_LEFT = {"modSelectedNotes", "tp", -1, false},
 	MOD_NOTE_RIGHT = {"modSelectedNotes", "tp", 1, false},
 
@@ -619,8 +621,10 @@ T.cmdgate = {
 	MOD_VELOCITY_UP_10 = {"entry", "gen"},
 	MOD_VELOCITY_DOWN_10 = {"entry", "gen"},
 
-	MOD_NOTE_UP = {"entry", "gen"},
-	MOD_NOTE_DOWN = {"entry", "gen"},
+	MOD_NOTE_UP_1 = {"entry", "gen"},
+	MOD_NOTE_DOWN_1 = {"entry", "gen"},
+	MOD_NOTE_UP_12 = {"entry", "gen"},
+	MOD_NOTE_DOWN_12 = {"entry", "gen"},
 	MOD_NOTE_LEFT = {"entry", "gen"},
 	MOD_NOTE_RIGHT = {"entry", "gen"},
 
