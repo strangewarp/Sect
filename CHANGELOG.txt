@@ -7,10 +7,11 @@
 
 1.1
 
--- TODO: Fix deselection of notes on note-move
+-- TODO: Fix deselection of notes on note-move.
 
--- TODO: Fix Stretch's ticks-added, currently off-by-one on sequence-extend
--- TODO: Change Stretch's behavior in general - it adds ticks to the sequence when it shouldn't
+-- TODO: Fix Stretch's ticks-added: currently off-by-one on sequence-extend.
+-- TODO: Change Stretch's behavior in general - it adds ticks to the sequence when it shouldn't.
+-- TODO: Just give Stretch a full rewrite, okay
 
 -- TODO: Remove unnecessary 'undo-suppression' vars from function-calls and undo-funcs.
 
@@ -59,6 +60,7 @@
 -- Changed the rendering properties of the notes within a sequence's non-active channels, both in their default state and while selected.
 
 * Logic changes:
+-- Fixed a nasty bug in removeSequence that was incurred by changes in modNotes. Also added setTicks and removed several outdated functions in the process.
 -- Decoupled modSelectedNotes commands from spacing. They now stick to beat-factor horizontally, and have 1-and-12-spaced variants vertically.
 -- Stopped keyboard-notes from incurring new undo-blocks when not in Record Mode.
 -- addActiveSequence now adds a sequence directly after the active-sequence pointer, instead of shifting the sequence already there.

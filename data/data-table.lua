@@ -678,8 +678,7 @@ T.undocmds = {
 	["setCmds"] = true,
 
 	-- data-funcs.lua
-	["growSeq"] = true,
-	["shrinkSeq"] = true,
+	["setTicks"] = true,
 	["insertTicks"] = true,
 	["removeTicks"] = true,
 	["insertSpacingTicks"] = true,

@@ -6,30 +6,29 @@ return {
 		D.active = wrapNum(D.active + dir, 1, #D.seq)
 	end,
 
-	-- Insert a number of ticks at the end of a sequence
-	growSeq = function(seq, num, undo)
+	-- Set the total number of ticks in a sequence to a given amount,
+	-- while erasing and generating undo-commands for any notes and cmds that might be present.
+	setTicks = function(p, ticks, undo)
 
-		D.seq[seq].total = D.seq[seq].total + num
+		local oldticks = D.seq[p].total
 
-		-- Build undo tables
+		-- If fewer ticks than old tick-total, check for note-and-cmd erasures
+		if ticks < D.seq[p].total then
+			local gleft = ticks + 1
+			local remnotes = getNotes(p, gleft, D.seq[p].total, _, _)
+			local remcmds = getCmds(p, gleft, D.seq[p].total, _, 'remove')
+			remnotes = notesToSetType(remnotes, 'remove')
+			setNotes(p, remnotes, undo)
+			setCmds(p, remcmds, undo)
+		end
+
+		-- Change the tick-total amount to the given value
+		D.seq[p].total = ticks
+
 		addUndoStep(
 			((undo == nil) and true) or undo, -- Suppress flag
-			{"shrinkSeq", seq, num}, -- Undo command
-			{"growSeq", seq, num} -- Redo command
-		)
-
-	end,
-	
-	-- Remove a number of ticks from the end of a sequence
-	shrinkSeq = function(seq, num, undo)
-
-		D.seq[seq].total = D.seq[seq].total - num
-
-		-- Build undo tables
-		addUndoStep(
-			((undo == nil) and true) or undo, -- Suppress flag
-			{"growSeq", seq, num}, -- Undo command
-			{"shrinkSeq", seq, num} -- Redo command
+			{"setTicks", p, oldticks}, -- Undo command
+			{"setTicks", p, ticks} -- Redo command
 		)
 
 	end,
@@ -38,7 +37,8 @@ return {
 	insertTicks = function(seq, tick, addticks, undo)
 
 		-- Add ticks to the top of the sequence
-		growSeq(seq, addticks, undo)
+		local total = D.seq[seq].total + addticks
+		setTicks(seq, total, undo)
 
 		-- If there are any ticks to the right of the old top-tick, adjust their contents' positions
 		local sidenotes = getNotes(seq, D.tp, D.seq[seq].total, _, _)
@@ -58,6 +58,8 @@ return {
 
 	-- Remove a given chunk of ticks and notes, in a given sequence, at a given point
 	removeTicks = function(seq, tick, remticks, undo)
+
+		remticks = math.min(remticks, D.seq[seq].total - tick)
 
 		local top = tick + (remticks - 1)
 
@@ -102,7 +104,7 @@ return {
 		end
 
 		-- Remove ticks from the now-empty top of the sequence
-		shrinkSeq(seq, remticks, undo)
+		setTicks(seq, D.seq[seq].total - remticks, undo)
 
 	end,
 
@@ -113,17 +115,13 @@ return {
 
 	-- Remove a number of ticks based on D.spacing, at the current position
 	removeSpacingTicks = function(undo)
-		local num = clampNum(D.spacing, 0, D.seq[D.active].total - D.tp)
-		removeTicks(D.active, D.tp, num, undo)
+		removeTicks(D.active, D.tp, D.spacing, undo)
 	end,
 
 	-- Add a new sequence to the sequence-table at the current seq-pointer
 	addSequence = function(seq, undo)
 
 		local newseq = deepCopy(D.baseseq)
-
-		-- Add dummy-ticks to the sequence's tick-total, to prevent errors
-		newseq.total = D.tpq * 4
 
 		-- If no sequences exist, set the active pointer and insert-point to 1
 		if D.active == false then
@@ -134,15 +132,18 @@ return {
 		-- Insert the new sequence
 		table.insert(D.seq, seq, newseq)
 
-		-- Normalize all pointers
-		normalizePointers()
-
 		-- Build undo tables
 		addUndoStep(
 			((undo == nil) and true) or undo, -- Suppress flag
 			{"removeSequence", seq}, -- Undo command
 			{"addSequence", seq} -- Redo command
 		)
+
+		-- Add dummy-ticks to the sequence's tick-total, to prevent errors
+		setTicks(seq, D.tpq * 4, undo)
+
+		-- Normalize all pointers
+		normalizePointers()
 
 	end,
 
@@ -157,16 +158,18 @@ return {
 			D.active = D.active - 1
 		end
 
-		-- Gather all notes from the sequence, set them to false, and remove them
-		local removenotes = getNotes(seq, 1, D.seq[seq].total, _, _)
-		if #removenotes > 0 then
-			removenotes = notesToSetType(removenotes, 'remove')
-			setNotes(seq, removenotes, undo)
+		-- If any notes are in the sequence, 
+		local notes = getNotes(seq)
+		if #notes > 0 then
+			notes = notesToSetType(notes, 'remove')
+			setNotes(seq, notes, undo)
 		end
+
+		-- Insert a dummy setTicks command for the current sequence-size, to build undo-tables properly
+		setTicks(seq, D.seq[seq].total, undo)
 
 		-- Remove the sequence from the seqs-table
 		table.remove(D.seq, seq)
-		print("removeSequence: removed sequence from position " .. seq)
 
 		-- Build undo tables
 		addUndoStep(

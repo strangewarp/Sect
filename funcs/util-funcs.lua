@@ -238,9 +238,6 @@ return {
 			addUndoBlock()
 		end
 
-		print(t[1]:sub(1, 10))--debugging
-		print(tostring(D.recording))--debugging
-
 		-- Get the func-name, and call it in data namespace with all of its args
 		local fname = table.remove(t, 1)
 		_G[fname](unpack(t))

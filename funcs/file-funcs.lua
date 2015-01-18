@@ -100,9 +100,6 @@ return {
 			-- Add a sequence in the new insert-position, and send an undo-task accordingly
 			addSequence(inseq, undo)
 
-			-- Get new sequence's default length
-			local newseqlen = D.seq[inseq].total
-
 			-- Read every note in a given track, and prepare known commands for insertion
 			for k, v in pairs(track) do
 
@@ -127,6 +124,10 @@ return {
 					print("loadFile: Discarded unsupported command: " .. v[1])
 				end
 
+				if v[1] == 'note' then
+					v[3] = math.max(1, v[3])
+				end
+
 				-- Get the position of the last tick in the sequence,
 				-- which ought to be represented by a text_event,
 				-- which itself is an automatic replacement for end_track.
@@ -135,9 +136,7 @@ return {
 			end
 
 			-- If default seq length is less than endpoint, insert ticks
-			if newseqlen < endpoint then
-				insertTicks(inseq, newseqlen, endpoint - newseqlen, undo)
-			end
+			setTicks(inseq, endpoint, undo)
 
 			-- Insert all known commands into the new sequence
 			setNotes(inseq, newnotes, undo)
@@ -203,6 +202,9 @@ return {
 			-- Copy over all notes and cmds to the score-track-table
 			local cmdtrack = getContents(track, {'tick', pairs, 'cmd', pairs})
 			local notetrack = getContents(track, {'tick', pairs, 'note', pairs, pairs})
+			for k, v in pairs(notetrack) do
+				v[3] = math.max(1, v[3])
+			end
 			score[#score + 1] = tableCombine(cmdtrack, notetrack)
 
 			-- Insert an end_track command, so MIDI.lua knows how long the sequence is.

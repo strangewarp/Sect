@@ -193,10 +193,9 @@ return {
 
 		end
 
-		-- If the furthest-stretched note is greater than the sequence-length,
-		-- expand the sequence to compensate.
+		-- If the furthest-stretched note is greater than the sequence-length, expand the sequence to compensate.
 		if furthest > D.seq[D.active].total then
-			growSeq(D.active, furthest - D.seq[D.active].total, undo)
+			setTicks(D.active, furthest, undo)
 		end
 
 		-- If any cmds were grabbed, send their modified values to modCmds
