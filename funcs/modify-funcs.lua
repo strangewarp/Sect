@@ -52,6 +52,7 @@ return {
 	modNotes = function(p, ntab, isselect, multiply, undo)
 
 		local snotes = {}
+		local renewnotes = {}
 
 		-- For every note, in order, add the mod-command's results to the snotes table
 		for nk, ntab in ipairs(ntab) do
@@ -68,10 +69,10 @@ return {
 				table.insert(snotes, {'remove', n})
 				table.insert(snotes, {'insert', m})
 
-				-- Unset the note's old selection-data entry, and build a new entry reflecting its changes
+				-- Unset the note's old selection-data entry, and build a new temp-entry reflecting its changes
 				if isselect then
 					copyUnsetCascade('seldat', n)
-					buildTable(D.seldat, {m[2] + 1, m[4], m[5]}, m)
+					table.insert(renewnotes, m)
 				end
 
 			end
@@ -80,6 +81,13 @@ return {
 
 		-- Call setNotes for all tabbed modifications
 		setNotes(p, snotes, undo)
+
+		-- If there was a selection, rebuild the selection-table from the accurate temp-entries
+		if isselect then
+			for k, v in pairs(renewnotes) do
+				buildTable(D.seldat, {v[2] + 1, v[4], v[5]}, v)
+			end
+		end
 
 	end,
 
