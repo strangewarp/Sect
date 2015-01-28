@@ -108,6 +108,16 @@ return {
 
 	end,
 
+	-- Multiply the number of ticks in the active sequence by an amount equal to (duration/spacing)
+	multiplyTicks = function(undo)
+		local total = D.seq[D.active].total
+		local newval = math.max(1, roundNum(total * (D.dur / math.max(1, D.spacing)), 0))
+		if newval == total then
+			return nil
+		end
+		setTicks(D.active, newval, undo)
+	end,
+
 	-- Insert a number of ticks based on D.spacing, at the current position
 	insertSpacingTicks = function(undo)
 		insertTicks(D.active, D.tp, D.spacing, undo)

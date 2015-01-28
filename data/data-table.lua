@@ -2,7 +2,7 @@
 local T = {}
 
 -- VERSIONING VARS --
-T.version = "1.1-a109" -- Holds Sect's current version-number
+T.version = "1.1-a110" -- Holds Sect's current version-number
 
 -- LOVE ENGINE VARS --
 T.updatespeed = 0.01 -- Speed at which to attempt to update program-state
@@ -301,6 +301,7 @@ T.cmdfuncs = {
 
 	INSERT_TICKS = {"insertSpacingTicks", false},
 	REMOVE_TICKS = {"removeSpacingTicks", false},
+	MULTIPLY_TICKS = {"multiplyTicks", false},
 
 	INSERT_SEQ = {"addActiveSequence", false},
 	REMOVE_SEQ = {"removeActiveSequence", false},
@@ -321,7 +322,6 @@ T.cmdfuncs = {
 
 	HUMANIZE = {"humanizeNotes", false},
 	QUANTIZE = {"quantizeNotes", false},
-	STRETCH = {"dynamicStretch", false},
 
 	KSPECIES_UP = {"shiftInternalValue", "kspecies", false, 1},
 	KSPECIES_DOWN = {"shiftInternalValue", "kspecies", false, -1},
@@ -433,6 +433,8 @@ T.cmdfuncs = {
 	POINTER_DOWN_OCTAVE = {"shiftInternalValue", "np", false, -12},
 	POINTER_LEFT = {"moveTickPointer", -1},
 	POINTER_RIGHT = {"moveTickPointer", 1},
+	POINTER_HOME = {"moveTickPointerToTop"},
+	POINTER_OPPOSITE = {"moveTickPointerOpposite"},
 	POINTER_LEFT_BEAT = {"moveTickPointerToBeat", -1},
 	POINTER_RIGHT_BEAT = {"moveTickPointerToBeat", 1},
 	POINTER_PREV_NOTE = {"moveTickPointerByNote", -1},
@@ -505,6 +507,7 @@ T.cmdgate = {
 
 	INSERT_TICKS = {"entry", "gen", "cmd"},
 	REMOVE_TICKS = {"entry", "gen", "cmd"},
+	MULTIPLY_TICKS = {"entry", "gen", "cmd"},
 
 	INSERT_SEQ = {"entry", "gen", "cmd"},
 	REMOVE_SEQ = {"entry", "gen", "cmd"},
@@ -525,7 +528,6 @@ T.cmdgate = {
 
 	HUMANIZE = {"entry", "gen"},
 	QUANTIZE = {"entry", "gen"},
-	STRETCH = {"entry", "gen"},
 
 	CHANNEL_UP = {"entry", "gen", "cmd"},
 	CHANNEL_DOWN = {"entry", "gen", "cmd"},
@@ -637,6 +639,8 @@ T.cmdgate = {
 	POINTER_DOWN_OCTAVE = {"entry", "gen"},
 	POINTER_LEFT = {"entry", "gen", "cmd"},
 	POINTER_RIGHT = {"entry", "gen", "cmd"},
+	POINTER_HOME = {"entry", "gen", "cmd"},
+	POINTER_OPPOSITE = {"entry", "gen", "cmd"},
 	POINTER_LEFT_BEAT = {"entry", "gen", "cmd"},
 	POINTER_RIGHT_BEAT = {"entry", "gen", "cmd"},
 	POINTER_PREV_NOTE = {"entry", "gen"},
@@ -681,6 +685,7 @@ T.undocmds = {
 	["setTicks"] = true,
 	["insertTicks"] = true,
 	["removeTicks"] = true,
+	["multiplyTicks"] = true,
 	["insertSpacingTicks"] = true,
 	["removeSpacingTicks"] = true,
 	["addSequence"] = true,
@@ -705,7 +710,6 @@ T.undocmds = {
 	["modByte"] = true,
 	["humanizeNotes"] = true,
 	["quantizeNotes"] = true,
-	["dynamicStretch"] = true,
 
 	-- note-funcs.lua
 	["setNotes"] = true,

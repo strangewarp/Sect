@@ -374,7 +374,6 @@ return {
 
 		HUMANIZE = {"ctrl", "h"},
 		QUANTIZE = {"ctrl", "u"},
-		STRETCH = {"ctrl", "t"},
 
 		INSERT_NOTE = {"return"},
 		DELETE_NOTE = {"delete"},
@@ -384,6 +383,7 @@ return {
 
 		INSERT_TICKS = {"tab", "return"},
 		REMOVE_TICKS = {"tab", "delete"},
+		MULTIPLY_TICKS = {"shift", "tab", "return"},
 
 		INSERT_SEQ = {"shift", "return"},
 		REMOVE_SEQ = {"shift", "ctrl", "return"},
@@ -446,6 +446,8 @@ return {
 		POINTER_DOWN_OCTAVE = {"shift", "down"},
 		POINTER_LEFT = {"left"},
 		POINTER_RIGHT = {"right"},
+		POINTER_HOME = {"home"},
+		POINTER_OPPOSITE = {"end"},
 		POINTER_LEFT_BEAT = {"shift", "left"},
 		POINTER_RIGHT_BEAT = {"shift", "right"},
 		POINTER_PREV_NOTE = {"ctrl", "left"},

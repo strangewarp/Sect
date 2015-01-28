@@ -170,6 +170,17 @@ return {
 
 	end,
 
+	-- Move tick-pointer to top of sequence
+	moveTickPointerToTop = function()
+		D.tp = 1
+	end,
+
+	-- Move tick-pointer to opposite side of sequence
+	moveTickPointerOpposite = function()
+		local total = D.seq[D.active].total
+		D.tp = wrapNum(D.tp + roundNum(total / 2, 0), 1, total)
+	end,
+
 	-- Shift the Cmd Mode command-type pointer, bounded to the number of possible commands
 	shiftCmdType = function(dist)
 

@@ -9,13 +9,11 @@
 
 -- TODO: Fix deselection of notes on note-move.
 
--- TODO: Fix Stretch's ticks-added: currently off-by-one on sequence-extend.
--- TODO: Change Stretch's behavior in general - it adds ticks to the sequence when it shouldn't.
--- TODO: Just give Stretch a full rewrite, okay
+-- TODO: Fix badly-sized notes on undo-after-mod-duration.
 
 -- TODO: Remove unnecessary 'undo-suppression' vars from function-calls and undo-funcs.
 
--- TODO: Test all commands thoroughly again, to check for bugs caused by refactoring / new features.
+-- TODO: Test all commands again, especially Entry-Quantize, to check for bugs caused by refactoring / new features.
 
 -- TODO: Update tutorial content for the following things:
 ---- Cmd Mode
@@ -30,11 +28,13 @@
 -- TODO: Change D.version back to "1.1" in data-table.lua!
 
 * New features:
+-- Added "Multiply Ticks", which multiplies the number of ticks in the sequence by (duration / spacing).
+-- Added "Home" command, which returns the tick-pointer to the top of the sequence.
+-- Added "Opposite" command, which sends the tick-pointer to the opposite side of the sequence.
 -- Added "Saveload mode", which allows the user to enter a filename or directory-name, and perform save/load/directory-change commands in a dedicated panel.
 -- Added "CMD mode", where a sequence's non-NOTE commands are held and modified.
 -- Added "Factor" commands, which toggle highlighting of factor-ticks within the current beat-value, with TPQ*4 as its default setting.
 -- Added an "Entry-Quantize" toggle, which makes incoming notes and cmds stick to the nearest Factor-Display-tick.
--- Added "Stretch" command, which multiplies the duration and the starting tick of every selected note (or every note in the sequence, if none are selected), by global spacing/duration, rounded to the nearest tick-value.
 -- Added "Quantize" command, which snaps all selected notes in the active sequence to ticks that are multiples of D.spacing.
 -- Added "Text Paste" command, which uses love.system.setClipboardText to convert copied text into MIDI notes.
 -- Added "Select Chan" command, a version of Select-All that only applies to notes in the active seq's active channel.
