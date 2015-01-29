@@ -4,24 +4,9 @@
 -- TODO: Add cross-platform native MIDI I/O.
 -- TODO: Allow Quantize to affect non-note commands.
 -- TODO: Allow item-movement to affect non-note commands.
-
-1.1
-
 -- TODO: Remove unnecessary 'undo-suppression' vars from function-calls and undo-funcs.
 
--- TODO: Test all commands again, especially Entry-Quantize, to check for bugs caused by refactoring / new features.
-
--- TODO: Update tutorial content for the following things:
----- Cmd Mode
----- Saveload mode
----- Updated save/load commands in general
----- TextPaste
----- Copy/Paste simplifications
----- Updated MIDI-listener system
----- Also, double-check all commands, updating keychords
-
--- TODO: Comment out console again
--- TODO: Change D.version back to "1.1" in data-table.lua!
+1.1
 
 * New features:
 -- Added "Multiply Ticks", which multiplies the number of ticks in the sequence by (duration / spacing).

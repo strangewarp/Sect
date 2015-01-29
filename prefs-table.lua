@@ -329,7 +329,6 @@ return {
 	cmds = { -- Links between command-names and keychords
 
 		LOAD_HOTSEAT_FILE = {"ctrl", "o"},
-		LOAD_HOTSEAT_FILE_OVERWRITE = {"ctrl", "shift", "o"},
 		SAVE_FILE_TO_HOTSEAT = {"ctrl", "shift", "tab", "s"},
 
 		TOGGLE_SAVELOAD_MODE = {"ctrl", "s"},
@@ -339,7 +338,6 @@ return {
 		SL_CHAR_BACKSPACE = {"backspace"},
 		SL_CHAR_DELETE = {"delete"},
 		LOAD_SL_FILE = {"ctrl", "o"},
-		LOAD_SL_FILE_OVERWRITE = {"ctrl", "shift", "o"},
 		SAVE_SL_FILE = {"ctrl", "s"},
 		SET_SAVE_PATH = {"ctrl", "shift", "p"},
 
